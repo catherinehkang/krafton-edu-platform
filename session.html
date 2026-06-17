@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>교육 세션</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="back-link">← 목록으로</a>
+        <div class="logo"><span id="session-label">교육 세션</span></div>
+        <span class="header-right" id="participant-info"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Name Gate -->
+  <div id="name-gate" class="gate-overlay">
+    <div class="gate-card">
+      <h2>참여자 이름 입력</h2>
+      <p class="muted" style="margin-bottom:14px">이름 또는 닉네임 (익명 입력 가능)</p>
+      <input type="text" id="name-input" class="form-input" placeholder="예: 홍길동 / 익명" maxlength="20" />
+      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:12px">참여하기</button>
+    </div>
+  </div>
+
+  <main class="container main-content" id="session-main" style="display:none">
+    <div class="session-info-bar">
+      <div>
+        <h1 id="session-title-main">-</h1>
+        <p class="muted" id="session-date-main">-</p>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" data-tab="opinion">💬 의견 작성</button>
+      <button class="tab-btn" data-tab="vote">🗳️ 투표 / 설문</button>
+      <button class="tab-btn" data-tab="discuss">🤝 자유 토의</button>
+    </div>
+
+    <!-- Opinion Tab -->
+    <div id="tab-opinion" class="tab-content active">
+      <div class="card">
+        <h2 class="card-title">소감 / 의견 남기기</h2>
+        <textarea id="opinion-text" class="form-textarea" placeholder="오늘 교육에서 느낀 점, 배운 점, 개선 의견 등을 자유롭게 적어주세요." rows="4" maxlength="500"></textarea>
+        <div class="form-footer">
+          <span id="opinion-char" class="char-count">0 / 500</span>
+          <button id="opinion-submit" class="btn btn-primary">등록하기</button>
+        </div>
+      </div>
+      <div class="section-header">
+        <h3>전체 의견 <span id="opinion-count" class="count-badge">0</span></h3>
+      </div>
+      <div id="opinion-list" class="opinion-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Vote Tab -->
+    <div id="tab-vote" class="tab-content">
+      <div class="section-header">
+        <h3>투표 / 설문</h3>
+        <button id="vote-refresh" class="btn btn-sm">↻ 새로고침</button>
+      </div>
+      <div id="vote-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Discuss Tab -->
+    <div id="tab-discuss" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">자유 토의</h2>
+        <textarea id="discuss-text" class="form-textarea" placeholder="질문, 의견, 아이디어를 자유롭게 올려주세요." rows="3" maxlength="300"></textarea>
+        <div class="form-footer">
+          <span id="discuss-char" class="char-count">0 / 300</span>
+          <button id="discuss-submit" class="btn btn-primary">올리기</button>
+        </div>
+      </div>
+      <div class="section-header">
+        <h3>토의 내용 <span id="discuss-count" class="count-badge">0</span></h3>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="discuss-sort" class="form-select-sm">
+            <option value="new">최신순</option>
+            <option value="likes">좋아요순</option>
+          </select>
+          <button id="discuss-refresh" class="btn btn-sm">↻ 새로고침</button>
+        </div>
+      </div>
+      <div id="discuss-list" class="discuss-list">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, doc, getDoc, getDocs,
+      query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { FIREBASE_CONFIG } from "./firebase-config.js";
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    const params = new URLSearchParams(location.search);
+    const sessionId = params.get("id");
+    if (!sessionId) { location.href = "index.html"; }
+
+    let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
+
+    if (userName) {
+      document.getElementById("name-gate").style.display = "none";
+      document.getElementById("session-main").style.display = "block";
+      document.getElementById("participant-info").textContent = `👤 ${userName}`;
+      init();
+    }
+
+    document.getElementById("name-submit").addEventListener("click", () => {
+      const v = document.getElementById("name-input").value.trim() || "익명";
+      userName = v;
+      localStorage.setItem(`edu_name_${sessionId}`, v);
+      document.getElementById("name-gate").style.display = "none";
+      document.getElementById("session-main").style.display = "block";
+      document.getElementById("participant-info").textContent = `👤 ${userName}`;
+      init();
+    });
+    document.getElementById("name-input").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("name-submit").click();
+    });
+
+    async function init() {
+      try {
+        const snap = await getDoc(doc(db, "sessions", sessionId));
+        if (!snap.exists()) { location.href = "index.html"; return; }
+        const s = snap.data();
+        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+        document.getElementById("session-label").textContent = `${s.order}차 교육`;
+        document.getElementById("session-title-main").textContent = s.title;
+        document.getElementById("session-date-main").textContent =
+          d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) +
+          " " + d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
+        document.title = `${s.title} | 전사 교육`;
+      } catch(e) { console.error(e); }
+
+      loadOpinions();
+      loadVotes();
+      loadDiscuss();
+    }
+
+    // Tabs
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
+      });
+    });
+
+    // ── OPINIONS ──
+    function loadOpinions() {
+      const q = query(collection(db, "sessions", sessionId, "opinions"), orderBy("createdAt", "desc"));
+      onSnapshot(q, snap => {
+        const items = [];
+        snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+        document.getElementById("opinion-count").textContent = items.length;
+        const list = document.getElementById("opinion-list");
+        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 등록된 의견이 없습니다.</p></div>`; return; }
+        list.innerHTML = items.map(item => `
+          <div class="opinion-item">
+            <div class="opinion-header">
+              <span class="author">${esc(item.author)}</span>
+              <span class="timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
+            </div>
+            <p class="opinion-body">${esc(item.text)}</p>
+          </div>`).join("");
+      });
+    }
+
+    const opTA = document.getElementById("opinion-text");
+    opTA.addEventListener("input", () => document.getElementById("opinion-char").textContent = `${opTA.value.length} / 500`);
+    document.getElementById("opinion-submit").addEventListener("click", async () => {
+      const text = opTA.value.trim();
+      if (!text) return;
+      const btn = document.getElementById("opinion-submit");
+      btn.disabled = true; btn.textContent = "등록 중...";
+      try {
+        await addDoc(collection(db, "sessions", sessionId, "opinions"), { author: userName, text, createdAt: serverTimestamp() });
+        opTA.value = "";
+        document.getElementById("opinion-char").textContent = "0 / 500";
+      } catch(e) { alert(e.message); }
+      btn.disabled = false; btn.textContent = "등록하기";
+    });
+
+    // ── VOTES ──
+    async function loadVotes() {
+      const container = document.getElementById("vote-list");
+      container.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+      try {
+        const q = query(collection(db, "sessions", sessionId, "polls"), orderBy("order", "asc"));
+        const snap = await getDocs(q);
+        const polls = [];
+        snap.forEach(d => polls.push({ id: d.id, ...d.data() }));
+
+        if (!polls.length) {
+          container.innerHTML = `<div class="empty-state"><p>등록된 투표/설문이 없습니다.<br>관리자가 추가하면 여기서 참여할 수 있습니다.</p></div>`;
+          return;
+        }
+
+        container.innerHTML = polls.map(poll => {
+          const myVoteKey = `vote_${sessionId}_${poll.id}`;
+          const myVote = localStorage.getItem(myVoteKey);
+          const total = Object.values(poll.votes || {}).reduce((a, b) => a + b, 0);
+          return `
+            <div class="card poll-card" id="poll-${poll.id}">
+              <div class="poll-type-badge">${poll.type === "multi" ? "복수선택" : "단일선택"}</div>
+              <h2 class="card-title">${esc(poll.question)}</h2>
+              <div class="poll-options" data-poll="${poll.id}" data-type="${poll.type}">
+                ${(poll.options || []).map((opt, i) => {
+                  const cnt = (poll.votes || {})[i] || 0;
+                  const pct = total ? Math.round(cnt / total * 100) : 0;
+                  const sel = myVote && myVote.split(",").includes(String(i));
+                  return `
+                    <div class="poll-option ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}">
+                      <div class="poll-option-top">
+                        <span class="poll-option-label">${esc(opt)}</span>
+                        ${myVote ? `<span class="poll-pct">${pct}%</span>` : ""}
+                      </div>
+                      ${myVote ? `<div class="poll-bar"><div class="poll-bar-fill" style="width:${pct}%"></div></div>
+                      <span class="poll-votes-count">${cnt}명</span>` : ""}
+                    </div>`;
+                }).join("")}
+              </div>
+              ${!myVote
+                ? `<button class="btn btn-primary poll-vote-btn" data-poll="${poll.id}">투표하기</button>`
+                : `<p class="voted-notice">✓ 투표 완료 (총 ${total}명 참여)</p>`}
+            </div>`;
+        }).join("");
+
+        document.querySelectorAll(".poll-option:not(.voted)").forEach(opt => {
+          opt.addEventListener("click", () => {
+            const wrap = opt.closest(".poll-options");
+            if (wrap.dataset.type === "single") wrap.querySelectorAll(".poll-option").forEach(o => o.classList.remove("selected"));
+            opt.classList.toggle("selected");
+          });
+        });
+
+        document.querySelectorAll(".poll-vote-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const pollId = btn.dataset.poll;
+            const wrap = document.querySelector(`.poll-options[data-poll="${pollId}"]`);
+            const selected = [...wrap.querySelectorAll(".poll-option.selected")].map(o => Number(o.dataset.idx));
+            if (!selected.length) { alert("선택지를 선택해주세요."); return; }
+            btn.disabled = true; btn.textContent = "제출 중...";
+            const updates = {};
+            selected.forEach(i => { updates[`votes.${i}`] = increment(1); });
+            await updateDoc(doc(db, "sessions", sessionId, "polls", pollId), updates);
+            localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
+            loadVotes();
+          });
+        });
+      } catch(e) { container.innerHTML = `<div class="empty-state error"><p>${e.message}</p></div>`; }
+    }
+    document.getElementById("vote-refresh").addEventListener("click", loadVotes);
+
+    // ── DISCUSS ──
+    let discussSort = "new";
+    function loadDiscuss() {
+      const sortField = discussSort === "likes" ? "likes" : "createdAt";
+      const q = query(collection(db, "sessions", sessionId, "discuss"), orderBy(sortField, "desc"));
+      onSnapshot(q, snap => {
+        const items = [];
+        snap.forEach(d => items.push({ id: d.id, ...d.data() }));
+        document.getElementById("discuss-count").textContent = items.length;
+        const list = document.getElementById("discuss-list");
+        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 토의 내용이 없습니다.</p></div>`; return; }
+        list.innerHTML = items.map(item => {
+          const liked = localStorage.getItem(`like_${sessionId}_${item.id}`) === "1";
+          return `
+            <div class="discuss-item">
+              <div class="opinion-header">
+                <span class="author">${esc(item.author)}</span>
+                <span class="timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
+              </div>
+              <p class="opinion-body">${esc(item.text)}</p>
+              <div class="discuss-footer">
+                <button class="like-btn ${liked?"liked":""}" data-id="${item.id}" data-liked="${liked}">
+                  ${liked?"❤️":"🤍"} ${item.likes || 0}
+                </button>
+              </div>
+            </div>`;
+        }).join("");
+
+        document.querySelectorAll(".like-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            if (btn.dataset.liked === "true") return;
+            localStorage.setItem(`like_${sessionId}_${btn.dataset.id}`, "1");
+            await updateDoc(doc(db, "sessions", sessionId, "discuss", btn.dataset.id), { likes: increment(1) });
+          });
+        });
+      });
+    }
+
+    document.getElementById("discuss-sort").addEventListener("change", e => { discussSort = e.target.value; loadDiscuss(); });
+    document.getElementById("discuss-refresh").addEventListener("click", loadDiscuss);
+
+    const disTA = document.getElementById("discuss-text");
+    disTA.addEventListener("input", () => document.getElementById("discuss-char").textContent = `${disTA.value.length} / 300`);
+    document.getElementById("discuss-submit").addEventListener("click", async () => {
+      const text = disTA.value.trim();
+      if (!text) return;
+      const btn = document.getElementById("discuss-submit");
+      btn.disabled = true; btn.textContent = "올리는 중...";
+      try {
+        await addDoc(collection(db, "sessions", sessionId, "discuss"), { author: userName, text, likes: 0, createdAt: serverTimestamp() });
+        disTA.value = "";
+        document.getElementById("discuss-char").textContent = "0 / 300";
+      } catch(e) { alert(e.message); }
+      btn.disabled = false; btn.textContent = "올리기";
+    });
+
+    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function relTime(date) {
+      const diff = Math.floor((Date.now() - date) / 1000);
+      if (diff < 60) return "방금 전";
+      if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
+      if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+      return date.toLocaleDateString("ko-KR", { month:"short", day:"numeric" });
+    }
+  </script>
+</body>
+</html>
