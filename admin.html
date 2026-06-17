@@ -1,683 +1,614 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>관리자 | KRAFTON Ways of Working</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    .tab-bar-admin { display:flex; gap:0; border-bottom:2px solid var(--border); margin-bottom:24px; }
-    .tab-btn-admin { padding:10px 22px; font-size:13px; font-weight:500; color:var(--text-muted); background:none; border:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.15s; font-family:inherit; }
-    .tab-btn-admin:hover { color:var(--black); }
-    .tab-btn-admin.active { color:var(--red); border-bottom-color:var(--red); }
-    .tab-content-admin { display:none; }
-    .tab-content-admin.active { display:block; }
-    /* 발표 모드 */
-    .present-way-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:20px; }
-    .present-way-tab { padding:6px 14px; border:1px solid var(--border); border-radius:20px; font-size:12px; font-weight:500; cursor:pointer; background:white; color:var(--text-muted); transition:all 0.15s; font-family:inherit; }
-    .present-way-tab:hover { border-color:var(--red); color:var(--red); }
-    .present-way-tab.active { background:var(--red); border-color:var(--red); color:white; }
-    .present-way-content { display:none; }
-    .present-way-content.active { display:block; }
-    .present-q-block { margin-bottom:28px; }
-    .present-q-label { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.05em; margin-bottom:4px; }
-    .present-q-text { font-size:15px; font-weight:600; color:var(--black); margin-bottom:14px; }
-    .present-answers { display:flex; flex-direction:column; gap:8px; }
-    .present-answer { background:var(--gray-50); border:1px solid var(--border); border-radius:8px; padding:12px 16px; }
-    .present-answer.top { border-left:4px solid var(--red); background:#fff8f8; }
-    .present-answer-text { font-size:14px; line-height:1.6; margin-bottom:6px; }
-    .present-answer-meta { font-size:12px; color:var(--text-muted); }
-    /* 질문 편집 */
-    .question-admin-item { background:var(--gray-50); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:8px; }
-    .question-view { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
-    .question-edit-form { display:none; flex-direction:column; gap:8px; margin-top:10px; }
-    .question-edit-form.open { display:flex; }
-    /* 투표 관리 */
-    .poll-admin-item { background:var(--gray-50); border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:8px; }
-    .poll-admin-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
-    .result-bar-row { display:flex; align-items:center; gap:8px; margin:4px 0; font-size:13px; }
-    .result-bar-bg { flex:1; height:6px; background:var(--gray-200); border-radius:3px; overflow:hidden; }
-    .result-bar-fill { height:100%; background:var(--red); border-radius:3px; }
-    .tag-select-btn { padding:5px 14px; border:1px solid var(--border); border-radius:20px; font-size:12px; font-weight:500; cursor:pointer; background:white; color:var(--text-muted); font-family:inherit; transition:all 0.15s; }
-    .tag-select-btn.active { box-shadow:0 0 0 2px var(--black); font-weight:700; }
-    .q-tag-pill { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:6px; }
-    .q-tag-pill.real-talk { background:#fff0f2; color:#C8102E; border:1px solid #fca5a5; }
-    .q-tag-pill.deep-dive { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
+    .tab-bar-admin{display:flex;gap:0;border-bottom:2px solid var(--border,#e5e5e5);margin-bottom:24px;flex-wrap:wrap}
+    .tab-btn-admin{padding:10px 18px;font-size:13px;font-weight:500;color:#666;background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all 0.15s;font-family:inherit}
+    .tab-btn-admin:hover{color:#111}
+    .tab-btn-admin.active{color:#C8102E;border-bottom-color:#C8102E}
+    .tab-content-admin{display:none}
+    .tab-content-admin.active{display:block}
+    .present-way-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px}
+    .present-way-tab{padding:6px 14px;border:1px solid #e5e5e5;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:white;color:#666;transition:all 0.15s;font-family:inherit}
+    .present-way-tab:hover{border-color:#C8102E;color:#C8102E}
+    .present-way-tab.active{background:#C8102E;border-color:#C8102E;color:white}
+    .present-way-content{display:none}
+    .present-way-content.active{display:block}
+    .question-admin-item{background:#f9f9f9;border:1px solid #e5e5e5;border-radius:8px;padding:14px 16px;margin-bottom:8px}
+    .question-view{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+    .question-edit-form{display:none;flex-direction:column;gap:8px;margin-top:10px}
+    .question-edit-form.open{display:flex}
+    .poll-admin-item{background:#f9f9f9;border:1px solid #e5e5e5;border-radius:8px;padding:12px 14px;margin-bottom:8px}
+    .poll-admin-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .result-bar-row{display:flex;align-items:center;gap:8px;margin:4px 0;font-size:13px}
+    .result-bar-bg{flex:1;height:6px;background:#e5e5e5;border-radius:3px;overflow:hidden}
+    .result-bar-fill{height:100%;background:#C8102E;border-radius:3px}
+    .tag-select-btn{padding:5px 14px;border:1px solid #e5e5e5;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:white;color:#666;font-family:inherit;transition:all 0.15s}
+    .tag-select-btn.active{box-shadow:0 0 0 2px #111;font-weight:700}
+    .q-tag-pill{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;margin-right:6px}
+    .q-tag-pill.real-talk{background:#fff0f2;color:#C8102E;border:1px solid #fca5a5}
+    .q-tag-pill.deep-dive{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+    .sim-bar{height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin:6px 0}
+    .sim-bar-fill{height:100%;background:#C8102E;border-radius:4px;transition:width 0.5s}
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <div class="header-inner">
-        <a href="index.html" class="back-link">← 메인으로</a>
-        <div class="logo">
-          <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-          <span>관리자</span>
-        </div>
-        <button id="logout-btn" class="admin-link" style="display:none">로그아웃</button>
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="index.html" class="back-link">← 메인으로</a>
+      <div class="logo">
+        <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>관리자</span>
       </div>
+      <button id="logout-btn" class="admin-link" style="display:none">로그아웃</button>
     </div>
-  </header>
+  </div>
+</header>
 
-  <!-- Auth Gate -->
-  <div id="admin-gate" class="gate-overlay">
-    <div class="gate-card">
-      <div class="gate-logo">
-        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <span>KRAFTON Ways of Working</span>
+<div id="admin-gate" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span>KRAFTON Ways of Working</span>
+    </div>
+    <h2>관리자 인증</h2>
+    <p class="muted" style="margin-bottom:16px">관리자 비밀번호를 입력하세요</p>
+    <input type="password" id="admin-pw-input" class="form-input" placeholder="관리자 비밀번호"/>
+    <p id="admin-pw-error" class="error-text hidden">비밀번호가 올바르지 않습니다.</p>
+    <button id="admin-pw-submit" class="btn btn-primary full-width" style="margin-top:12px">확인</button>
+  </div>
+</div>
+
+<main class="container main-content" id="admin-main" style="display:none">
+  <div class="admin-stats">
+    <div class="stat-card"><span class="stat-num" id="stat-sessions">-</span><span class="stat-label">전체 차수</span></div>
+    <div class="stat-card"><span class="stat-num" id="stat-questions">-</span><span class="stat-label">질문 수</span></div>
+    <div class="stat-card"><span class="stat-num" id="stat-answers">-</span><span class="stat-label">전체 답변</span></div>
+  </div>
+
+  <div class="tab-bar-admin">
+    <button class="tab-btn-admin active" data-tab="sessions">차수 관리</button>
+    <button class="tab-btn-admin" data-tab="content">질문 / 투표</button>
+    <button class="tab-btn-admin" data-tab="present">📺 발표 모드</button>
+    <button class="tab-btn-admin" data-tab="sim">💬 시뮬레이션 결과</button>
+    <button class="tab-btn-admin" data-tab="export">📥 내보내기</button>
+  </div>
+
+  <!-- 차수 관리 -->
+  <div id="tab-sessions" class="tab-content-admin active">
+    <div class="card admin-section">
+      <h2 class="card-title">새 교육 차수 추가</h2>
+      <div class="form-grid">
+        <div class="form-group"><label class="form-label">차수 번호</label><input type="number" id="new-order" class="form-input" placeholder="예: 1" min="1"/></div>
+        <div class="form-group"><label class="form-label">교육명</label><input type="text" id="new-title" class="form-input" placeholder="예: WoW 전사 교육 1차"/></div>
+        <div class="form-group"><label class="form-label">날짜 및 시간</label><input type="datetime-local" id="new-date" class="form-input"/></div>
+        <div class="form-group"><label class="form-label">참여 비밀번호</label><input type="text" id="new-password" class="form-input" placeholder="참여자에게 공유할 비밀번호"/></div>
+        <div class="form-group full-col"><label class="form-label">설명 (선택)</label><input type="text" id="new-desc" class="form-input" placeholder="간단한 설명"/></div>
       </div>
-      <h2>관리자 인증</h2>
-      <p class="muted" style="margin-bottom:16px">관리자 비밀번호를 입력하세요</p>
-      <input type="password" id="admin-pw-input" class="form-input" placeholder="관리자 비밀번호" />
-      <p id="admin-pw-error" class="error-text hidden">비밀번호가 올바르지 않습니다.</p>
-      <button id="admin-pw-submit" class="btn btn-primary full-width" style="margin-top:12px">확인</button>
+      <button id="add-session-btn" class="btn btn-primary">차수 추가</button>
+    </div>
+    <div class="section-header"><h3>차수 목록</h3></div>
+    <div id="admin-session-list"><div class="loading-state"><div class="spinner"></div></div></div>
+  </div>
+
+  <!-- 질문/투표 -->
+  <div id="tab-content" class="tab-content-admin">
+    <div class="card" style="margin-bottom:16px">
+      <label class="form-label">차수 선택</label>
+      <select id="content-session-select" class="form-input" style="margin-top:4px"><option value="">차수를 선택하세요</option></select>
+    </div>
+    <div id="content-area" class="hidden">
+      <div class="card admin-section">
+        <h2 class="card-title">질문 추가</h2>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <button class="tag-select-btn active" data-tag="">태그 없음</button>
+          <button class="tag-select-btn" data-tag="Real Talk" style="color:#C8102E;border-color:#fca5a5;background:#fff0f2">🔥 Real Talk</button>
+          <button class="tag-select-btn" data-tag="Deep Dive" style="color:#1d4ed8;border-color:#93c5fd;background:#eff6ff">🔍 Deep Dive</button>
+        </div>
+        <textarea id="question-text" class="form-textarea" placeholder="질문 내용을 입력하세요" rows="2"></textarea>
+        <button id="add-question-btn" class="btn btn-primary" style="margin-top:10px">질문 추가</button>
+      </div>
+      <div class="section-header"><h3>등록된 질문 <span id="question-count" class="count-badge">0</span></h3></div>
+      <div id="question-list"></div>
+
+      <div class="card admin-section" style="margin-top:28px">
+        <h2 class="card-title">투표 / 설문 추가</h2>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div><label class="form-label">질문</label><input type="text" id="poll-question" class="form-input" placeholder="예: 오늘 교육 만족도는?"/></div>
+          <label class="form-label" style="margin-top:4px">선택지</label>
+          <div id="poll-options-container" style="display:flex;flex-direction:column;gap:6px">
+            <input type="text" class="form-input poll-opt" placeholder="선택지 1"/>
+            <input type="text" class="form-input poll-opt" placeholder="선택지 2"/>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
+            <button id="add-option-btn" class="btn btn-sm">+ 선택지 추가</button>
+            <label style="font-size:13px;color:#666;display:flex;align-items:center;gap:4px"><input type="checkbox" id="poll-multi"/> 복수선택 허용</label>
+          </div>
+        </div>
+        <button id="add-poll-btn" class="btn btn-primary" style="margin-top:12px">투표 추가</button>
+      </div>
+      <div class="section-header"><h3>등록된 투표 <span id="poll-count" class="count-badge">0</span></h3></div>
+      <div id="poll-list"></div>
     </div>
   </div>
 
-  <main class="container main-content" id="admin-main" style="display:none">
-    <div class="admin-stats">
-      <div class="stat-card"><span class="stat-num" id="stat-sessions">-</span><span class="stat-label">전체 차수</span></div>
-      <div class="stat-card"><span class="stat-num" id="stat-questions">-</span><span class="stat-label">질문 수</span></div>
-      <div class="stat-card"><span class="stat-num" id="stat-answers">-</span><span class="stat-label">전체 답변</span></div>
+  <!-- 발표 모드 -->
+  <div id="tab-present" class="tab-content-admin">
+    <div class="card" style="margin-bottom:16px">
+      <label class="form-label">차수 선택</label>
+      <select id="present-session-select" class="form-input" style="margin-top:4px"><option value="">차수를 선택하세요</option></select>
     </div>
-
-    <!-- 메인 탭 -->
-    <div class="tab-bar-admin">
-      <button class="tab-btn-admin active" data-tab="sessions">차수 관리</button>
-      <button class="tab-btn-admin" data-tab="content">질문 / 투표</button>
-      <button class="tab-btn-admin" data-tab="present">📺 발표 모드</button>
-      <button class="tab-btn-admin" data-tab="sim">💬 시뮬레이션 결과</button>
-      <button class="tab-btn-admin" data-tab="export">📥 데이터 내보내기</button>
+    <div id="present-area" class="hidden">
+      <div class="presentation-header" style="margin-bottom:20px">
+        <div><h2 id="present-title">-</h2><p>조별 의견 모아보기</p></div>
+      </div>
+      <div class="present-way-tabs" id="present-way-tabs"></div>
+      <div id="present-way-contents"></div>
     </div>
+  </div>
 
-    <!-- 탭: 차수 관리 -->
-    <div id="tab-sessions" class="tab-content-admin active">
-      <div class="card admin-section">
-        <h2 class="card-title">새 교육 차수 추가</h2>
-        <div class="form-grid">
-          <div class="form-group"><label class="form-label">차수 번호</label><input type="number" id="new-order" class="form-input" placeholder="예: 1" min="1" /></div>
-          <div class="form-group"><label class="form-label">교육명</label><input type="text" id="new-title" class="form-input" placeholder="예: WoW 전사 교육 1차" /></div>
-          <div class="form-group"><label class="form-label">날짜 및 시간</label><input type="datetime-local" id="new-date" class="form-input" /></div>
-          <div class="form-group"><label class="form-label">참여 비밀번호</label><input type="text" id="new-password" class="form-input" placeholder="참여자에게 공유할 비밀번호" /></div>
-          <div class="form-group full-col"><label class="form-label">설명 (선택)</label><input type="text" id="new-desc" class="form-input" placeholder="간단한 설명" /></div>
-        </div>
-        <button id="add-session-btn" class="btn btn-primary">차수 추가</button>
-      </div>
-      <div class="section-header"><h3>차수 목록</h3></div>
-      <div id="admin-session-list"><div class="loading-state"><div class="spinner"></div></div></div>
+  <!-- 시뮬레이션 결과 -->
+  <div id="tab-sim" class="tab-content-admin">
+    <div class="card" style="margin-bottom:16px">
+      <label class="form-label">차수 선택</label>
+      <select id="sim-session-select" class="form-input" style="margin-top:4px"><option value="">차수를 선택하세요</option></select>
     </div>
-
-    <!-- 탭: 질문 / 투표 -->
-    <div id="tab-content" class="tab-content-admin">
-      <div class="card" style="margin-bottom:16px">
-        <label class="form-label">차수 선택</label>
-        <select id="content-session-select" class="form-input" style="margin-top:4px">
-          <option value="">차수를 선택하세요</option>
-        </select>
+    <div id="sim-result-area" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px">
+        <div class="presentation-header" style="flex:1;margin-bottom:0"><div><h2 id="sim-result-title">-</h2><p>미묘한 순간 시뮬레이션 실시간 결과</p></div></div>
+        <button id="sim-csv-btn" class="btn btn-black" style="flex-shrink:0">📥 CSV 다운로드</button>
       </div>
-      <div id="content-area" class="hidden">
-        <!-- 질문 관리 -->
-        <div class="card admin-section">
-          <h2 class="card-title">질문 추가</h2>
-          <div style="display:flex;gap:8px;margin-bottom:8px">
-            <button class="tag-select-btn active" data-tag="">태그 없음</button>
-            <button class="tag-select-btn" data-tag="Real Talk" style="color:#C8102E;border-color:#fca5a5;background:#fff0f2">🔥 Real Talk</button>
-            <button class="tag-select-btn" data-tag="Deep Dive" style="color:#1d4ed8;border-color:#93c5fd;background:#eff6ff">🔍 Deep Dive</button>
-          </div>
-          <textarea id="question-text" class="form-textarea" placeholder="예: Ways of Working 중 우리 팀에서 가장 잘 실천하고 있는 Way는 무엇인가요?" rows="2"></textarea>
-          <button id="add-question-btn" class="btn btn-primary" style="margin-top:10px;align-self:flex-end">질문 추가</button>
-        </div>
-        <div class="section-header"><h3>등록된 질문 <span id="question-count" class="count-badge">0</span></h3></div>
-        <div id="question-list"></div>
-
-        <!-- 투표 관리 -->
-        <div class="card admin-section" style="margin-top:28px">
-          <h2 class="card-title">투표 / 설문 추가</h2>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div><label class="form-label">질문</label><input type="text" id="poll-question" class="form-input" placeholder="예: 오늘 교육 만족도는?" /></div>
-            <label class="form-label" style="margin-top:4px">선택지</label>
-            <div id="poll-options-container" style="display:flex;flex-direction:column;gap:6px">
-              <input type="text" class="form-input poll-opt" placeholder="선택지 1" />
-              <input type="text" class="form-input poll-opt" placeholder="선택지 2" />
-            </div>
-            <div style="display:flex;gap:10px;align-items:center;margin-top:4px">
-              <button id="add-option-btn" class="btn btn-sm">+ 선택지 추가</button>
-              <label style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px"><input type="checkbox" id="poll-multi" /> 복수선택 허용</label>
-            </div>
-          </div>
-          <button id="add-poll-btn" class="btn btn-primary" style="margin-top:12px">투표 추가</button>
-        </div>
-        <div class="section-header"><h3>등록된 투표 <span id="poll-count" class="count-badge">0</span></h3></div>
-        <div id="poll-list"></div>
-      </div>
+      <div class="present-way-tabs" id="sim-step-tabs"></div>
+      <div id="sim-step-contents"></div>
     </div>
+  </div>
 
-    <!-- 탭: 발표 모드 -->
-    <div id="tab-present" class="tab-content-admin">
-      <div class="card" style="margin-bottom:16px">
-        <label class="form-label">차수 선택</label>
-        <select id="present-session-select" class="form-input" style="margin-top:4px">
-          <option value="">차수를 선택하세요</option>
-        </select>
+  <!-- 내보내기 -->
+  <div id="tab-export" class="tab-content-admin">
+    <div class="card">
+      <h2 class="card-title">Excel로 내보내기</h2>
+      <p class="muted" style="margin-bottom:16px">차수를 선택하면 답변과 투표 데이터를 Excel로 다운로드합니다.</p>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select id="export-session-select" class="form-input" style="max-width:300px"><option value="">차수를 선택하세요</option></select>
+        <button id="export-btn" class="btn btn-black">📥 Excel 다운로드</button>
       </div>
-      <div id="present-area" class="hidden">
-        <div class="presentation-header">
-          <div><h2 id="present-title">-</h2><p>조별 의견 모아보기</p></div>
-        </div>
-        <!-- Way 탭 -->
-        <div class="present-way-tabs" id="present-way-tabs"></div>
-        <div id="present-way-contents"></div>
-      </div>
+      <p id="export-status" class="muted" style="margin-top:10px"></p>
     </div>
+  </div>
+</main>
 
-    <!-- 탭: 시뮬레이션 결과 -->
-    <div id="tab-sim" class="tab-content-admin">
-      <div class="card" style="margin-bottom:16px">
-        <label class="form-label">차수 선택</label>
-        <select id="sim-session-select" class="form-input" style="margin-top:4px">
-          <option value="">차수를 선택하세요</option>
-        </select>
-      </div>
-      <div id="sim-result-area" class="hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div class="presentation-header" style="flex:1;margin-bottom:0">
-            <div><h2 id="sim-result-title">-</h2><p>미묘한 순간 시뮬레이션 결과</p></div>
-          </div>
-          <button id="sim-csv-btn" class="btn btn-black" style="margin-left:12px;flex-shrink:0">📥 CSV 다운로드</button>
-        </div>
-        <!-- 시나리오 탭 -->
-        <div class="present-way-tabs" id="sim-step-tabs" style="margin-bottom:20px"></div>
-        <div id="sim-step-contents"></div>
-      </div>
-    </div>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, getDocs, doc, deleteDoc,
+    query, orderBy, updateDoc, serverTimestamp, onSnapshot, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { FIREBASE_CONFIG } from "./firebase-config.js";
 
-    <!-- 탭: 데이터 내보내기 -->
-    <div id="tab-export" class="tab-content-admin">
-      <div class="card">
-        <h2 class="card-title">Excel로 내보내기</h2>
-        <p class="muted" style="margin-bottom:16px">차수를 선택하면 해당 차수의 모든 답변과 투표 데이터를 Excel 파일로 다운로드합니다.</p>
-        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-          <select id="export-session-select" class="form-input" style="max-width:300px">
-            <option value="">차수를 선택하세요</option>
-          </select>
-          <button id="export-btn" class="btn btn-black">📥 Excel 다운로드</button>
-        </div>
-        <p id="export-status" class="muted" style="margin-top:10px"></p>
-      </div>
-    </div>
-  </main>
+  const ADMIN_PASSWORD = "admin1234"; // ← 변경하세요
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, getDocs, doc, deleteDoc,
-      query, orderBy, updateDoc, serverTimestamp, onSnapshot, setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { FIREBASE_CONFIG } from "./firebase-config.js";
+  const WAYS = [
+    {num:1,label:"도전은 담대하게, 시작은 작고 빠르게"},
+    {num:2,label:"일의 방향이 다르면 달려도 제자리"},
+    {num:3,label:"모든 일에는 한 명의 책임자"},
+    {num:4,label:"충돌은 더 나은 결과를 만드는 기회"},
+    {num:5,label:"문화는 수평적으로, 업무는 수직적으로"},
+    {num:6,label:"로컬의 감각으로 글로벌 최적화"},
+    {num:7,label:"AI는 모든 업무의 최우선 파트너"},
+    {num:8,label:"자율은 스스로 원칙을 지키는 자세"},
+    {num:9,label:"주도하거나, 따르거나, 떠나거나"},
+  ];
 
-    const ADMIN_PASSWORD = "admin1234"; // ← 변경하세요
+  const SIM_STEPS = [
+    {label:"시나리오 1", context:"이번 프로젝트의 신규 콘텐츠 기획 방향성이 공유되었습니다...", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로","WAY 3 – 모든 일에는 한 명의 책임자"]},
+    {label:"시나리오 2", context:"글로벌 공통 정책을 검토하는 회의가 진행되고 있습니다...", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 9 – 주도하거나, 따르거나, 떠나거나"]},
+    {label:"시나리오 3", context:"프로젝트에서 반복적으로 발생하는 이슈가 있습니다...", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 7 – AI는 모든 업무의 최우선 파트너","WAY 8 – 자율은 스스로 원칙을 지키는 자세"]},
+    {label:"시나리오 4 (리더의 관점)", context:"중요한 마일스톤이 코앞입니다...", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로"]},
+    {label:"시나리오 5", context:"신규 사업 기획안을 준비하고 있습니다...", options:["WAY 1 – 도전은 담대하게, 시작은 작고 빠르게","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 7 – AI는 모든 업무의 최우선 파트너"]},
+  ];
 
-    const WAYS = [
-      { num:1, label:"도전은 담대하게, 시작은 작고 빠르게" },
-      { num:2, label:"일의 방향이 다르면 달려도 제자리" },
-      { num:3, label:"모든 일에는 한 명의 책임자" },
-      { num:4, label:"충돌은 더 나은 결과를 만드는 기회" },
-      { num:5, label:"문화는 수평적으로, 업무는 수직적으로" },
-      { num:6, label:"로컬의 감각으로 글로벌 최적화" },
-      { num:7, label:"AI는 모든 업무의 최우선 파트너" },
-      { num:8, label:"자율은 스스로 원칙을 지키는 자세" },
-      { num:9, label:"주도하거나, 따르거나, 떠나거나" },
-    ];
+  const app = initializeApp(FIREBASE_CONFIG);
+  const db = getFirestore(app);
+  let sessions = [];
+  let activeContentSessionId = null;
+  let selectedTag = "";
+  let simUnsubs = [];
 
-    const app = initializeApp(FIREBASE_CONFIG);
-    const db = getFirestore(app);
-    let sessions = [];
-    let activeContentSessionId = null;
-
-    // ── Auth ──
-    const gate = document.getElementById("admin-gate");
-    const main = document.getElementById("admin-main");
-    if (sessionStorage.getItem("edu_admin")==="true") { gate.style.display="none"; main.style.display="block"; document.getElementById("logout-btn").style.display="block"; loadAdminData(); }
-    document.getElementById("admin-pw-submit").addEventListener("click", () => {
-      if (document.getElementById("admin-pw-input").value===ADMIN_PASSWORD) {
-        sessionStorage.setItem("edu_admin","true"); gate.style.display="none"; main.style.display="block";
-        document.getElementById("logout-btn").style.display="block"; loadAdminData();
-      } else { document.getElementById("admin-pw-error").classList.remove("hidden"); }
-    });
-    document.getElementById("admin-pw-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("admin-pw-submit").click(); });
-    document.getElementById("logout-btn").addEventListener("click", () => { sessionStorage.removeItem("edu_admin"); location.reload(); });
-
-    // ── 탭 ──
-    document.querySelectorAll(".tab-btn-admin").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn-admin").forEach(b=>b.classList.remove("active"));
-        document.querySelectorAll(".tab-content-admin").forEach(c=>c.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
-      });
-    });
-
-    // ── 데이터 로드 ──
-    async function loadAdminData() {
-      const q = query(collection(db,"sessions"), orderBy("order","asc"));
-      const snap = await getDocs(q);
-      sessions = [];
-      snap.forEach(d => sessions.push({ id: d.id, ...d.data() }));
-      document.getElementById("stat-sessions").textContent = sessions.length;
-
-      // select 옵션 채우기
-      ["content-session-select","present-session-select","export-session-select","sim-session-select"].forEach(id => {
-        const sel = document.getElementById(id);
-        const cur = sel.value;
-        sel.innerHTML = `<option value="">차수를 선택하세요</option>` +
-          sessions.map(s => `<option value="${s.id}">${s.order}차 · ${esc(s.title)}</option>`).join("");
-        if (cur) sel.value = cur;
-      });
-
-      // 차수 목록
-      const list = document.getElementById("admin-session-list");
-      let totalQ=0, totalA=0;
-      for (const s of sessions) {
-        const qSnap = await getDocs(collection(db,"sessions",s.id,"questions"));
-        s._qCount = qSnap.size; totalQ += qSnap.size;
-        let aCount=0;
-        for (const qDoc of qSnap.docs) {
-          const aSnap = await getDocs(collection(db,"sessions",s.id,"questions",qDoc.id,"answers"));
-          aCount += aSnap.size;
-        }
-        s._aCount = aCount; totalA += aCount;
-      }
-      document.getElementById("stat-questions").textContent = totalQ;
-      document.getElementById("stat-answers").textContent = totalA;
-
-      if (!sessions.length) { list.innerHTML=`<div class="empty-state"><p>등록된 차수가 없습니다.</p></div>`; return; }
-      list.innerHTML = sessions.map(s => {
-        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
-        return `
-          <div class="admin-session-row">
-            <div class="admin-session-info">
-              <span class="session-badge">${s.order}차</span>
-              <div><strong>${esc(s.title)}</strong>
-              <p class="muted sm">${d.toLocaleDateString("ko-KR")} · PW: <code>${esc(s.password)}</code> · 질문 ${s._qCount}개 · 답변 ${s._aCount}개</p></div>
-            </div>
-            <div class="admin-session-actions">
-              <button class="btn btn-sm btn-danger" onclick="delSession('${s.id}')">삭제</button>
-            </div>
-          </div>`;
-      }).join("");
-    }
-
-    // ── 차수 추가 ──
-    document.getElementById("add-session-btn").addEventListener("click", async () => {
-      const order=parseInt(document.getElementById("new-order").value);
-      const title=document.getElementById("new-title").value.trim();
-      const dateVal=document.getElementById("new-date").value;
-      const password=document.getElementById("new-password").value.trim();
-      const desc=document.getElementById("new-desc").value.trim();
-      if (!order||!title||!dateVal||!password) { alert("차수번호, 교육명, 날짜, 비밀번호는 필수입니다."); return; }
-      const btn=document.getElementById("add-session-btn"); btn.disabled=true; btn.textContent="추가 중...";
-      await addDoc(collection(db,"sessions"), { order, title, date:new Date(dateVal), password, description:desc, createdAt:serverTimestamp() });
-      ["new-order","new-title","new-date","new-password","new-desc"].forEach(id=>document.getElementById(id).value="");
-      btn.disabled=false; btn.textContent="차수 추가";
+  // ── Auth ──
+  const gate = document.getElementById("admin-gate");
+  const main = document.getElementById("admin-main");
+  if (sessionStorage.getItem("edu_admin") === "true") {
+    gate.style.display = "none"; main.style.display = "block";
+    document.getElementById("logout-btn").style.display = "block";
+    loadAdminData();
+  }
+  document.getElementById("admin-pw-submit").addEventListener("click", () => {
+    if (document.getElementById("admin-pw-input").value === ADMIN_PASSWORD) {
+      sessionStorage.setItem("edu_admin","true");
+      gate.style.display = "none"; main.style.display = "block";
+      document.getElementById("logout-btn").style.display = "block";
       loadAdminData();
-    });
-
-    window.delSession = async id => {
-      if (!confirm("이 차수와 모든 데이터를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(db,"sessions",id));
-      loadAdminData();
-    };
-
-    // ── 질문/투표 탭 ──
-    document.getElementById("content-session-select").addEventListener("change", e => {
-      activeContentSessionId = e.target.value;
-      if (!activeContentSessionId) { document.getElementById("content-area").classList.add("hidden"); return; }
-      document.getElementById("content-area").classList.remove("hidden");
-      loadQuestions(); loadPolls();
-    });
-
-    
-    let selectedTag = "";
-    document.querySelectorAll(".tag-select-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tag-select-btn").forEach(b=>b.classList.remove("active"));
-        btn.classList.add("active");
-        selectedTag = btn.dataset.tag;
-      });
-    });
-
-    document.getElementById("add-question-btn").addEventListener("click", async () => {
-      const text=document.getElementById("question-text").value.trim();
-      if (!text) { alert("질문 내용을 입력하세요."); return; }
-      const snap=await getDocs(collection(db,"sessions",activeContentSessionId,"questions"));
-      const btn=document.getElementById("add-question-btn"); btn.disabled=true; btn.textContent="추가 중...";
-      await addDoc(collection(db,"sessions",activeContentSessionId,"questions"), { text, tag: selectedTag, order:snap.size+1, createdAt:serverTimestamp() });
-      document.getElementById("question-text").value="";
-      btn.disabled=false; btn.textContent="질문 추가";
-      loadQuestions(); loadAdminData();
-    });
-
-    async function loadQuestions() {
-      const q=query(collection(db,"sessions",activeContentSessionId,"questions"), orderBy("order","asc"));
-      const snap=await getDocs(q);
-      const questions=[]; snap.forEach(d=>questions.push({ id:d.id, ...d.data() }));
-      document.getElementById("question-count").textContent=questions.length;
-      const list=document.getElementById("question-list");
-      if (!questions.length) { list.innerHTML=`<div class="empty-state"><p>등록된 질문이 없습니다.</p></div>`; return; }
-      list.innerHTML = questions.map(q=>`
-        <div class="question-admin-item" id="q-admin-${q.id}">
-          <div class="question-view">
-            <div style="flex:1">
-              <span style="font-size:11px;font-weight:700;color:var(--red)">Q${q.order}</span>${q.tag ? `<span class="q-tag-pill ${q.tag==="Real Talk"?"real-talk":"deep-dive"}">${q.tag}</span>` : ""}
-              <p style="font-size:14px;font-weight:500;margin-top:4px" id="q-text-${q.id}">${esc(q.text)}</p>
-            </div>
-            <div style="display:flex;gap:6px;flex-shrink:0">
-              <button class="btn btn-sm" onclick="editQuestion('${q.id}','${esc(q.text).replace(/'/g,"\\'")}')">수정</button>
-              <button class="btn btn-sm btn-danger" onclick="delQuestion('${q.id}')">삭제</button>
-            </div>
-          </div>
-          <div class="question-edit-form" id="q-edit-${q.id}">
-            <textarea class="form-textarea" rows="2">${esc(q.text)}</textarea>
-            <div style="display:flex;justify-content:flex-end;gap:6px">
-              <button class="btn btn-sm" onclick="cancelEditQ('${q.id}')">취소</button>
-              <button class="btn btn-primary btn-sm" onclick="saveQuestion('${q.id}')">저장</button>
-            </div>
-          </div>
-        </div>`).join("");
+    } else {
+      document.getElementById("admin-pw-error").classList.remove("hidden");
     }
+  });
+  document.getElementById("admin-pw-input").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("admin-pw-submit").click(); });
+  document.getElementById("logout-btn").addEventListener("click", () => { sessionStorage.removeItem("edu_admin"); location.reload(); });
 
-    window.editQuestion = (id, text) => {
-      document.getElementById(`q-edit-${id}`).classList.add("open");
-      document.getElementById(`q-edit-${id}`).querySelector("textarea").value = text;
-    };
-    window.cancelEditQ = id => { document.getElementById(`q-edit-${id}`).classList.remove("open"); };
-    window.saveQuestion = async id => {
-      const newText = document.getElementById(`q-edit-${id}`).querySelector("textarea").value.trim();
-      if (!newText) return;
-      await updateDoc(doc(db,"sessions",activeContentSessionId,"questions",id), { text:newText });
-      loadQuestions();
-    };
-    window.delQuestion = async id => {
-      if (!confirm("이 질문을 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(db,"sessions",activeContentSessionId,"questions",id));
-      loadQuestions(); loadAdminData();
-    };
-
-    // ── 투표 ──
-    document.getElementById("add-option-btn").addEventListener("click", () => {
-      const c=document.getElementById("poll-options-container");
-      const n=c.querySelectorAll(".poll-opt").length+1;
-      const inp=document.createElement("input"); inp.type="text"; inp.className="form-input poll-opt"; inp.placeholder=`선택지 ${n}`;
-      c.appendChild(inp);
+  // ── 탭 ──
+  document.querySelectorAll(".tab-btn-admin").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tab-btn-admin").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-content-admin").forEach(c => c.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
     });
-    document.getElementById("add-poll-btn").addEventListener("click", async () => {
-      const question=document.getElementById("poll-question").value.trim();
-      const options=[...document.querySelectorAll(".poll-opt")].map(i=>i.value.trim()).filter(Boolean);
-      const type=document.getElementById("poll-multi").checked?"multi":"single";
-      if (!question||options.length<2) { alert("질문과 선택지를 2개 이상 입력하세요."); return; }
-      const snap=await getDocs(collection(db,"sessions",activeContentSessionId,"polls"));
-      const votes={}; options.forEach((_,i)=>votes[i]=0);
-      const btn=document.getElementById("add-poll-btn"); btn.disabled=true; btn.textContent="추가 중...";
-      await addDoc(collection(db,"sessions",activeContentSessionId,"polls"), { question, options, votes, type, order:snap.size+1, createdAt:serverTimestamp() });
-      document.getElementById("poll-question").value="";
-      document.querySelectorAll(".poll-opt").forEach(i=>i.value="");
-      btn.disabled=false; btn.textContent="투표 추가";
-      loadPolls();
+  });
+
+  // ── 데이터 로드 ──
+  async function loadAdminData() {
+    const q = query(collection(db,"sessions"), orderBy("order","asc"));
+    const snap = await getDocs(q);
+    sessions = [];
+    snap.forEach(d => sessions.push({id:d.id, ...d.data()}));
+    document.getElementById("stat-sessions").textContent = sessions.length;
+
+    ["content-session-select","present-session-select","export-session-select","sim-session-select"].forEach(id => {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      sel.innerHTML = '<option value="">차수를 선택하세요</option>' +
+        sessions.map(s => '<option value="' + s.id + '">' + s.order + '차 · ' + esc(s.title) + '</option>').join("");
+      if (cur) sel.value = cur;
     });
 
-    async function loadPolls() {
-      const q=query(collection(db,"sessions",activeContentSessionId,"polls"), orderBy("order","asc"));
-      const snap=await getDocs(q);
-      const polls=[]; snap.forEach(d=>polls.push({ id:d.id, ...d.data() }));
-      document.getElementById("poll-count").textContent=polls.length;
-      const list=document.getElementById("poll-list");
-      if (!polls.length) { list.innerHTML=`<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>`; return; }
-      list.innerHTML=polls.map(p=>{
-        const total=Object.values(p.votes||{}).reduce((a,b)=>a+b,0);
-        return `
-          <div class="poll-admin-item">
-            <div class="poll-admin-header">
-              <strong>${esc(p.question)}</strong>
-              <button class="btn btn-sm btn-danger" onclick="delPoll('${p.id}')">삭제</button>
-            </div>
-            ${(p.options||[]).map((opt,i)=>{
-              const cnt=(p.votes||{})[i]||0;
-              const pct=total?Math.round(cnt/total*100):0;
-              return `<div class="result-bar-row"><span style="min-width:100px">${esc(opt)}</span><div class="result-bar-bg"><div class="result-bar-fill" style="width:${pct}%"></div></div><span class="muted sm">${cnt}표 (${pct}%)</span></div>`;
-            }).join("")}
-            <p class="muted sm" style="margin-top:6px">총 ${total}명 참여 · ${p.type==="multi"?"복수선택":"단일선택"}</p>
-          </div>`;
-      }).join("");
+    const list = document.getElementById("admin-session-list");
+    let totalQ = 0, totalA = 0;
+    for (const s of sessions) {
+      const qSnap = await getDocs(collection(db,"sessions",s.id,"questions"));
+      s._qCount = qSnap.size; totalQ += qSnap.size;
+      let aCount = 0;
+      for (const qDoc of qSnap.docs) {
+        const aSnap = await getDocs(collection(db,"sessions",s.id,"questions",qDoc.id,"answers"));
+        aCount += aSnap.size;
+      }
+      s._aCount = aCount; totalA += aCount;
     }
+    document.getElementById("stat-questions").textContent = totalQ;
+    document.getElementById("stat-answers").textContent = totalA;
 
-    window.delPoll = async id => {
-      if (!confirm("이 투표를 삭제하시겠습니까?")) return;
-      await deleteDoc(doc(db,"sessions",activeContentSessionId,"polls",id));
-      loadPolls();
-    };
+    if (!sessions.length) { list.innerHTML = '<div class="empty-state"><p>등록된 차수가 없습니다.</p></div>'; return; }
+    list.innerHTML = sessions.map(s => {
+      const d = s.date && s.date.toDate ? s.date.toDate() : new Date(s.date);
+      return '<div class="admin-session-row">' +
+        '<div class="admin-session-info"><span class="session-badge">' + s.order + '차</span>' +
+        '<div><strong>' + esc(s.title) + '</strong>' +
+        '<p class="muted sm">' + d.toLocaleDateString("ko-KR") + ' · PW: <code>' + esc(s.password) + '</code> · 질문 ' + s._qCount + '개 · 답변 ' + s._aCount + '개</p></div></div>' +
+        '<div class="admin-session-actions">' +
+        '<button class="btn btn-sm" onclick="openPresentModal(\'' + s.id + '\',\'' + esc(s.title) + '\')">발표</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="delSession(\'' + s.id + '\')">삭제</button>' +
+        '</div></div>';
+    }).join("");
+  }
 
-    // ── 발표 모드 ──
-    document.getElementById("present-session-select").addEventListener("change", async e => {
-      const sessionId=e.target.value;
-      if (!sessionId) { document.getElementById("present-area").classList.add("hidden"); return; }
-      document.getElementById("present-area").classList.remove("hidden");
-      const s=sessions.find(s=>s.id===sessionId);
-      document.getElementById("present-title").textContent=s?s.title:"";
+  // ── 차수 추가 ──
+  document.getElementById("add-session-btn").addEventListener("click", async () => {
+    const order = parseInt(document.getElementById("new-order").value);
+    const title = document.getElementById("new-title").value.trim();
+    const dateVal = document.getElementById("new-date").value;
+    const password = document.getElementById("new-password").value.trim();
+    const desc = document.getElementById("new-desc").value.trim();
+    if (!order || !title || !dateVal || !password) { alert("차수번호, 교육명, 날짜, 비밀번호는 필수입니다."); return; }
+    const btn = document.getElementById("add-session-btn"); btn.disabled=true; btn.textContent="추가 중...";
+    await addDoc(collection(db,"sessions"), {order,title,date:new Date(dateVal),password,description:desc,createdAt:serverTimestamp()});
+    ["new-order","new-title","new-date","new-password","new-desc"].forEach(id => document.getElementById(id).value="");
+    btn.disabled=false; btn.textContent="차수 추가";
+    loadAdminData();
+  });
 
-      const [qSnap]=await Promise.all([getDocs(query(collection(db,"sessions",sessionId,"questions"),orderBy("order","asc")))]);
-      const questions=[]; qSnap.forEach(d=>questions.push({ id:d.id,...d.data() }));
+  window.delSession = async id => {
+    if (!confirm("이 차수와 모든 데이터를 삭제하시겠습니까?")) return;
+    await deleteDoc(doc(db,"sessions",id));
+    loadAdminData();
+  };
 
-      // 모든 답변 가져오기
-      const allAnswers={};
-      for (const q of questions) {
-        const aSnap=await getDocs(query(collection(db,"sessions",sessionId,"questions",q.id,"answers"),orderBy("likes","desc")));
-        allAnswers[q.id]=[];
-        aSnap.forEach(d=>allAnswers[q.id].push({ id:d.id,...d.data() }));
-      }
+  // ── 질문/투표 탭 ──
+  document.getElementById("content-session-select").addEventListener("change", e => {
+    activeContentSessionId = e.target.value;
+    if (!activeContentSessionId) { document.getElementById("content-area").classList.add("hidden"); return; }
+    document.getElementById("content-area").classList.remove("hidden");
+    loadQuestions(); loadPolls();
+  });
 
-      // Way 탭 렌더
-      const tabsEl=document.getElementById("present-way-tabs");
-      const contentsEl=document.getElementById("present-way-contents");
-      tabsEl.innerHTML=WAYS.map((w,i)=>`
-        <button class="present-way-tab${i===0?" active":""}" data-way="${w.num}">WAY ${w.num}</button>`).join("");
-      contentsEl.innerHTML=WAYS.map((w,i)=>`
-        <div class="present-way-content${i===0?" active":""}" data-way="${w.num}">
-          <div style="margin-bottom:20px;padding:16px 20px;background:var(--black);border-radius:8px">
-            <p style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.08em">WAY ${w.num}</p>
-            <p style="font-size:16px;font-weight:700;color:white;margin-top:2px">${w.label}</p>
-          </div>
-          ${questions.map(q=>{
-            const wayAnswers=(allAnswers[q.id]||[]).filter(a=>a.wayNum===w.num);
-            return `
-              <div class="present-q-block">
-                <div class="present-q-label">Q${q.order}</div>
-                <div class="present-q-text">${esc(q.text)}</div>
-                <div class="present-answers">
-                  ${!wayAnswers.length?`<p class="muted">아직 답변이 없습니다.</p>`:
-                    wayAnswers.map((a,i)=>`
-                      <div class="present-answer${i===0&&a.likes>0?" top":""}">
-                        ${i===0&&a.likes>0?`<p style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:4px">👑 대표 의견</p>`:""}
-                        <p class="present-answer-text">${esc(a.text)}</p>
-                        <p class="present-answer-meta">${esc(a.author)} · ${esc(a.team)} · ❤️ ${a.likes||0}</p>
-                      </div>`).join("")}
-                </div>
-              </div>`;
-          }).join("")}
-        </div>`).join("");
-
-      // 탭 클릭
-      tabsEl.querySelectorAll(".present-way-tab").forEach(tab=>{
-        tab.addEventListener("click",()=>{
-          tabsEl.querySelectorAll(".present-way-tab").forEach(t=>t.classList.remove("active"));
-          contentsEl.querySelectorAll(".present-way-content").forEach(c=>c.classList.remove("active"));
-          tab.classList.add("active");
-          contentsEl.querySelector(`.present-way-content[data-way="${tab.dataset.way}"]`).classList.add("active");
-        });
-      });
+  // 태그 선택
+  document.querySelectorAll(".tag-select-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".tag-select-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      selectedTag = btn.dataset.tag;
     });
+  });
 
-    // ── Excel 내보내기 ──
-    document.getElementById("export-session-select").addEventListener("change", e => {
-      document.getElementById("export-status").textContent = e.target.value ? "차수를 선택했습니다. 버튼을 눌러 다운로드하세요." : "";
-    });
+  document.getElementById("add-question-btn").addEventListener("click", async () => {
+    const text = document.getElementById("question-text").value.trim();
+    if (!text) { alert("질문 내용을 입력하세요."); return; }
+    const snap = await getDocs(collection(db,"sessions",activeContentSessionId,"questions"));
+    const btn = document.getElementById("add-question-btn"); btn.disabled=true; btn.textContent="추가 중...";
+    await addDoc(collection(db,"sessions",activeContentSessionId,"questions"), {text,tag:selectedTag,order:snap.size+1,createdAt:serverTimestamp()});
+    document.getElementById("question-text").value="";
+    btn.disabled=false; btn.textContent="질문 추가";
+    loadQuestions(); loadAdminData();
+  });
 
-    document.getElementById("export-btn").addEventListener("click", async () => {
-      const sessionId=document.getElementById("export-session-select").value;
-      if (!sessionId) { alert("차수를 선택하세요."); return; }
-      const btn=document.getElementById("export-btn"); btn.disabled=true; btn.textContent="준비 중...";
-      const statusEl=document.getElementById("export-status");
-      statusEl.textContent="데이터 수집 중...";
+  async function loadQuestions() {
+    const q = query(collection(db,"sessions",activeContentSessionId,"questions"), orderBy("order","asc"));
+    const snap = await getDocs(q);
+    const questions = []; snap.forEach(d => questions.push({id:d.id,...d.data()}));
+    document.getElementById("question-count").textContent = questions.length;
+    const list = document.getElementById("question-list");
+    if (!questions.length) { list.innerHTML='<div class="empty-state"><p>등록된 질문이 없습니다.</p></div>'; return; }
+    list.innerHTML = questions.map(q => {
+      const tagHtml = q.tag ? '<span class="q-tag-pill ' + (q.tag==="Real Talk"?"real-talk":"deep-dive") + '">' + q.tag + '</span>' : '';
+      return '<div class="question-admin-item" id="q-admin-' + q.id + '">' +
+        '<div class="question-view"><div style="flex:1">' +
+        '<p style="font-size:11px;font-weight:700;color:#C8102E">Q' + q.order + ' ' + tagHtml + '</p>' +
+        '<p style="font-size:14px;font-weight:500;margin-top:4px">' + esc(q.text) + '</p></div>' +
+        '<div style="display:flex;gap:6px;flex-shrink:0">' +
+        '<button class="btn btn-sm" onclick="editQuestion(\'' + q.id + '\')">수정</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="delQuestion(\'' + q.id + '\')">삭제</button>' +
+        '</div></div>' +
+        '<div class="question-edit-form" id="q-edit-' + q.id + '">' +
+        '<textarea class="form-textarea" rows="2">' + esc(q.text) + '</textarea>' +
+        '<div style="display:flex;justify-content:flex-end;gap:6px">' +
+        '<button class="btn btn-sm" onclick="cancelEditQ(\'' + q.id + '\')">취소</button>' +
+        '<button class="btn btn-primary btn-sm" onclick="saveQuestion(\'' + q.id + '\')">저장</button>' +
+        '</div></div></div>';
+    }).join("");
+  }
 
-      const s=sessions.find(s=>s.id===sessionId);
-      const wb=XLSX.utils.book_new();
+  window.editQuestion = id => { document.getElementById("q-edit-"+id).classList.add("open"); };
+  window.cancelEditQ = id => { document.getElementById("q-edit-"+id).classList.remove("open"); };
+  window.saveQuestion = async id => {
+    const newText = document.getElementById("q-edit-"+id).querySelector("textarea").value.trim();
+    if (!newText) return;
+    await updateDoc(doc(db,"sessions",activeContentSessionId,"questions",id), {text:newText});
+    loadQuestions();
+  };
+  window.delQuestion = async id => {
+    if (!confirm("이 질문을 삭제하시겠습니까?")) return;
+    await deleteDoc(doc(db,"sessions",activeContentSessionId,"questions",id));
+    loadQuestions(); loadAdminData();
+  };
 
-      // 시트 1: 답변
-      const qSnap=await getDocs(query(collection(db,"sessions",sessionId,"questions"),orderBy("order","asc")));
-      const questions=[]; qSnap.forEach(d=>questions.push({ id:d.id,...d.data() }));
-      const answerRows=[["차수","질문번호","질문내용","WAY","이름","팀","답변","좋아요수","등록시간"]];
-      for (const q of questions) {
-        const aSnap=await getDocs(query(collection(db,"sessions",sessionId,"questions",q.id,"answers"),orderBy("createdAt","asc")));
-        aSnap.forEach(d=>{
-          const a=d.data();
-          const way=WAYS.find(w=>w.num===a.wayNum);
-          answerRows.push([
-            `${s.order}차 ${s.title}`, q.order, q.text,
-            `WAY ${a.wayNum} ${way?.label||""}`,
-            a.author, a.team, a.text, a.likes||0,
-            a.createdAt?.toDate?a.createdAt.toDate().toLocaleString("ko-KR"):""
-          ]);
-        });
-      }
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(answerRows), "답변");
+  // ── 투표 ──
+  document.getElementById("add-option-btn").addEventListener("click", () => {
+    const c = document.getElementById("poll-options-container");
+    const n = c.querySelectorAll(".poll-opt").length + 1;
+    const inp = document.createElement("input"); inp.type="text"; inp.className="form-input poll-opt"; inp.placeholder="선택지 "+n;
+    c.appendChild(inp);
+  });
+  document.getElementById("add-poll-btn").addEventListener("click", async () => {
+    const question = document.getElementById("poll-question").value.trim();
+    const options = [...document.querySelectorAll(".poll-opt")].map(i=>i.value.trim()).filter(Boolean);
+    const type = document.getElementById("poll-multi").checked ? "multi" : "single";
+    if (!question || options.length < 2) { alert("질문과 선택지를 2개 이상 입력하세요."); return; }
+    const snap = await getDocs(collection(db,"sessions",activeContentSessionId,"polls"));
+    const votes = {}; options.forEach((_,i) => votes[i]=0);
+    const btn = document.getElementById("add-poll-btn"); btn.disabled=true; btn.textContent="추가 중...";
+    await addDoc(collection(db,"sessions",activeContentSessionId,"polls"), {question,options,votes,type,order:snap.size+1,createdAt:serverTimestamp()});
+    document.getElementById("poll-question").value="";
+    document.querySelectorAll(".poll-opt").forEach(i=>i.value="");
+    btn.disabled=false; btn.textContent="투표 추가";
+    loadPolls();
+  });
 
-      // 시트 2: 투표
-      const pSnap=await getDocs(query(collection(db,"sessions",sessionId,"polls"),orderBy("order","asc")));
-      const pollRows=[["차수","투표번호","질문","선택지","득표수","득표율(%)"]];
-      pSnap.forEach(d=>{
-        const p=d.data();
-        const total=Object.values(p.votes||{}).reduce((a,b)=>a+b,0);
-        (p.options||[]).forEach((opt,i)=>{
+  async function loadPolls() {
+    const q = query(collection(db,"sessions",activeContentSessionId,"polls"), orderBy("order","asc"));
+    const snap = await getDocs(q);
+    const polls = []; snap.forEach(d => polls.push({id:d.id,...d.data()}));
+    document.getElementById("poll-count").textContent = polls.length;
+    const list = document.getElementById("poll-list");
+    if (!polls.length) { list.innerHTML='<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>'; return; }
+    list.innerHTML = polls.map(p => {
+      const total = Object.values(p.votes||{}).reduce((a,b)=>a+b,0);
+      return '<div class="poll-admin-item">' +
+        '<div class="poll-admin-header"><strong>' + esc(p.question) + '</strong>' +
+        '<button class="btn btn-sm btn-danger" onclick="delPoll(\'' + p.id + '\')">삭제</button></div>' +
+        (p.options||[]).map((opt,i) => {
           const cnt=(p.votes||{})[i]||0;
-          pollRows.push([`${s.order}차 ${s.title}`,p.order,p.question,opt,cnt,total?Math.round(cnt/total*100):0]);
-        });
-      });
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pollRows), "투표결과");
+          const pct=total?Math.round(cnt/total*100):0;
+          return '<div class="result-bar-row"><span style="min-width:120px">' + esc(opt) + '</span>' +
+            '<div class="result-bar-bg"><div class="result-bar-fill" style="width:'+pct+'%"></div></div>' +
+            '<span class="muted sm">'+cnt+'표 ('+pct+'%)</span></div>';
+        }).join("") +
+        '<p class="muted sm" style="margin-top:6px">총 '+total+'명 · '+(p.type==="multi"?"복수선택":"단일선택")+'</p></div>';
+    }).join("");
+  }
 
-      XLSX.writeFile(wb, `KRAFTON_WoW_${s.order}차_${s.title}.xlsx`);
-      btn.disabled=false; btn.textContent="📥 Excel 다운로드";
-      statusEl.textContent="✅ 다운로드 완료!";
-    });
+  window.delPoll = async id => {
+    if (!confirm("이 투표를 삭제하시겠습니까?")) return;
+    await deleteDoc(doc(db,"sessions",activeContentSessionId,"polls",id));
+    loadPolls();
+  };
 
-    // ── 시뮬레이션 결과 탭 ──
-    const DEFAULT_SIM_Q = [
-      { id:"default_0", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로","WAY 3 – 모든 일에는 한 명의 책임자"], context:"이번 프로젝트의 신규 콘텐츠 기획..." },
-      { id:"default_1", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 9 – 주도하거나, 따르거나, 떠나거나"], context:"글로벌 공통 정책을 검토하는 회의..." },
-      { id:"default_2", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 7 – AI는 모든 업무의 최우선 파트너","WAY 8 – 자율은 스스로 원칙을 지키는 자세"], context:"프로젝트에서 반복적으로 발생하는 이슈..." },
-      { id:"default_3", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로"], context:"중요한 마일스톤이 코앞입니다. (리더의 관점)" },
-      { id:"default_4", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 1 – 도전은 담대하게, 시작은 작고 빠르게","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 7 – AI는 모든 업무의 최우선 파트너"], context:"신규 사업 기획안을 준비하고 있습니다..." },
-    ];
+  // ── 발표 모드 ──
+  document.getElementById("present-session-select").addEventListener("change", async e => {
+    const sessionId = e.target.value;
+    if (!sessionId) { document.getElementById("present-area").classList.add("hidden"); return; }
+    document.getElementById("present-area").classList.remove("hidden");
+    const s = sessions.find(s=>s.id===sessionId);
+    document.getElementById("present-title").textContent = s ? s.title : "";
 
-    let simActiveSessionId = null;
-    let simUnsubscribers = [];
+    const qSnap = await getDocs(query(collection(db,"sessions",sessionId,"questions"), orderBy("order","asc")));
+    const questions = []; qSnap.forEach(d => questions.push({id:d.id,...d.data()}));
 
-    document.getElementById("sim-session-select").addEventListener("change", async e => {
-      simActiveSessionId = e.target.value;
-      simUnsubscribers.forEach(fn=>fn()); simUnsubscribers=[];
-      if (!simActiveSessionId) { document.getElementById("sim-result-area").classList.add("hidden"); return; }
-      document.getElementById("sim-result-area").classList.remove("hidden");
-      const s = sessions.find(s=>s.id===simActiveSessionId);
-      document.getElementById("sim-result-title").textContent = s ? s.title : "";
+    const allAnswers = {};
+    for (const q of questions) {
+      const aSnap = await getDocs(query(collection(db,"sessions",sessionId,"questions",q.id,"answers"), orderBy("likes","desc")));
+      allAnswers[q.id] = []; aSnap.forEach(d => allAnswers[q.id].push({id:d.id,...d.data()}));
+    }
 
-      // 탭 렌더
-      const tabsEl = document.getElementById("sim-step-tabs");
-      const contentsEl = document.getElementById("sim-step-contents");
-      tabsEl.innerHTML = DEFAULT_SIM_Q.map((q,i) => `
-        <button class="present-way-tab${i===0?" active":""}" data-step="${i}">시나리오 ${i+1}</button>`).join("");
-      contentsEl.innerHTML = DEFAULT_SIM_Q.map((q,i) => `
-        <div class="present-way-content${i===0?" active":""}" id="sim-content-step-${i}" data-step="${i}"></div>`).join("");
+    const tabsEl = document.getElementById("present-way-tabs");
+    const contentsEl = document.getElementById("present-way-contents");
+    tabsEl.innerHTML = WAYS.map((w,i) => '<button class="present-way-tab'+(i===0?" active":"")+'" data-way="'+w.num+'">WAY '+w.num+'</button>').join("");
+    contentsEl.innerHTML = WAYS.map((w,i) => {
+      return '<div class="present-way-content'+(i===0?" active":'')+'" data-way="'+w.num+'">' +
+        '<div style="margin-bottom:20px;padding:16px 20px;background:#000;border-radius:8px">' +
+        '<p style="font-size:11px;font-weight:700;color:#C8102E;letter-spacing:0.08em">WAY '+w.num+'</p>' +
+        '<p style="font-size:16px;font-weight:700;color:white;margin-top:2px">'+w.label+'</p></div>' +
+        questions.map(q => {
+          const wayAnswers = (allAnswers[q.id]||[]).filter(a=>a.wayNum===w.num);
+          return '<div style="margin-bottom:24px">' +
+            '<p style="font-size:11px;font-weight:700;color:#C8102E;margin-bottom:4px">'+(q.tag||'Q'+q.order)+'</p>' +
+            '<p style="font-size:15px;font-weight:600;color:#111;margin-bottom:12px">'+esc(q.text)+'</p>' +
+            '<div style="display:flex;flex-direction:column;gap:8px">' +
+            (!wayAnswers.length ? '<p class="muted">아직 답변이 없습니다.</p>' :
+              wayAnswers.map((a,i) => '<div style="background:'+(i===0&&a.likes>0?'#fff8f8':'#f9f9f9')+';border:1px solid '+(i===0&&a.likes>0?'#fca5a5':'#e5e5e5')+';border-radius:8px;padding:12px 16px">' +
+                (i===0&&a.likes>0?'<p style="font-size:11px;font-weight:700;color:#C8102E;margin-bottom:4px">👑 대표 의견</p>':'') +
+                '<p style="font-size:14px;line-height:1.6">'+esc(a.text)+'</p>' +
+                '<p style="font-size:12px;color:#999;margin-top:6px">'+esc(a.author)+' · '+esc(a.team)+' · ❤️ '+(a.likes||0)+'</p></div>'
+              ).join("")
+            ) + '</div></div>';
+        }).join("") + '</div>';
+    }).join("");
 
-      tabsEl.querySelectorAll(".present-way-tab").forEach(tab => {
-        tab.addEventListener("click", () => {
-          tabsEl.querySelectorAll(".present-way-tab").forEach(t=>t.classList.remove("active"));
-          contentsEl.querySelectorAll(".present-way-content").forEach(c=>c.classList.remove("active"));
-          tab.classList.add("active");
-          contentsEl.querySelector(`#sim-content-step-${tab.dataset.step}`).classList.add("active");
-        });
-      });
-
-      // 각 시나리오 실시간 구독
-      DEFAULT_SIM_Q.forEach((q, stepIdx) => {
-        const aggRef = doc(db,"sessions",simActiveSessionId,"sim_agg",`step_${stepIdx}`);
-        const unsub = onSnapshot(aggRef, snap => {
-          const el = document.getElementById(`sim-content-step-${stepIdx}`);
-          if (!el) return;
-          const data = snap.exists() ? snap.data() : {};
-          const total = data.total || 0;
-          const counts = data.counts || {};
-
-          el.innerHTML = `
-            <div style="background:var(--black);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px">
-              <p style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.08em;margin-bottom:4px">시나리오 ${stepIdx+1}</p>
-              <p style="font-size:15px;font-weight:600;color:white;margin-bottom:2px">${esc(q.context)}</p>
-              <p style="font-size:13px;color:#888;margin-top:6px">총 ${total}명 참여</p>
-            </div>
-            <div style="display:flex;flex-direction:column;gap:10px">
-              ${(q.options||[]).map((opt,i) => {
-                const cnt = counts[i] || 0;
-                const pct = total ? Math.round(cnt/total*100) : 0;
-                const barW = pct;
-                return `
-                  <div style="background:white;border:1px solid #e5e5e5;border-radius:10px;padding:14px 18px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-                      <span style="font-size:14px;font-weight:600;color:var(--black)">${esc(opt)}</span>
-                      <span style="font-size:18px;font-weight:700;color:var(--red);min-width:50px;text-align:right">${pct}%</span>
-                    </div>
-                    <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-bottom:4px">
-                      <div style="height:100%;width:${barW}%;background:var(--red);border-radius:4px;transition:width 0.5s ease"></div>
-                    </div>
-                    <span style="font-size:12px;color:#999">${cnt}명 선택</span>
-                  </div>`;
-              }).join("")}
-            </div>`;
-        });
-        simUnsubscribers.push(unsub);
+    tabsEl.querySelectorAll(".present-way-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabsEl.querySelectorAll(".present-way-tab").forEach(t=>t.classList.remove("active"));
+        contentsEl.querySelectorAll(".present-way-content").forEach(c=>c.classList.remove("active"));
+        tab.classList.add("active");
+        contentsEl.querySelector('.present-way-content[data-way="'+tab.dataset.way+'"]').classList.add("active");
       });
     });
+  });
 
-    // CSV 다운로드
-    document.getElementById("sim-csv-btn").addEventListener("click", async () => {
-      if (!simActiveSessionId) return;
+  // ── 시뮬레이션 결과 ──
+  document.getElementById("sim-session-select").addEventListener("change", e => {
+    simUnsubs.forEach(fn=>fn()); simUnsubs=[];
+    const sessionId = e.target.value;
+    if (!sessionId) { document.getElementById("sim-result-area").classList.add("hidden"); return; }
+    document.getElementById("sim-result-area").classList.remove("hidden");
+    const s = sessions.find(s=>s.id===sessionId);
+    document.getElementById("sim-result-title").textContent = s ? s.title : "";
+
+    const tabsEl = document.getElementById("sim-step-tabs");
+    const contentsEl = document.getElementById("sim-step-contents");
+    tabsEl.innerHTML = SIM_STEPS.map((step,i) =>
+      '<button class="present-way-tab'+(i===0?" active":"")+'" data-step="'+i+'">'+step.label+'</button>'
+    ).join("");
+    contentsEl.innerHTML = SIM_STEPS.map((step,i) =>
+      '<div class="present-way-content'+(i===0?" active":"")+'" id="sim-step-content-'+i+'"></div>'
+    ).join("");
+
+    tabsEl.querySelectorAll(".present-way-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        tabsEl.querySelectorAll(".present-way-tab").forEach(t=>t.classList.remove("active"));
+        contentsEl.querySelectorAll(".present-way-content").forEach(c=>c.classList.remove("active"));
+        tab.classList.add("active");
+        document.getElementById("sim-step-content-"+tab.dataset.step).classList.add("active");
+      });
+    });
+
+    SIM_STEPS.forEach((step, stepIdx) => {
+      const aggRef = doc(db,"sessions",sessionId,"sim_agg","step_"+stepIdx);
+      const unsub = onSnapshot(aggRef, snap => {
+        const el = document.getElementById("sim-step-content-"+stepIdx);
+        if (!el) return;
+        const data = snap.exists() ? snap.data() : {};
+        const total = data.total || 0;
+        const counts = data.counts || {};
+        el.innerHTML = '<div style="background:#000;border-radius:10px;padding:18px 22px;margin-bottom:20px">' +
+          '<p style="font-size:11px;font-weight:700;color:#C8102E;letter-spacing:0.08em;margin-bottom:4px">'+step.label+'</p>' +
+          '<p style="font-size:14px;color:#aaa;margin-bottom:6px">'+esc(step.context)+'</p>' +
+          '<p style="font-size:13px;color:#888">총 <strong style="color:white;font-size:18px">'+total+'</strong>명 참여</p></div>' +
+          step.options.map((opt,i) => {
+            const cnt = counts[i] || 0;
+            const pct = total ? Math.round(cnt/total*100) : 0;
+            return '<div style="background:white;border:1px solid #e5e5e5;border-radius:10px;padding:14px 18px;margin-bottom:10px">' +
+              '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">' +
+              '<span style="font-size:14px;font-weight:600">'+esc(opt)+'</span>' +
+              '<span style="font-size:20px;font-weight:700;color:#C8102E">'+pct+'%</span></div>' +
+              '<div class="sim-bar"><div class="sim-bar-fill" style="width:'+pct+'%"></div></div>' +
+              '<span style="font-size:12px;color:#999">'+cnt+'명 선택</span></div>';
+          }).join("");
+      });
+      simUnsubs.push(unsub);
+    });
+
+    // CSV 버튼
+    document.getElementById("sim-csv-btn").onclick = async () => {
       const btn = document.getElementById("sim-csv-btn");
       btn.disabled=true; btn.textContent="준비 중...";
-      const s = sessions.find(s=>s.id===simActiveSessionId);
-      const snap = await getDocs(query(collection(db,"sessions",simActiveSessionId,"sim_votes"), orderBy("createdAt","asc")));
+      const s2 = sessions.find(s=>s.id===sessionId);
+      const snap = await getDocs(query(collection(db,"sessions",sessionId,"sim_votes"), orderBy("createdAt","asc")));
       const rows = [["차수","시나리오번호","시나리오요약","선택한Way","이름","팀","응답시간"]];
       snap.forEach(d => {
         const v = d.data();
-        const stepIdx = v.stepIdx ?? 0;
-        const q = DEFAULT_SIM_Q[stepIdx];
-        rows.push([
-          s ? `${s.order}차 ${s.title}` : "",
-          `시나리오 ${stepIdx+1}`,
-          q ? q.context.slice(0,30)+"..." : "",
-          (v.optionTexts||[]).join(" / "),
-          v.author||"", v.team||"",
-          v.createdAt?.toDate ? v.createdAt.toDate().toLocaleString("ko-KR") : ""
-        ]);
+        const stepIdx = typeof v.stepIdx === "number" ? v.stepIdx : 0;
+        const step = SIM_STEPS[stepIdx];
+        const texts = (v.optionTexts||[]).join(" / ");
+        const ts = v.createdAt && v.createdAt.toDate ? v.createdAt.toDate().toLocaleString("ko-KR") : "";
+        rows.push([s2?s2.order+"차 "+s2.title:"", "시나리오 "+(stepIdx+1), step?step.context.slice(0,30)+"...":"", texts, v.author||"", v.team||"", ts]);
       });
-      const csvContent = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(",")).join("
-");
-      const blob = new Blob(["﻿"+csvContent], { type:"text/csv;charset=utf-8;" });
+      let csv = "\uFEFF";
+      rows.forEach(row => {
+        csv += row.map(cell => {
+          const s3 = String(cell).replace(/"/g, '""');
+          return '"' + s3 + '"';
+        }).join(",") + "\n";
+      });
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href=url; a.download=`시뮬레이션_${s?.order||""}차_${s?.title||""}.csv`;
+      a.href=url; a.download="시뮬레이션_결과.csv";
       a.click(); URL.revokeObjectURL(url);
       btn.disabled=false; btn.textContent="📥 CSV 다운로드";
-    });
+    };
+  });
 
-    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
-  </script>
+  // ── Excel 내보내기 ──
+  document.getElementById("export-btn").addEventListener("click", async () => {
+    const sessionId = document.getElementById("export-session-select").value;
+    if (!sessionId) { alert("차수를 선택하세요."); return; }
+    const btn=document.getElementById("export-btn"); btn.disabled=true; btn.textContent="준비 중...";
+    const statusEl=document.getElementById("export-status"); statusEl.textContent="데이터 수집 중...";
+    const s = sessions.find(s=>s.id===sessionId);
+    const wb = XLSX.utils.book_new();
+    const qSnap = await getDocs(query(collection(db,"sessions",sessionId,"questions"), orderBy("order","asc")));
+    const questions=[]; qSnap.forEach(d=>questions.push({id:d.id,...d.data()}));
+    const answerRows=[["차수","질문번호","질문내용","WAY","이름","팀","답변","좋아요수","등록시간"]];
+    for (const q of questions) {
+      const aSnap = await getDocs(query(collection(db,"sessions",sessionId,"questions",q.id,"answers"), orderBy("createdAt","asc")));
+      aSnap.forEach(d => {
+        const a=d.data();
+        const way=WAYS.find(w=>w.num===a.wayNum);
+        answerRows.push([s?s.order+"차 "+s.title:"",q.order,q.text,"WAY "+(a.wayNum||"")+" "+(way?way.label:""),a.author,a.team,a.text,a.likes||0,a.createdAt&&a.createdAt.toDate?a.createdAt.toDate().toLocaleString("ko-KR"):""]);
+      });
+    }
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(answerRows), "답변");
+    const pSnap = await getDocs(query(collection(db,"sessions",sessionId,"polls"), orderBy("order","asc")));
+    const pollRows=[["차수","투표번호","질문","선택지","득표수","득표율(%)"]];
+    pSnap.forEach(d => {
+      const p=d.data();
+      const total=Object.values(p.votes||{}).reduce((a,b)=>a+b,0);
+      (p.options||[]).forEach((opt,i) => {
+        const cnt=(p.votes||{})[i]||0;
+        pollRows.push([s?s.order+"차 "+s.title:"",p.order,p.question,opt,cnt,total?Math.round(cnt/total*100):0]);
+      });
+    });
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(pollRows), "투표결과");
+    XLSX.writeFile(wb, "KRAFTON_WoW_"+(s?s.order+"차_"+s.title:"")+".xlsx");
+    btn.disabled=false; btn.textContent="📥 Excel 다운로드";
+    statusEl.textContent="✅ 다운로드 완료!";
+  });
+
+  function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+</script>
 </body>
 </html>
