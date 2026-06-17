@@ -88,6 +88,7 @@
       <button class="tab-btn-admin active" data-tab="sessions">차수 관리</button>
       <button class="tab-btn-admin" data-tab="content">질문 / 투표</button>
       <button class="tab-btn-admin" data-tab="present">📺 발표 모드</button>
+      <button class="tab-btn-admin" data-tab="sim">💬 시뮬레이션 결과</button>
       <button class="tab-btn-admin" data-tab="export">📥 데이터 내보내기</button>
     </div>
 
@@ -171,6 +172,27 @@
       </div>
     </div>
 
+    <!-- 탭: 시뮬레이션 결과 -->
+    <div id="tab-sim" class="tab-content-admin">
+      <div class="card" style="margin-bottom:16px">
+        <label class="form-label">차수 선택</label>
+        <select id="sim-session-select" class="form-input" style="margin-top:4px">
+          <option value="">차수를 선택하세요</option>
+        </select>
+      </div>
+      <div id="sim-result-area" class="hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div class="presentation-header" style="flex:1;margin-bottom:0">
+            <div><h2 id="sim-result-title">-</h2><p>미묘한 순간 시뮬레이션 결과</p></div>
+          </div>
+          <button id="sim-csv-btn" class="btn btn-black" style="margin-left:12px;flex-shrink:0">📥 CSV 다운로드</button>
+        </div>
+        <!-- 시나리오 탭 -->
+        <div class="present-way-tabs" id="sim-step-tabs" style="margin-bottom:20px"></div>
+        <div id="sim-step-contents"></div>
+      </div>
+    </div>
+
     <!-- 탭: 데이터 내보내기 -->
     <div id="tab-export" class="tab-content-admin">
       <div class="card">
@@ -246,7 +268,7 @@
       document.getElementById("stat-sessions").textContent = sessions.length;
 
       // select 옵션 채우기
-      ["content-session-select","present-session-select","export-session-select"].forEach(id => {
+      ["content-session-select","present-session-select","export-session-select","sim-session-select"].forEach(id => {
         const sel = document.getElementById(id);
         const cur = sel.value;
         sel.innerHTML = `<option value="">차수를 선택하세요</option>` +
@@ -546,6 +568,113 @@
       XLSX.writeFile(wb, `KRAFTON_WoW_${s.order}차_${s.title}.xlsx`);
       btn.disabled=false; btn.textContent="📥 Excel 다운로드";
       statusEl.textContent="✅ 다운로드 완료!";
+    });
+
+    // ── 시뮬레이션 결과 탭 ──
+    const DEFAULT_SIM_Q = [
+      { id:"default_0", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로","WAY 3 – 모든 일에는 한 명의 책임자"], context:"이번 프로젝트의 신규 콘텐츠 기획..." },
+      { id:"default_1", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 9 – 주도하거나, 따르거나, 떠나거나"], context:"글로벌 공통 정책을 검토하는 회의..." },
+      { id:"default_2", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 7 – AI는 모든 업무의 최우선 파트너","WAY 8 – 자율은 스스로 원칙을 지키는 자세"], context:"프로젝트에서 반복적으로 발생하는 이슈..." },
+      { id:"default_3", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로"], context:"중요한 마일스톤이 코앞입니다. (리더의 관점)" },
+      { id:"default_4", q:"위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.", options:["WAY 1 – 도전은 담대하게, 시작은 작고 빠르게","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 7 – AI는 모든 업무의 최우선 파트너"], context:"신규 사업 기획안을 준비하고 있습니다..." },
+    ];
+
+    let simActiveSessionId = null;
+    let simUnsubscribers = [];
+
+    document.getElementById("sim-session-select").addEventListener("change", async e => {
+      simActiveSessionId = e.target.value;
+      simUnsubscribers.forEach(fn=>fn()); simUnsubscribers=[];
+      if (!simActiveSessionId) { document.getElementById("sim-result-area").classList.add("hidden"); return; }
+      document.getElementById("sim-result-area").classList.remove("hidden");
+      const s = sessions.find(s=>s.id===simActiveSessionId);
+      document.getElementById("sim-result-title").textContent = s ? s.title : "";
+
+      // 탭 렌더
+      const tabsEl = document.getElementById("sim-step-tabs");
+      const contentsEl = document.getElementById("sim-step-contents");
+      tabsEl.innerHTML = DEFAULT_SIM_Q.map((q,i) => `
+        <button class="present-way-tab${i===0?" active":""}" data-step="${i}">시나리오 ${i+1}</button>`).join("");
+      contentsEl.innerHTML = DEFAULT_SIM_Q.map((q,i) => `
+        <div class="present-way-content${i===0?" active":""}" id="sim-content-step-${i}" data-step="${i}"></div>`).join("");
+
+      tabsEl.querySelectorAll(".present-way-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          tabsEl.querySelectorAll(".present-way-tab").forEach(t=>t.classList.remove("active"));
+          contentsEl.querySelectorAll(".present-way-content").forEach(c=>c.classList.remove("active"));
+          tab.classList.add("active");
+          contentsEl.querySelector(`#sim-content-step-${tab.dataset.step}`).classList.add("active");
+        });
+      });
+
+      // 각 시나리오 실시간 구독
+      DEFAULT_SIM_Q.forEach((q, stepIdx) => {
+        const aggRef = doc(db,"sessions",simActiveSessionId,"sim_agg",`step_${stepIdx}`);
+        const unsub = onSnapshot(aggRef, snap => {
+          const el = document.getElementById(`sim-content-step-${stepIdx}`);
+          if (!el) return;
+          const data = snap.exists() ? snap.data() : {};
+          const total = data.total || 0;
+          const counts = data.counts || {};
+
+          el.innerHTML = `
+            <div style="background:var(--black);border-radius:var(--radius);padding:18px 22px;margin-bottom:20px">
+              <p style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.08em;margin-bottom:4px">시나리오 ${stepIdx+1}</p>
+              <p style="font-size:15px;font-weight:600;color:white;margin-bottom:2px">${esc(q.context)}</p>
+              <p style="font-size:13px;color:#888;margin-top:6px">총 ${total}명 참여</p>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              ${(q.options||[]).map((opt,i) => {
+                const cnt = counts[i] || 0;
+                const pct = total ? Math.round(cnt/total*100) : 0;
+                const barW = pct;
+                return `
+                  <div style="background:white;border:1px solid #e5e5e5;border-radius:10px;padding:14px 18px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                      <span style="font-size:14px;font-weight:600;color:var(--black)">${esc(opt)}</span>
+                      <span style="font-size:18px;font-weight:700;color:var(--red);min-width:50px;text-align:right">${pct}%</span>
+                    </div>
+                    <div style="height:8px;background:#f0f0f0;border-radius:4px;overflow:hidden;margin-bottom:4px">
+                      <div style="height:100%;width:${barW}%;background:var(--red);border-radius:4px;transition:width 0.5s ease"></div>
+                    </div>
+                    <span style="font-size:12px;color:#999">${cnt}명 선택</span>
+                  </div>`;
+              }).join("")}
+            </div>`;
+        });
+        simUnsubscribers.push(unsub);
+      });
+    });
+
+    // CSV 다운로드
+    document.getElementById("sim-csv-btn").addEventListener("click", async () => {
+      if (!simActiveSessionId) return;
+      const btn = document.getElementById("sim-csv-btn");
+      btn.disabled=true; btn.textContent="준비 중...";
+      const s = sessions.find(s=>s.id===simActiveSessionId);
+      const snap = await getDocs(query(collection(db,"sessions",simActiveSessionId,"sim_votes"), orderBy("createdAt","asc")));
+      const rows = [["차수","시나리오번호","시나리오요약","선택한Way","이름","팀","응답시간"]];
+      snap.forEach(d => {
+        const v = d.data();
+        const stepIdx = v.stepIdx ?? 0;
+        const q = DEFAULT_SIM_Q[stepIdx];
+        rows.push([
+          s ? `${s.order}차 ${s.title}` : "",
+          `시나리오 ${stepIdx+1}`,
+          q ? q.context.slice(0,30)+"..." : "",
+          (v.optionTexts||[]).join(" / "),
+          v.author||"", v.team||"",
+          v.createdAt?.toDate ? v.createdAt.toDate().toLocaleString("ko-KR") : ""
+        ]);
+      });
+      const csvContent = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(",")).join("
+");
+      const blob = new Blob(["﻿"+csvContent], { type:"text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href=url; a.download=`시뮬레이션_${s?.order||""}차_${s?.title||""}.csv`;
+      a.click(); URL.revokeObjectURL(url);
+      btn.disabled=false; btn.textContent="📥 CSV 다운로드";
     });
 
     function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
