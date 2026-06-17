@@ -7,45 +7,18 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ── Way 선택 화면 ── */
     .way-select-page { padding: 28px 0 60px; }
     .way-select-intro { margin-bottom: 24px; }
     .way-select-intro h1 { font-size: 22px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
-    .way-select-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-    .way-select-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--red);
-      border-radius: var(--radius);
-      padding: 20px;
-      cursor: pointer;
-      transition: box-shadow 0.15s, transform 0.15s;
-      box-shadow: var(--shadow);
-    }
+    .way-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .way-select-card { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--red); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: var(--shadow); }
     .way-select-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
     .way-select-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; margin-bottom: 8px; }
     .way-select-title { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.4; margin-bottom: 4px; }
     .way-select-en { font-size: 11px; color: var(--text-muted); font-style: italic; }
     .way-select-arrow { display: block; margin-top: 14px; font-size: 18px; color: var(--red); }
-
-    /* ── Way 설명 카드 ── */
-    .way-info-card {
-      background: var(--black);
-      border-radius: var(--radius);
-      padding: 22px 26px;
-      margin-bottom: 28px;
-      position: relative;
-      overflow: hidden;
-    }
-    .way-info-card::before {
-      content: ""; position: absolute;
-      top: 0; left: 0; width: 4px; height: 100%;
-      background: var(--red);
-    }
+    .way-info-card { background: var(--black); border-radius: var(--radius); padding: 22px 26px; margin-bottom: 28px; position: relative; overflow: hidden; }
+    .way-info-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--red); }
     .way-info-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.1em; margin-bottom: 4px; }
     .way-info-title-ko { font-size: 20px; font-weight: 700; color: white; margin-bottom: 2px; line-height: 1.3; }
     .way-info-title-en { font-size: 13px; color: #aaa; margin-bottom: 14px; font-style: italic; }
@@ -53,132 +26,83 @@
     .way-info-desc-ko { font-size: 14px; line-height: 1.85; color: #e0e0e0; margin-bottom: 8px; }
     .way-info-desc-en { font-size: 12px; line-height: 1.75; color: #777; }
 
-    /* ── 질문 섹션 ── */
+    /* 질문 태그 */
     .question-section { margin-bottom: 40px; }
-    .question-header {
-      display: flex; align-items: flex-start; gap: 12px;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid var(--black);
+    .question-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--black); }
+    .question-tag {
+      display: inline-flex; align-items: center;
+      flex-shrink: 0; padding: 4px 12px;
+      border-radius: 20px; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.04em; white-space: nowrap; margin-top: 3px;
     }
-    .question-num-circle {
-      width: 32px; height: 32px; flex-shrink: 0;
-      background: var(--red); color: white;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700;
-    }
-    .question-text-big { font-size: 17px; font-weight: 600; color: var(--black); line-height: 1.5; padding-top: 4px; }
+    .question-tag.real-talk { background: #fff0f2; color: var(--red); border: 1px solid #fca5a5; }
+    .question-tag.deep-dive { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+    .question-tag.none { background: var(--gray-100); color: var(--text-muted); border: 1px solid var(--border); }
+    .question-text-big { font-size: 17px; font-weight: 600; color: var(--black); line-height: 1.5; }
 
-    /* ── Padlet 그리드 ── */
-    .padlet-area { position: relative; }
-    .padlet-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 14px;
-      margin-bottom: 16px;
-    }
-
-    /* 새 카드 작성 버튼 */
-    .padlet-add-card {
-      background: white;
-      border: 2px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      cursor: pointer;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 8px; min-height: 140px;
-      transition: border-color 0.15s, background 0.15s;
-      color: var(--text-muted);
-      font-size: 13px; font-weight: 500;
-    }
+    /* Padlet */
+    .padlet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px; }
+    .padlet-add-card { background: white; border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 140px; transition: border-color 0.15s, background 0.15s; color: var(--text-muted); font-size: 13px; font-weight: 500; }
     .padlet-add-card:hover { border-color: var(--red); background: #fff8f8; color: var(--red); }
     .padlet-add-icon { font-size: 28px; }
-
-    /* 의견 카드 */
-    .padlet-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow);
-      display: flex; flex-direction: column;
-      gap: 10px;
-      transition: box-shadow 0.15s, transform 0.15s;
-      min-height: 140px;
-    }
+    .padlet-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, transform 0.15s; min-height: 140px; }
     .padlet-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
     .padlet-card.top-card { border-top: 3px solid var(--red); }
-    .padlet-card-body {
-      font-size: 14px; line-height: 1.65;
-      color: var(--text-primary);
-      white-space: pre-wrap;
-      flex: 1;
-    }
-    .padlet-card-footer {
-      display: flex; align-items: center; justify-content: space-between;
-      padding-top: 8px;
-      border-top: 1px solid var(--gray-100);
-    }
+    .padlet-card-body { font-size: 14px; line-height: 1.65; color: var(--text-primary); white-space: pre-wrap; flex: 1; }
+    .padlet-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; gap: 6px; }
     .padlet-author { font-size: 12px; color: var(--text-muted); }
     .padlet-author strong { color: var(--red); font-weight: 600; }
-    .padlet-like-btn {
-      display: inline-flex; align-items: center; gap: 4px;
-      background: none; border: 1px solid var(--border);
-      border-radius: 20px; padding: 4px 12px;
-      font-size: 12px; font-weight: 500;
-      cursor: pointer; color: var(--text-muted);
-      transition: all 0.15s; font-family: inherit;
-    }
+    .padlet-actions { display: flex; gap: 6px; align-items: center; }
+    .padlet-like-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-muted); transition: all 0.15s; font-family: inherit; }
     .padlet-like-btn:hover { background: #fff0f2; border-color: #fca5a5; color: var(--red); }
     .padlet-like-btn.liked { background: #fff0f2; border-color: var(--red); color: var(--red); }
-    .top-crown {
-      font-size: 11px; font-weight: 700;
-      color: var(--red); background: #fff0f2;
-      border: 1px solid #fca5a5;
-      padding: 2px 8px; border-radius: 20px;
-      margin-bottom: 4px; display: inline-block;
-    }
+    .padlet-edit-btn, .padlet-delete-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; font-family: inherit; transition: all 0.15s; }
+    .padlet-edit-btn:hover { color: var(--black); background: var(--gray-100); }
+    .padlet-delete-btn:hover { color: var(--red); background: #fff0f2; }
+    .top-crown { font-size: 11px; font-weight: 700; color: var(--red); background: #fff0f2; border: 1px solid #fca5a5; padding: 2px 8px; border-radius: 20px; margin-bottom: 4px; display: inline-block; }
 
-    /* 카드 작성 폼 (인라인) */
-    .padlet-write-form {
-      background: white;
-      border: 2px solid var(--red);
-      border-radius: var(--radius);
-      padding: 16px;
-      box-shadow: var(--shadow-md);
-      display: none;
-      flex-direction: column; gap: 10px;
-    }
+    /* 작성 중 */
+    .typing-card { background: #fffbf0; border: 1.5px dashed #f0c040; border-radius: var(--radius); padding: 14px 16px; min-height: 80px; display: flex; flex-direction: column; gap: 6px; }
+    .typing-indicator { font-size: 12px; color: #b08000; display: flex; align-items: center; gap: 6px; }
+    .typing-dots span { display: inline-block; width: 5px; height: 5px; background: #b08000; border-radius: 50%; animation: blink 1.2s infinite; }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
+    .typing-preview { font-size: 13px; color: #999; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* 작성 폼 */
+    .padlet-write-form { background: white; border: 2px solid var(--red); border-radius: var(--radius); padding: 16px; display: none; flex-direction: column; gap: 10px; }
     .padlet-write-form.open { display: flex; }
-    .padlet-write-form textarea {
-      width: 100%; border: 1px solid var(--border);
-      border-radius: 8px; padding: 10px 12px;
-      font-size: 14px; font-family: inherit;
-      resize: vertical; outline: none; min-height: 100px;
-    }
+    .padlet-write-form textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; outline: none; min-height: 100px; }
     .padlet-write-form textarea:focus { border-color: var(--red); }
     .padlet-write-actions { display: flex; justify-content: space-between; align-items: center; }
+    .edit-form { display: none; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .edit-form.open { display: flex; }
+    .edit-form textarea { width: 100%; border: 1px solid var(--red); border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: inherit; resize: vertical; outline: none; }
+    .edit-form-actions { display: flex; justify-content: flex-end; gap: 6px; }
 
-    .back-to-ways {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 13px; color: var(--text-muted);
-      background: none; border: 1px solid var(--border);
-      border-radius: 7px; padding: 6px 14px;
-      cursor: pointer; font-family: inherit;
-      margin-bottom: 20px; transition: all 0.15s;
-    }
+    /* Poll */
+    .poll-section { margin-bottom: 28px; }
+    .poll-card { background: white; border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 14px; }
+    .poll-badge { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.05em; margin-bottom: 8px; }
+    .poll-question { font-size: 16px; font-weight: 600; color: var(--black); margin-bottom: 16px; }
+    .poll-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .poll-option { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+    .poll-option:hover:not(.voted) { border-color: var(--red); background: #fff8f8; }
+    .poll-option.selected { border-color: var(--red); background: #fff0f2; }
+    .poll-option.voted { cursor: default; }
+    .poll-option-top { display: flex; justify-content: space-between; align-items: center; }
+    .poll-option-label { font-size: 14px; font-weight: 500; }
+    .poll-pct { font-size: 13px; font-weight: 600; color: var(--red); }
+    .poll-bar { height: 4px; background: #e5e5e5; border-radius: 2px; margin-top: 8px; overflow: hidden; }
+    .poll-bar-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.4s; }
+    .poll-votes-count { font-size: 11px; color: var(--text-muted); margin-top: 3px; display: block; }
+    .voted-notice { font-size: 13px; color: #16a34a; font-weight: 500; margin-top: 4px; }
+
+    .back-to-ways { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 7px; padding: 6px 14px; cursor: pointer; font-family: inherit; margin-bottom: 20px; transition: all 0.15s; }
     .back-to-ways:hover { color: var(--black); border-color: #999; }
-
-    @media (max-width: 640px) {
-      .way-select-grid { grid-template-columns: 1fr 1fr; }
-      .padlet-grid { grid-template-columns: 1fr 1fr; }
-    }
-    @media (max-width: 400px) {
-      .way-select-grid { grid-template-columns: 1fr; }
-      .padlet-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 640px) { .way-select-grid { grid-template-columns: 1fr 1fr; } .padlet-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 400px) { .way-select-grid { grid-template-columns: 1fr; } .padlet-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -195,7 +119,6 @@
     </div>
   </header>
 
-  <!-- Step 1: 이름 + 팀명 -->
   <div id="name-gate" class="gate-overlay">
     <div class="gate-card">
       <div class="gate-logo">
@@ -205,20 +128,13 @@
       <h2>참여자 정보 입력</h2>
       <p class="muted" style="margin-bottom:20px">이름과 팀명을 입력하고 참여하세요.</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div>
-          <label class="form-label">이름</label>
-          <input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20" />
-        </div>
-        <div>
-          <label class="form-label">팀명</label>
-          <input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30" />
-        </div>
+        <div><label class="form-label">이름</label><input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20" /></div>
+        <div><label class="form-label">팀명</label><input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30" /></div>
       </div>
       <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">다음 →</button>
     </div>
   </div>
 
-  <!-- Step 2: Way 카드 9개 선택 -->
   <div id="way-select-page" class="container way-select-page hidden">
     <div class="way-select-intro">
       <h1 id="way-select-session-title">교육 세션</h1>
@@ -227,18 +143,12 @@
     <div class="way-select-grid" id="way-select-grid"></div>
   </div>
 
-  <!-- Step 3: Way 내부 (Padlet 스타일) -->
   <main class="container main-content" id="session-main" style="display:none">
     <div class="session-info-bar">
-      <div>
-        <h1 id="session-title-main">-</h1>
-        <p class="muted" id="session-date-main">-</p>
-      </div>
+      <div><h1 id="session-title-main">-</h1><p class="muted" id="session-date-main">-</p></div>
       <div id="my-way-badge" class="way-badge-large"></div>
     </div>
-
     <button class="back-to-ways" id="back-to-ways-btn">← 다른 조로 이동</button>
-
     <div id="way-info-section"></div>
     <div id="questions-container"></div>
   </main>
@@ -246,8 +156,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, doc, getDoc,
-      query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp
+      getFirestore, collection, addDoc, doc, getDoc, deleteDoc,
+      query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp, setDoc
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { FIREBASE_CONFIG } from "./firebase-config.js";
 
@@ -265,7 +175,6 @@
 
     const app = initializeApp(FIREBASE_CONFIG);
     const db = getFirestore(app);
-
     const params = new URLSearchParams(location.search);
     const sessionId = params.get("id");
     if (!sessionId) { location.href = "index.html"; }
@@ -273,10 +182,10 @@
     let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
     let userTeam = localStorage.getItem(`edu_team_${sessionId}`) || "";
     let userWay = null;
-    let sessionData = null;
     let unsubscribers = [];
+    let typingTimer = null;
+    const myTypingId = `${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
-    // 이름 저장돼 있으면 스킵
     if (userName && userTeam) {
       document.getElementById("name-gate").style.display = "none";
       initSessionInfo().then(showWaySelect);
@@ -299,26 +208,26 @@
       try {
         const snap = await getDoc(doc(db, "sessions", sessionId));
         if (!snap.exists()) { location.href = "index.html"; return; }
-        sessionData = snap.data();
-        const d = sessionData.date?.toDate ? sessionData.date.toDate() : new Date(sessionData.date);
-        document.getElementById("session-label").textContent = `${sessionData.order}차 교육`;
-        document.getElementById("session-title-main").textContent = sessionData.title;
+        const s = snap.data();
+        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+        document.getElementById("session-label").textContent = `${s.order}차 교육`;
+        document.getElementById("session-title-main").textContent = s.title;
         document.getElementById("session-date-main").textContent =
           d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) + " " +
           d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-        document.title = `${sessionData.title} | KRAFTON WoW`;
-        document.getElementById("way-select-session-title").textContent = sessionData.title;
+        document.title = `${s.title} | KRAFTON WoW`;
+        document.getElementById("way-select-session-title").textContent = s.title;
         document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
       } catch(e) { console.error(e); }
     }
 
     function showWaySelect() {
       unsubscribers.forEach(fn => fn()); unsubscribers = [];
+      clearTyping();
       document.getElementById("session-main").style.display = "none";
       document.getElementById("questions-container").innerHTML = "";
       const page = document.getElementById("way-select-page");
       page.classList.remove("hidden");
-
       const grid = document.getElementById("way-select-grid");
       grid.innerHTML = WAYS.map(w => `
         <div class="way-select-card" data-num="${w.num}">
@@ -327,7 +236,6 @@
           <div class="way-select-en">${w.titleEn}</div>
           <span class="way-select-arrow">→</span>
         </div>`).join("");
-
       grid.querySelectorAll(".way-select-card").forEach(card => {
         card.addEventListener("click", () => {
           userWay = parseInt(card.dataset.num);
@@ -341,7 +249,6 @@
       const way = WAYS.find(w => w.num === wayNum);
       document.getElementById("session-main").style.display = "block";
       document.getElementById("my-way-badge").textContent = `WAY ${wayNum}`;
-
       document.getElementById("way-info-section").innerHTML = `
         <div class="way-info-card">
           <div class="way-info-num">WAY ${way.num}</div>
@@ -351,49 +258,64 @@
           <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
           <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
         </div>`;
-
-      loadQuestions(wayNum);
+      loadContent(wayNum);
       window.scrollTo(0,0);
     }
 
     document.getElementById("back-to-ways-btn").addEventListener("click", () => {
       unsubscribers.forEach(fn => fn()); unsubscribers = [];
+      clearTyping();
       showWaySelect();
       window.scrollTo(0,0);
     });
 
-    function loadQuestions(wayNum) {
+    // ── 작성 중 상태 ──
+    async function setTyping(questionId, text) {
+      try {
+        await setDoc(doc(db, "sessions", sessionId, "typing", myTypingId), {
+          author: userName, team: userTeam, wayNum: userWay,
+          questionId, preview: text.slice(0,40), updatedAt: serverTimestamp()
+        });
+      } catch(e) { console.error("typing set error:", e); }
+    }
+    async function clearTyping() {
+      try {
+        await setDoc(doc(db, "sessions", sessionId, "typing", myTypingId), {
+          author: userName, team: userTeam, wayNum: userWay,
+          questionId: null, preview: "", updatedAt: serverTimestamp()
+        });
+      } catch(e) {}
+    }
+
+    // ── 콘텐츠 로드 ──
+    function loadContent(wayNum) {
       const container = document.getElementById("questions-container");
       container.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>불러오는 중...</p></div>`;
 
-      const q = query(collection(db, "sessions", sessionId, "questions"), orderBy("order","asc"));
-      const unsub = onSnapshot(q, snap => {
-        const questions = [];
-        snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
-
-        if (!questions.length) {
-          container.innerHTML = `<div class="empty-state" style="padding:60px 20px">
-            <p style="font-size:15px">아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p>
-          </div>`;
-          return;
-        }
-
-        // 질문 섹션 구성 (없는 것만 추가)
-        questions.forEach(q => {
-          if (!document.getElementById(`q-section-${q.id}`)) {
-            const section = document.createElement("div");
-            section.className = "question-section";
-            section.id = `q-section-${q.id}`;
-            section.innerHTML = `
-              <div class="question-header">
-                <div class="question-num-circle">${q.order}</div>
-                <div class="question-text-big">${esc(q.text)}</div>
-              </div>
-              <div class="padlet-area">
+      // 질문
+      const qUnsub = onSnapshot(
+        query(collection(db, "sessions", sessionId, "questions"), orderBy("order","asc")),
+        snap => {
+          const questions = []; snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
+          if (!container.querySelector(".content-loaded")) {
+            container.innerHTML = `<div class="content-loaded"></div>`;
+          }
+          const loaded = container.querySelector(".content-loaded");
+          questions.forEach(q => {
+            if (!document.getElementById(`q-section-${q.id}`)) {
+              const tagClass = q.tag === "Real Talk" ? "real-talk" : q.tag === "Deep Dive" ? "deep-dive" : "none";
+              const tagLabel = q.tag || "Q";
+              const section = document.createElement("div");
+              section.className = "question-section"; section.id = `q-section-${q.id}`;
+              section.innerHTML = `
+                <div class="question-header">
+                  <span class="question-tag ${tagClass}">${tagLabel}</span>
+                  <div class="question-text-big">${esc(q.text)}</div>
+                </div>
+                <div id="typing-area-${q.id}" style="margin-bottom:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px"></div>
                 <div class="padlet-grid" id="padlet-grid-${q.id}">
                   <div class="padlet-add-card" id="add-btn-${q.id}">
-                    <span class="padlet-add-icon">＋</span>
-                    <span>의견 남기기</span>
+                    <span class="padlet-add-icon">＋</span><span>의견 남기기</span>
                   </div>
                 </div>
                 <div class="padlet-write-form" id="write-form-${q.id}">
@@ -401,126 +323,245 @@
                   <div class="padlet-write-actions">
                     <span class="char-count write-char-${q.id}">0 / 500</span>
                     <div style="display:flex;gap:8px">
-                      <button class="btn btn-sm cancel-btn" data-qid="${q.id}">취소</button>
-                      <button class="btn btn-primary btn-sm submit-btn" data-qid="${q.id}">등록</button>
+                      <button class="btn btn-sm cancel-btn">취소</button>
+                      <button class="btn btn-primary btn-sm submit-btn">등록</button>
                     </div>
                   </div>
-                </div>
-              </div>`;
-
-            if (container.firstChild && container.firstChild.classList && container.firstChild.classList.contains("loading-state")) {
-              container.innerHTML = "";
+                </div>`;
+              loaded.appendChild(section);
+              attachQuestionEvents(q.id, wayNum);
+              loadAnswers(q.id, wayNum);
+              loadTyping(q.id, wayNum);
             }
-            container.appendChild(section);
+          });
+          if (!questions.length) container.innerHTML = `<div class="empty-state"><p>아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p></div>`;
+        },
+        err => { container.innerHTML = `<div class="empty-state error"><p>${err.message}</p></div>`; }
+      );
+      unsubscribers.push(qUnsub);
 
-            // 의견 남기기 버튼
-            document.getElementById(`add-btn-${q.id}`).addEventListener("click", () => {
-              const form = document.getElementById(`write-form-${q.id}`);
-              form.classList.add("open");
-              form.querySelector("textarea").focus();
-              document.getElementById(`add-btn-${q.id}`).style.display = "none";
-            });
+      // 투표
+      const pUnsub = onSnapshot(
+        query(collection(db, "sessions", sessionId, "polls"), orderBy("order","asc")),
+        snap => {
+          const polls = []; snap.forEach(d => polls.push({ id: d.id, ...d.data() }));
+          renderPolls(polls);
+        }
+      );
+      unsubscribers.push(pUnsub);
+    }
 
-            // 취소
-            section.querySelector(`.cancel-btn`).addEventListener("click", () => {
-              const form = document.getElementById(`write-form-${q.id}`);
-              form.classList.remove("open");
-              form.querySelector("textarea").value = "";
-              section.querySelector(`.write-char-${q.id}`).textContent = "0 / 500";
-              document.getElementById(`add-btn-${q.id}`).style.display = "";
-            });
+    function attachQuestionEvents(qId, wayNum) {
+      const addBtn = document.getElementById(`add-btn-${qId}`);
+      const form = document.getElementById(`write-form-${qId}`);
+      const ta = form.querySelector("textarea");
 
-            // 글자수
-            section.querySelector(`#write-form-${q.id} textarea`).addEventListener("input", function() {
-              section.querySelector(`.write-char-${q.id}`).textContent = `${this.value.length} / 500`;
-            });
+      addBtn.addEventListener("click", () => { form.classList.add("open"); ta.focus(); addBtn.style.display="none"; });
 
-            // 등록
-            section.querySelector(`.submit-btn`).addEventListener("click", async () => {
-              const ta = document.getElementById(`write-form-${q.id}`).querySelector("textarea");
-              const text = ta.value.trim();
-              if (!text) return;
-              const btn = section.querySelector(`.submit-btn`);
-              btn.disabled = true; btn.textContent = "등록 중...";
-              try {
-                await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
-                  author: userName, team: userTeam, wayNum,
-                  text, likes: 0, createdAt: serverTimestamp()
-                });
-                ta.value = "";
-                section.querySelector(`.write-char-${q.id}`).textContent = "0 / 500";
-                document.getElementById(`write-form-${q.id}`).classList.remove("open");
-                document.getElementById(`add-btn-${q.id}`).style.display = "";
-              } catch(e) { alert(e.message); }
-              btn.disabled = false; btn.textContent = "등록";
-            });
+      ta.addEventListener("input", () => {
+        const section = document.getElementById(`q-section-${qId}`);
+        section.querySelector(`.write-char-${qId}`).textContent = `${ta.value.length} / 500`;
+        clearTimeout(typingTimer);
+        if (ta.value.trim()) typingTimer = setTimeout(() => setTyping(qId, ta.value), 400);
+        else clearTyping();
+      });
 
-            loadAnswers(q.id, wayNum);
+      form.querySelector(".cancel-btn").addEventListener("click", () => {
+        form.classList.remove("open"); ta.value = "";
+        const section = document.getElementById(`q-section-${qId}`);
+        section.querySelector(`.write-char-${qId}`).textContent = "0 / 500";
+        addBtn.style.display=""; clearTyping();
+      });
+
+      form.querySelector(".submit-btn").addEventListener("click", async () => {
+        const text = ta.value.trim(); if (!text) return;
+        const btn = form.querySelector(".submit-btn");
+        btn.disabled=true; btn.textContent="등록 중...";
+        try {
+          await addDoc(collection(db, "sessions", sessionId, "questions", qId, "answers"), {
+            author: userName, team: userTeam, wayNum,
+            text, likes: 0, likedBy: [], createdAt: serverTimestamp()
+          });
+          ta.value="";
+          const section = document.getElementById(`q-section-${qId}`);
+          section.querySelector(`.write-char-${qId}`).textContent = "0 / 500";
+          form.classList.remove("open"); addBtn.style.display=""; clearTyping();
+        } catch(e) { alert(e.message); }
+        btn.disabled=false; btn.textContent="등록";
+      });
+    }
+
+    // ── 작성 중 표시 ──
+    function loadTyping(questionId, wayNum) {
+      const unsub = onSnapshot(collection(db, "sessions", sessionId, "typing"), snap => {
+        const area = document.getElementById(`typing-area-${questionId}`);
+        if (!area) return;
+        const typists = [];
+        snap.forEach(d => {
+          const t = d.data();
+          if (d.id !== myTypingId && t.questionId === questionId && t.wayNum === wayNum && t.preview) {
+            typists.push(t);
           }
         });
-      }, err => {
-        console.error("questions snapshot error:", err);
-        container.innerHTML = `<div class="empty-state error"><p>질문을 불러오지 못했습니다.<br>${err.message}</p></div>`;
+        if (!typists.length) { area.innerHTML = ""; area.style.display="none"; return; }
+        area.style.display="grid";
+        area.innerHTML = typists.map(t => `
+          <div class="typing-card">
+            <div class="typing-indicator">
+              <span style="font-weight:600;color:#b08000">${esc(t.author)}</span>님이 작성 중
+              <span class="typing-dots"><span></span><span></span><span></span></span>
+            </div>
+            ${t.preview ? `<div class="typing-preview">${esc(t.preview)}...</div>` : ""}
+          </div>`).join("");
       });
       unsubscribers.push(unsub);
     }
 
+    // ── 답변 로드 ──
     function loadAnswers(questionId, wayNum) {
-      const q = query(
-        collection(db, "sessions", sessionId, "questions", questionId, "answers"),
-        orderBy("likes","desc")
-      );
-      const unsub = onSnapshot(q, snap => {
-        const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-        const items = all.filter(a => a.wayNum === wayNum);
+      const unsub = onSnapshot(
+        query(collection(db, "sessions", sessionId, "questions", questionId, "answers"), orderBy("likes","desc")),
+        snap => {
+          const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
+          const items = all.filter(a => a.wayNum === wayNum);
+          const grid = document.getElementById(`padlet-grid-${questionId}`);
+          const addBtn = document.getElementById(`add-btn-${questionId}`);
+          if (!grid) return;
+          grid.querySelectorAll(".padlet-card").forEach(c => c.remove());
+          const maxLikes = items.length ? Math.max(...items.map(i => Number(i.likes)||0)) : 0;
 
-        const grid = document.getElementById(`padlet-grid-${questionId}`);
-        if (!grid) return;
+          items.forEach(item => {
+            const likedBy = item.likedBy || [];
+            const liked = likedBy.includes(myTypingId);
+            const isTop = Number(item.likes) > 0 && Number(item.likes) === maxLikes;
+            const isMine = item.author === userName && item.team === userTeam;
+            const card = document.createElement("div");
+            card.className = `padlet-card${isTop?" top-card":""}`;
+            card.innerHTML = `
+              ${isTop?`<span class="top-crown">👑 대표 의견</span>`:""}
+              <p class="padlet-card-body">${esc(item.text)}</p>
+              <div class="edit-form" id="edit-form-${item.id}">
+                <textarea>${esc(item.text)}</textarea>
+                <div class="edit-form-actions">
+                  <button class="btn btn-sm edit-cancel-btn">취소</button>
+                  <button class="btn btn-primary btn-sm edit-save-btn">저장</button>
+                </div>
+              </div>
+              <div class="padlet-card-footer">
+                <div class="padlet-author"><strong>${esc(item.author)}</strong> · ${esc(item.team)}</div>
+                <div class="padlet-actions">
+                  ${isMine?`<button class="padlet-edit-btn" title="수정">✏️</button><button class="padlet-delete-btn" title="삭제">🗑️</button>`:""}
+                  <button class="padlet-like-btn ${liked?"liked":""}" title="${liked?"좋아요 취소":"좋아요"}">
+                    ${liked?"❤️":"🤍"} ${Number(item.likes)||0}
+                  </button>
+                </div>
+              </div>`;
 
-        const addBtn = document.getElementById(`add-btn-${questionId}`);
-        const maxLikes = items.length ? Math.max(...items.map(i => Number(i.likes)||0)) : 0;
+            // 좋아요 (undo 가능 — likedBy 배열로 관리)
+            card.querySelector(".padlet-like-btn").addEventListener("click", async () => {
+              const btn = card.querySelector(".padlet-like-btn");
+              const currentLikedBy = item.likedBy || [];
+              if (currentLikedBy.includes(myTypingId)) {
+                // undo
+                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), {
+                  likes: Math.max(0, (item.likes||0)-1),
+                  likedBy: currentLikedBy.filter(id => id !== myTypingId)
+                });
+              } else {
+                // like
+                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), {
+                  likes: increment(1),
+                  likedBy: [...currentLikedBy, myTypingId]
+                });
+              }
+            });
 
-        // 기존 카드 제거 (add 버튼 제외)
-        grid.querySelectorAll(".padlet-card").forEach(c => c.remove());
-
-        // 카드 렌더 (add 버튼 앞에 삽입)
-        items.forEach(item => {
-          const likedKey = `like_${sessionId}_${questionId}_${item.id}`;
-          const liked = localStorage.getItem(likedKey) === "1";
-          const isTop = Number(item.likes) > 0 && Number(item.likes) === maxLikes;
-
-          const card = document.createElement("div");
-          card.className = `padlet-card${isTop?" top-card":""}`;
-          card.innerHTML = `
-            ${isTop ? `<span class="top-crown">👑 대표 의견</span>` : ""}
-            <p class="padlet-card-body">${esc(item.text)}</p>
-            <div class="padlet-card-footer">
-              <div class="padlet-author"><strong>${esc(item.author)}</strong> · ${esc(item.team)}</div>
-              <button class="padlet-like-btn ${liked?"liked":""}" data-qid="${questionId}" data-id="${item.id}" data-liked="${liked}">
-                ${liked?"❤️":"🤍"} ${Number(item.likes)||0}
-              </button>
-            </div>`;
-
-          card.querySelector(".padlet-like-btn").addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const btn = card.querySelector(".padlet-like-btn");
-            if (btn.dataset.liked === "true") return;
-            localStorage.setItem(`like_${sessionId}_${questionId}_${item.id}`, "1");
-            btn.dataset.liked = "true";
-            await updateDoc(
-              doc(db, "sessions", sessionId, "questions", questionId, "answers", item.id),
-              { likes: increment(1) }
-            );
+            // 수정
+            if (isMine) {
+              card.querySelector(".padlet-edit-btn").addEventListener("click", () => {
+                card.querySelector(".padlet-card-body").style.display="none";
+                card.querySelector(`#edit-form-${item.id}`).classList.add("open");
+              });
+              card.querySelector(".edit-cancel-btn").addEventListener("click", () => {
+                card.querySelector(".padlet-card-body").style.display="";
+                card.querySelector(`#edit-form-${item.id}`).classList.remove("open");
+              });
+              card.querySelector(".edit-save-btn").addEventListener("click", async () => {
+                const newText = card.querySelector(`#edit-form-${item.id} textarea`).value.trim();
+                if (!newText) return;
+                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), { text: newText });
+                card.querySelector(`#edit-form-${item.id}`).classList.remove("open");
+                card.querySelector(".padlet-card-body").style.display="";
+              });
+              card.querySelector(".padlet-delete-btn").addEventListener("click", async () => {
+                if (!confirm("의견을 삭제하시겠습니까?")) return;
+                await deleteDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id));
+              });
+            }
+            grid.insertBefore(card, addBtn);
           });
-
-          grid.insertBefore(card, addBtn);
-        });
-
-        if (!items.length && addBtn) {
-          addBtn.style.display = "";
-        }
-      }, err => console.error("answers snapshot error:", err));
+        },
+        err => console.error(err)
+      );
       unsubscribers.push(unsub);
+    }
+
+    // ── 투표 ──
+    function renderPolls(polls) {
+      const container = document.getElementById("questions-container");
+      let pollsDiv = document.getElementById("polls-section");
+      if (!pollsDiv) { pollsDiv = document.createElement("div"); pollsDiv.id="polls-section"; container.appendChild(pollsDiv); }
+      if (!polls.length) { pollsDiv.innerHTML=""; return; }
+      pollsDiv.innerHTML = `<h3 style="font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--black)">🗳️ 투표 / 설문</h3>` +
+        polls.map(poll => {
+          const myVoteKey = `vote_${sessionId}_${poll.id}`;
+          const myVote = localStorage.getItem(myVoteKey);
+          const total = Object.values(poll.votes||{}).reduce((a,b)=>a+b,0);
+          return `
+            <div class="poll-card" id="poll-card-${poll.id}">
+              <div class="poll-badge">${poll.type==="multi"?"복수선택":"단일선택"}</div>
+              <div class="poll-question">${esc(poll.question)}</div>
+              <div class="poll-options" data-poll="${poll.id}" data-type="${poll.type}">
+                ${(poll.options||[]).map((opt,i) => {
+                  const cnt=(poll.votes||{})[i]||0;
+                  const pct=total?Math.round(cnt/total*100):0;
+                  const sel=myVote&&myVote.split(",").includes(String(i));
+                  return `
+                    <div class="poll-option ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}">
+                      <div class="poll-option-top">
+                        <span class="poll-option-label">${esc(opt)}</span>
+                        ${myVote?`<span class="poll-pct">${pct}%</span>`:""}
+                      </div>
+                      ${myVote?`<div class="poll-bar"><div class="poll-bar-fill" style="width:${pct}%"></div></div><span class="poll-votes-count">${cnt}명</span>`:""}
+                    </div>`;
+                }).join("")}
+              </div>
+              ${!myVote
+                ?`<button class="btn btn-primary poll-vote-btn" data-poll="${poll.id}">투표하기</button>`
+                :`<p class="voted-notice">✓ 투표 완료 (총 ${total}명 참여)</p>`}
+            </div>`;
+        }).join("");
+
+      document.querySelectorAll(".poll-option:not(.voted)").forEach(opt => {
+        opt.addEventListener("click", () => {
+          const wrap = opt.closest(".poll-options");
+          if (wrap.dataset.type==="single") wrap.querySelectorAll(".poll-option").forEach(o=>o.classList.remove("selected"));
+          opt.classList.toggle("selected");
+        });
+      });
+      document.querySelectorAll(".poll-vote-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const pollId = btn.dataset.poll;
+          const wrap = document.querySelector(`.poll-options[data-poll="${pollId}"]`);
+          const selected = [...wrap.querySelectorAll(".poll-option.selected")].map(o=>Number(o.dataset.idx));
+          if (!selected.length) { alert("선택지를 선택해주세요."); return; }
+          btn.disabled=true; btn.textContent="제출 중...";
+          const updates={};
+          selected.forEach(i => { updates[`votes.${i}`]=increment(1); });
+          await updateDoc(doc(db,"sessions",sessionId,"polls",pollId), updates);
+          localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
+        });
+      });
     }
 
     function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
