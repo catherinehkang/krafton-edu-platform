@@ -7,102 +7,140 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    .way-select-page { padding: 28px 0 60px; }
-    .way-select-intro { margin-bottom: 24px; }
-    .way-select-intro h1 { font-size: 22px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
-    .way-select-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .way-select-card { background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--red); border-radius: var(--radius); padding: 20px; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; box-shadow: var(--shadow); }
-    .way-select-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-    .way-select-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.08em; margin-bottom: 8px; }
-    .way-select-title { font-size: 14px; font-weight: 600; color: var(--black); line-height: 1.4; margin-bottom: 4px; }
-    .way-select-en { font-size: 11px; color: var(--text-muted); font-style: italic; }
-    .way-select-arrow { display: block; margin-top: 14px; font-size: 18px; color: var(--red); }
-    .way-info-card { background: var(--black); border-radius: var(--radius); padding: 22px 26px; margin-bottom: 28px; position: relative; overflow: hidden; }
-    .way-info-card::before { content: ""; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--red); }
-    .way-info-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.1em; margin-bottom: 4px; }
-    .way-info-title-ko { font-size: 20px; font-weight: 700; color: white; margin-bottom: 2px; line-height: 1.3; }
-    .way-info-title-en { font-size: 13px; color: #aaa; margin-bottom: 14px; font-style: italic; }
-    .way-info-divider { border: none; border-top: 1px solid #333; margin: 12px 0; }
-    .way-info-desc-ko { font-size: 14px; line-height: 1.85; color: #e0e0e0; margin-bottom: 8px; }
-    .way-info-desc-en { font-size: 12px; line-height: 1.75; color: #777; }
+    /* ── 공통 ── */
+    .page { display:none; }
+    .page.active { display:block; }
 
-    /* 질문 태그 */
-    .question-section { margin-bottom: 40px; }
-    .question-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--black); }
-    .question-tag {
-      display: inline-flex; align-items: center;
-      flex-shrink: 0; padding: 4px 12px;
-      border-radius: 20px; font-size: 11px; font-weight: 700;
-      letter-spacing: 0.04em; white-space: nowrap; margin-top: 3px;
-    }
-    .question-tag.real-talk { background: #fff0f2; color: var(--red); border: 1px solid #fca5a5; }
-    .question-tag.deep-dive { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
-    .question-tag.none { background: var(--gray-100); color: var(--text-muted); border: 1px solid var(--border); }
-    .question-text-big { font-size: 17px; font-weight: 600; color: var(--black); line-height: 1.5; }
+    /* ── 게이트 ── */
+    .gate-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px; }
+    .gate-card { background:white; border-radius:14px; padding:36px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.2); border-top:4px solid var(--red); }
+    .gate-logo { display:flex; align-items:center; gap:8px; margin-bottom:20px; }
+    .gate-logo span { font-size:13px; font-weight:600; color:var(--gray-600,#666); letter-spacing:0.05em; }
+
+    /* ── 허브 ── */
+    .hub-header { background:var(--black); border-radius:var(--radius); padding:20px 24px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
+    .hub-header-left h1 { font-size:18px; font-weight:700; color:white; margin-bottom:2px; }
+    .hub-header-left p { font-size:13px; color:#aaa; }
+    .hub-user { font-size:13px; color:#888; white-space:nowrap; }
+
+    .hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+    .hub-panel { background:white; border:1px solid var(--border,#e5e5e5); border-radius:var(--radius); overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+    .hub-panel-header { padding:16px 20px; border-bottom:1px solid var(--border,#e5e5e5); }
+    .hub-panel-title { font-size:13px; font-weight:700; color:var(--black); letter-spacing:0.02em; display:flex; align-items:center; gap:8px; }
+    .hub-panel-body { padding:16px 20px; }
+
+    /* 활동 카드 */
+    .activity-card { border:1px solid var(--border,#e5e5e5); border-radius:10px; padding:16px 18px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+    .activity-card:last-child { margin-bottom:0; }
+    .activity-card:hover { border-color:var(--red); background:#fff8f8; }
+    .activity-card-icon { width:40px; height:40px; border-radius:10px; background:#fff0f2; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .activity-card-info { flex:1; min-width:0; }
+    .activity-card-name { font-size:14px; font-weight:600; color:var(--black); margin-bottom:2px; }
+    .activity-card-desc { font-size:12px; color:var(--text-muted,#666); }
+    .activity-card-arrow { font-size:16px; color:var(--red); flex-shrink:0; }
+
+    /* Way 카드 */
+    .way-mini-grid { display:flex; flex-direction:column; gap:8px; }
+    .way-mini-card { border:1px solid var(--border,#e5e5e5); border-radius:8px; padding:12px 14px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:10px; }
+    .way-mini-card:hover { border-color:var(--red); background:#fff8f8; }
+    .way-mini-num { font-size:10px; font-weight:700; color:var(--red); letter-spacing:0.06em; width:36px; flex-shrink:0; }
+    .way-mini-title { font-size:12px; font-weight:500; color:var(--black); line-height:1.35; flex:1; }
+    .way-mini-arrow { font-size:13px; color:#ccc; flex-shrink:0; }
+
+    /* ── Way 세션 ── */
+    .way-info-card { background:var(--black); border-radius:var(--radius); padding:22px 26px; margin-bottom:24px; position:relative; overflow:hidden; }
+    .way-info-card::before { content:""; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--red); }
+    .way-info-num { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.1em; margin-bottom:4px; }
+    .way-info-title-ko { font-size:20px; font-weight:700; color:white; margin-bottom:2px; line-height:1.3; }
+    .way-info-title-en { font-size:13px; color:#aaa; margin-bottom:14px; font-style:italic; }
+    .way-info-divider { border:none; border-top:1px solid #333; margin:12px 0; }
+    .way-info-desc-ko { font-size:14px; line-height:1.85; color:#e0e0e0; margin-bottom:8px; }
+    .way-info-desc-en { font-size:12px; line-height:1.75; color:#777; }
+
+    .question-section { margin-bottom:36px; }
+    .question-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--black); }
+    .question-tag { display:inline-flex; align-items:center; flex-shrink:0; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; margin-top:3px; }
+    .question-tag.real-talk { background:#fff0f2; color:var(--red); border:1px solid #fca5a5; }
+    .question-tag.deep-dive { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
+    .question-tag.none { background:#f3f4f6; color:#666; border:1px solid #e5e7eb; }
+    .question-text-big { font-size:17px; font-weight:600; color:var(--black); line-height:1.5; }
 
     /* Padlet */
-    .padlet-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px; }
-    .padlet-add-card { background: white; border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 140px; transition: border-color 0.15s, background 0.15s; color: var(--text-muted); font-size: 13px; font-weight: 500; }
-    .padlet-add-card:hover { border-color: var(--red); background: #fff8f8; color: var(--red); }
-    .padlet-add-icon { font-size: 28px; }
-    .padlet-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, transform 0.15s; min-height: 140px; }
-    .padlet-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
-    .padlet-card.top-card { border-top: 3px solid var(--red); }
-    .padlet-card-body { font-size: 14px; line-height: 1.65; color: var(--text-primary); white-space: pre-wrap; flex: 1; }
-    .padlet-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--gray-100); flex-wrap: wrap; gap: 6px; }
-    .padlet-author { font-size: 12px; color: var(--text-muted); }
-    .padlet-author strong { color: var(--red); font-weight: 600; }
-    .padlet-actions { display: flex; gap: 6px; align-items: center; }
-    .padlet-like-btn { display: inline-flex; align-items: center; gap: 4px; background: none; border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text-muted); transition: all 0.15s; font-family: inherit; }
-    .padlet-like-btn:hover { background: #fff0f2; border-color: #fca5a5; color: var(--red); }
-    .padlet-like-btn.liked { background: #fff0f2; border-color: var(--red); color: var(--red); }
-    .padlet-edit-btn, .padlet-delete-btn { background: none; border: none; cursor: pointer; font-size: 13px; color: var(--text-muted); padding: 4px 6px; border-radius: 4px; font-family: inherit; transition: all 0.15s; }
-    .padlet-edit-btn:hover { color: var(--black); background: var(--gray-100); }
-    .padlet-delete-btn:hover { color: var(--red); background: #fff0f2; }
-    .top-crown { font-size: 11px; font-weight: 700; color: var(--red); background: #fff0f2; border: 1px solid #fca5a5; padding: 2px 8px; border-radius: 20px; margin-bottom: 4px; display: inline-block; }
+    .padlet-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-bottom:14px; }
+    .padlet-add-card { background:white; border:2px dashed #e5e5e5; border-radius:var(--radius); padding:18px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:130px; transition:all 0.15s; color:#999; font-size:13px; font-weight:500; }
+    .padlet-add-card:hover { border-color:var(--red); background:#fff8f8; color:var(--red); }
+    .padlet-add-icon { font-size:26px; }
+    .padlet-card { background:white; border:1px solid #e5e5e5; border-radius:var(--radius); padding:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column; gap:8px; min-height:130px; transition:box-shadow 0.15s,transform 0.15s; }
+    .padlet-card:hover { box-shadow:0 4px 14px rgba(0,0,0,0.10); transform:translateY(-1px); }
+    .padlet-card.top-card { border-top:3px solid var(--red); }
+    .padlet-card-body { font-size:14px; line-height:1.65; color:#111; white-space:pre-wrap; flex:1; }
+    .padlet-card-footer { display:flex; align-items:center; justify-content:space-between; padding-top:8px; border-top:1px solid #f3f4f6; flex-wrap:wrap; gap:4px; }
+    .padlet-author { font-size:11px; color:#999; }
+    .padlet-author strong { color:var(--red); font-weight:600; }
+    .padlet-actions { display:flex; gap:4px; align-items:center; }
+    .padlet-like-btn { display:inline-flex; align-items:center; gap:3px; background:none; border:1px solid #e5e5e5; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:500; cursor:pointer; color:#999; transition:all 0.15s; font-family:inherit; }
+    .padlet-like-btn:hover { background:#fff0f2; border-color:#fca5a5; color:var(--red); }
+    .padlet-like-btn.liked { background:#fff0f2; border-color:var(--red); color:var(--red); }
+    .padlet-edit-btn,.padlet-delete-btn { background:none; border:none; cursor:pointer; font-size:13px; color:#ccc; padding:3px 5px; border-radius:4px; font-family:inherit; transition:all 0.15s; }
+    .padlet-edit-btn:hover { color:#111; background:#f3f4f6; }
+    .padlet-delete-btn:hover { color:var(--red); background:#fff0f2; }
+    .top-crown { font-size:11px; font-weight:700; color:var(--red); background:#fff0f2; border:1px solid #fca5a5; padding:2px 8px; border-radius:20px; margin-bottom:4px; display:inline-block; }
+    .typing-area-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-bottom:12px; }
+    .typing-card { background:#fffbf0; border:1.5px dashed #f0c040; border-radius:var(--radius); padding:14px; display:flex; flex-direction:column; gap:6px; }
+    .typing-indicator { font-size:12px; color:#b08000; display:flex; align-items:center; gap:6px; }
+    .typing-dots span { display:inline-block; width:4px; height:4px; background:#b08000; border-radius:50%; animation:blink 1.2s infinite; }
+    .typing-dots span:nth-child(2){animation-delay:0.2s} .typing-dots span:nth-child(3){animation-delay:0.4s}
+    @keyframes blink{0%,80%,100%{opacity:0.2}40%{opacity:1}}
+    .typing-preview { font-size:12px; color:#bbb; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .padlet-write-form { background:white; border:2px solid var(--red); border-radius:var(--radius); padding:14px; display:none; flex-direction:column; gap:8px; }
+    .padlet-write-form.open { display:flex; }
+    .padlet-write-form textarea { width:100%; border:1px solid #e5e5e5; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; resize:vertical; outline:none; min-height:90px; }
+    .padlet-write-form textarea:focus { border-color:var(--red); }
+    .padlet-write-actions { display:flex; justify-content:space-between; align-items:center; }
+    .edit-form { display:none; flex-direction:column; gap:6px; margin-top:6px; }
+    .edit-form.open { display:flex; }
+    .edit-form textarea { width:100%; border:1px solid var(--red); border-radius:8px; padding:8px 10px; font-size:14px; font-family:inherit; resize:vertical; outline:none; }
+    .edit-form-actions { display:flex; justify-content:flex-end; gap:6px; }
 
-    /* 작성 중 */
-    .typing-card { background: #fffbf0; border: 1.5px dashed #f0c040; border-radius: var(--radius); padding: 14px 16px; min-height: 80px; display: flex; flex-direction: column; gap: 6px; }
-    .typing-indicator { font-size: 12px; color: #b08000; display: flex; align-items: center; gap: 6px; }
-    .typing-dots span { display: inline-block; width: 5px; height: 5px; background: #b08000; border-radius: 50%; animation: blink 1.2s infinite; }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes blink { 0%,80%,100%{opacity:0.2} 40%{opacity:1} }
-    .typing-preview { font-size: 13px; color: #999; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ── 미묘한 순간 시뮬레이션 ── */
+    .sim-header { background:var(--black); border-radius:var(--radius); padding:22px 26px; margin-bottom:24px; }
+    .sim-header-label { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.08em; margin-bottom:4px; }
+    .sim-header-title { font-size:20px; font-weight:700; color:white; margin-bottom:4px; }
+    .sim-header-desc { font-size:13px; color:#aaa; }
+    .sim-progress { display:flex; gap:6px; margin-bottom:24px; }
+    .sim-progress-dot { height:4px; border-radius:2px; flex:1; background:#e5e5e5; transition:background 0.3s; }
+    .sim-progress-dot.done { background:var(--red); }
+    .sim-progress-dot.current { background:var(--red); opacity:0.5; }
+    .sim-q-card { background:white; border:1px solid #e5e5e5; border-radius:var(--radius); padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }
+    .sim-q-num { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.06em; margin-bottom:8px; }
+    .sim-q-text { font-size:17px; font-weight:600; color:var(--black); line-height:1.5; margin-bottom:20px; }
+    .sim-q-context { font-size:13px; color:#888; line-height:1.6; margin-bottom:20px; padding:12px 16px; background:#f9f9f9; border-radius:8px; border-left:3px solid #e5e5e5; }
+    .sim-options { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
+    .sim-option { padding:12px 16px; border:1.5px solid #e5e5e5; border-radius:10px; cursor:pointer; transition:all 0.15s; font-size:14px; font-weight:500; color:#333; }
+    .sim-option:hover:not(.voted) { border-color:var(--red); background:#fff8f8; }
+    .sim-option.selected { border-color:var(--red); background:#fff0f2; color:var(--red); }
+    .sim-option.voted { cursor:default; }
+    .sim-option-result { display:flex; align-items:center; justify-content:space-between; }
+    .sim-option-pct { font-size:13px; font-weight:700; color:var(--red); }
+    .sim-bar { height:4px; background:#f0f0f0; border-radius:2px; margin-top:6px; overflow:hidden; }
+    .sim-bar-fill { height:100%; background:var(--red); border-radius:2px; transition:width 0.4s; }
+    .sim-voted-count { font-size:12px; color:#999; margin-top:4px; }
+    .sim-nav { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
+    .sim-complete { text-align:center; padding:40px 20px; }
+    .sim-complete-icon { font-size:48px; margin-bottom:16px; }
+    .sim-complete-title { font-size:20px; font-weight:700; color:var(--black); margin-bottom:8px; }
+    .sim-complete-desc { font-size:14px; color:#888; }
 
-    /* 작성 폼 */
-    .padlet-write-form { background: white; border: 2px solid var(--red); border-radius: var(--radius); padding: 16px; display: none; flex-direction: column; gap: 10px; }
-    .padlet-write-form.open { display: flex; }
-    .padlet-write-form textarea { width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; font-family: inherit; resize: vertical; outline: none; min-height: 100px; }
-    .padlet-write-form textarea:focus { border-color: var(--red); }
-    .padlet-write-actions { display: flex; justify-content: space-between; align-items: center; }
-    .edit-form { display: none; flex-direction: column; gap: 8px; margin-top: 8px; }
-    .edit-form.open { display: flex; }
-    .edit-form textarea { width: 100%; border: 1px solid var(--red); border-radius: 8px; padding: 8px 10px; font-size: 14px; font-family: inherit; resize: vertical; outline: none; }
-    .edit-form-actions { display: flex; justify-content: flex-end; gap: 6px; }
+    .back-btn { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#999; background:none; border:1px solid #e5e5e5; border-radius:7px; padding:6px 14px; cursor:pointer; font-family:inherit; margin-bottom:20px; transition:all 0.15s; }
+    .back-btn:hover { color:var(--black); border-color:#999; }
+    .session-info-bar { background:var(--black); border-radius:var(--radius); padding:16px 22px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; }
+    .session-info-bar h1 { font-size:17px; font-weight:700; color:white; margin-bottom:2px; }
+    .session-info-bar .muted { color:#aaa; font-size:12px; }
+    .way-badge-large { background:var(--red); color:white; font-size:12px; font-weight:600; padding:5px 14px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
 
-    /* Poll */
-    .poll-section { margin-bottom: 28px; }
-    .poll-card { background: white; border: 1px solid var(--border); border-left: 4px solid var(--red); border-radius: var(--radius); padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 14px; }
-    .poll-badge { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.05em; margin-bottom: 8px; }
-    .poll-question { font-size: 16px; font-weight: 600; color: var(--black); margin-bottom: 16px; }
-    .poll-options { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .poll-option { padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
-    .poll-option:hover:not(.voted) { border-color: var(--red); background: #fff8f8; }
-    .poll-option.selected { border-color: var(--red); background: #fff0f2; }
-    .poll-option.voted { cursor: default; }
-    .poll-option-top { display: flex; justify-content: space-between; align-items: center; }
-    .poll-option-label { font-size: 14px; font-weight: 500; }
-    .poll-pct { font-size: 13px; font-weight: 600; color: var(--red); }
-    .poll-bar { height: 4px; background: #e5e5e5; border-radius: 2px; margin-top: 8px; overflow: hidden; }
-    .poll-bar-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.4s; }
-    .poll-votes-count { font-size: 11px; color: var(--text-muted); margin-top: 3px; display: block; }
-    .voted-notice { font-size: 13px; color: #16a34a; font-weight: 500; margin-top: 4px; }
-
-    .back-to-ways { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); background: none; border: 1px solid var(--border); border-radius: 7px; padding: 6px 14px; cursor: pointer; font-family: inherit; margin-bottom: 20px; transition: all 0.15s; }
-    .back-to-ways:hover { color: var(--black); border-color: #999; }
-    @media (max-width: 640px) { .way-select-grid { grid-template-columns: 1fr 1fr; } .padlet-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 400px) { .way-select-grid { grid-template-columns: 1fr; } .padlet-grid { grid-template-columns: 1fr; } }
+    @media(max-width:640px){ .hub-grid{grid-template-columns:1fr} .padlet-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:400px){ .padlet-grid{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
@@ -112,13 +150,14 @@
         <a href="index.html" class="back-link">← 목록으로</a>
         <div class="logo">
           <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-          <span id="session-label">교육 세션</span>
+          <span id="session-label">KRAFTON WoW</span>
         </div>
         <span class="header-right" id="participant-info"></span>
       </div>
     </div>
   </header>
 
+  <!-- 이름 입력 게이트 -->
   <div id="name-gate" class="gate-overlay">
     <div class="gate-card">
       <div class="gate-logo">
@@ -128,30 +167,98 @@
       <h2>참여자 정보 입력</h2>
       <p class="muted" style="margin-bottom:20px">이름과 팀명을 입력하고 참여하세요.</p>
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div><label class="form-label">이름</label><input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20" /></div>
-        <div><label class="form-label">팀명</label><input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30" /></div>
+        <div><label class="form-label">이름</label><input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20"/></div>
+        <div><label class="form-label">팀명</label><input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30"/></div>
       </div>
-      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">다음 →</button>
+      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">입장하기 →</button>
     </div>
   </div>
 
-  <div id="way-select-page" class="container way-select-page hidden">
-    <div class="way-select-intro">
-      <h1 id="way-select-session-title">교육 세션</h1>
-      <p class="muted">배정받은 Way 조를 선택해 입장하세요.</p>
+  <!-- 허브 페이지 -->
+  <div id="page-hub" class="page container main-content">
+    <div class="hub-header">
+      <div class="hub-header-left">
+        <h1 id="hub-title">-</h1>
+        <p id="hub-date">-</p>
+      </div>
+      <div class="hub-user" id="hub-user"></div>
     </div>
-    <div class="way-select-grid" id="way-select-grid"></div>
+    <div class="hub-grid">
+      <!-- 왼쪽: 활동 -->
+      <div class="hub-panel">
+        <div class="hub-panel-header">
+          <div class="hub-panel-title">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span>
+            활동
+          </div>
+        </div>
+        <div class="hub-panel-body">
+          <div class="activity-card" id="hub-poll-btn">
+            <div class="activity-card-icon">🗳️</div>
+            <div class="activity-card-info">
+              <div class="activity-card-name">투표 / 설문</div>
+              <div class="activity-card-desc">진행 중인 투표에 참여하세요</div>
+            </div>
+            <span class="activity-card-arrow">→</span>
+          </div>
+          <div class="activity-card" id="hub-sim-btn">
+            <div class="activity-card-icon">💬</div>
+            <div class="activity-card-info">
+              <div class="activity-card-name">미묘한 순간 시뮬레이션</div>
+              <div class="activity-card-desc">6가지 상황을 함께 탐색해요</div>
+            </div>
+            <span class="activity-card-arrow">→</span>
+          </div>
+        </div>
+      </div>
+      <!-- 오른쪽: 조별 활동 -->
+      <div class="hub-panel">
+        <div class="hub-panel-header">
+          <div class="hub-panel-title">
+            <span style="width:8px;height:8px;border-radius:50%;background:var(--black);display:inline-block"></span>
+            조별 활동
+          </div>
+        </div>
+        <div class="hub-panel-body">
+          <div class="way-mini-grid" id="hub-way-grid"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <main class="container main-content" id="session-main" style="display:none">
+  <!-- 투표 페이지 -->
+  <div id="page-poll" class="page container main-content">
+    <button class="back-btn" id="poll-back-btn">← 허브로</button>
     <div class="session-info-bar">
-      <div><h1 id="session-title-main">-</h1><p class="muted" id="session-date-main">-</p></div>
-      <div id="my-way-badge" class="way-badge-large"></div>
+      <div><h1 id="poll-session-title">-</h1><p class="muted">투표 / 설문</p></div>
     </div>
-    <button class="back-to-ways" id="back-to-ways-btn">← 다른 조로 이동</button>
+    <div id="poll-list-container">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- 미묘한 순간 시뮬레이션 페이지 -->
+  <div id="page-sim" class="page container main-content">
+    <button class="back-btn" id="sim-back-btn">← 허브로</button>
+    <div class="sim-header">
+      <div class="sim-header-label">ACTIVITY</div>
+      <div class="sim-header-title">미묘한 순간 시뮬레이션</div>
+      <div class="sim-header-desc">일상 속 상황을 함께 살펴보며 우리의 Ways of Working을 탐색합니다.</div>
+    </div>
+    <div class="sim-progress" id="sim-progress"></div>
+    <div id="sim-content"></div>
+  </div>
+
+  <!-- Way 세션 페이지 -->
+  <div id="page-way" class="page container main-content">
+    <button class="back-btn" id="way-back-btn">← 허브로</button>
+    <div class="session-info-bar">
+      <div><h1 id="way-session-title">-</h1><p class="muted" id="way-session-date">-</p></div>
+      <div id="way-badge" class="way-badge-large"></div>
+    </div>
     <div id="way-info-section"></div>
     <div id="questions-container"></div>
-  </main>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
@@ -173,6 +280,17 @@
       { num:9, titleKo:"주도하거나, 따르거나, 떠나거나", titleEn:"Lead, Follow, or Leave.", descKo:"문제를 보는 눈보다 책임지고 해결하려는 태도가 더 중요합니다.\n내가 주도적으로 이끌거나, 아니면 최선을 다해 따릅니다.\n만약 함께 가기 어렵다면, 서로를 위해 다른 길을 택하는 결심이 필요합니다.", descEn:"Problems need solvers, not spectators. Anyone can spot what's broken, but committing to fixing it is what truly matters.\nTake the lead or fully support someone who does.\nIf neither is possible, choosing a different path is the most honest choice for everyone." },
     ];
 
+    // 미묘한 순간 시뮬레이션 — 관리자가 추가한 poll을 sim 컬렉션에서 가져옴
+    // 기본 6개 시나리오 (관리자가 커스텀 안 했을 때 fallback)
+    const DEFAULT_SIM = [
+      { q:"팀장이 자리를 비운 사이, 중요한 클라이언트에게서 갑작스러운 요청이 들어왔습니다. 당신이라면?", context:"팀장은 오후 내내 연락이 안 되는 상황. 요청의 마감은 오늘 오후 5시입니다.", options:["팀장에게 연락될 때까지 기다린다","내가 직접 판단해서 응대한다","팀 내 다른 사람과 상의해서 처리한다","일단 클라이언트에게 시간이 필요하다고 답한다"] },
+      { q:"동료의 발표 자료에서 명확한 오류를 발견했습니다. 발표는 30분 후입니다.", context:"동료는 지난 2주간 이 발표를 준비했고, 매우 긴장한 상태입니다.", options:["조용히 넘어간다 — 발표에 영향이 없을 수도 있다","바로 알려준다","발표 후에 피드백을 준다","팀장에게 먼저 알린다"] },
+      { q:"회의에서 팀장의 의견에 동의하지 않습니다. 다른 팀원들은 모두 고개를 끄덕이고 있습니다.", context:"당신의 판단으로는 팀장의 방향이 리소스 낭비를 초래할 것 같습니다.", options:["회의에서 바로 의견을 낸다","회의 후 팀장에게 개인적으로 말한다","일단 따르고, 결과를 지켜본다","팀원들과 먼저 공감대를 형성한다"] },
+      { q:"당신이 담당하는 프로젝트가 예상보다 2주 지연될 것 같습니다. 아직 공식 확정은 아닙니다.", context:"이해관계자들은 원래 일정을 기준으로 다른 계획을 세우고 있습니다.", options:["확정되면 바로 공유한다","지금 바로 가능성을 먼저 알린다","조용히 따라잡으려 노력한다","팀장하고만 먼저 상의한다"] },
+      { q:"다른 팀에서 우리 팀의 성과를 자신들의 것처럼 발표 자료에 포함시켰습니다.", context:"악의는 없어 보이지만, 경영진에게 잘못된 인식을 줄 수 있는 상황입니다.", options:["직접 담당자에게 연락해 정정을 요청한다","팀장에게 보고하고 대응을 맡긴다","그냥 넘어간다 — 큰 문제는 아니다","공식 채널을 통해 이의를 제기한다"] },
+      { q:"팀원 중 한 명이 업무 시간에 지속적으로 개인 일을 처리하고 있습니다. 팀 성과에는 아직 영향이 없습니다.", context:"당신은 팀 리더는 아니지만, 상황을 계속 목격하고 있습니다.", options:["직접 그 팀원에게 조심스럽게 말한다","팀장에게 알린다","모른 척한다 — 내 일이 아니다","성과에 영향이 생기면 그때 행동한다"] },
+    ];
+
     const app = initializeApp(FIREBASE_CONFIG);
     const db = getFirestore(app);
     const params = new URLSearchParams(location.search);
@@ -182,13 +300,22 @@
     let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
     let userTeam = localStorage.getItem(`edu_team_${sessionId}`) || "";
     let userWay = null;
+    let sessionData = null;
     let unsubscribers = [];
     let typingTimer = null;
-    const myTypingId = `${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+    const myId = `${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
 
+    // ── 페이지 전환 ──
+    function showPage(id) {
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      window.scrollTo(0,0);
+    }
+
+    // ── 초기 진입 ──
     if (userName && userTeam) {
       document.getElementById("name-gate").style.display = "none";
-      initSessionInfo().then(showWaySelect);
+      initAndShowHub();
     }
 
     document.getElementById("name-submit").addEventListener("click", () => {
@@ -199,56 +326,233 @@
       localStorage.setItem(`edu_name_${sessionId}`, name);
       localStorage.setItem(`edu_team_${sessionId}`, team);
       document.getElementById("name-gate").style.display = "none";
-      initSessionInfo().then(showWaySelect);
+      initAndShowHub();
     });
-    document.getElementById("name-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("team-input").focus(); });
-    document.getElementById("team-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("name-submit").click(); });
+    document.getElementById("name-input").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("team-input").focus(); });
+    document.getElementById("team-input").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("name-submit").click(); });
 
-    async function initSessionInfo() {
+    async function initAndShowHub() {
+      document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
       try {
         const snap = await getDoc(doc(db, "sessions", sessionId));
         if (!snap.exists()) { location.href = "index.html"; return; }
-        const s = snap.data();
-        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
-        document.getElementById("session-label").textContent = `${s.order}차 교육`;
-        document.getElementById("session-title-main").textContent = s.title;
-        document.getElementById("session-date-main").textContent =
-          d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) + " " +
-          d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-        document.title = `${s.title} | KRAFTON WoW`;
-        document.getElementById("way-select-session-title").textContent = s.title;
-        document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
+        sessionData = snap.data();
+        const d = sessionData.date?.toDate ? sessionData.date.toDate() : new Date(sessionData.date);
+        const dateStr = d.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"}) + " " + d.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+        document.getElementById("session-label").textContent = `${sessionData.order}차 교육`;
+        document.getElementById("hub-title").textContent = sessionData.title;
+        document.getElementById("hub-date").textContent = dateStr;
+        document.getElementById("hub-user").textContent = `👤 ${userName} · ${userTeam}`;
+        document.getElementById("poll-session-title").textContent = sessionData.title;
+        document.getElementById("way-session-title").textContent = sessionData.title;
+        document.getElementById("way-session-date").textContent = dateStr;
+        document.title = `${sessionData.title} | KRAFTON WoW`;
       } catch(e) { console.error(e); }
+
+      // Way 미니 카드
+      const grid = document.getElementById("hub-way-grid");
+      grid.innerHTML = WAYS.map(w => `
+        <div class="way-mini-card" data-num="${w.num}">
+          <span class="way-mini-num">WAY ${w.num}</span>
+          <span class="way-mini-title">${w.titleKo}</span>
+          <span class="way-mini-arrow">→</span>
+        </div>`).join("");
+      grid.querySelectorAll(".way-mini-card").forEach(card => {
+        card.addEventListener("click", () => { enterWay(parseInt(card.dataset.num)); });
+      });
+
+      showPage("page-hub");
     }
 
-    function showWaySelect() {
-      unsubscribers.forEach(fn => fn()); unsubscribers = [];
-      clearTyping();
-      document.getElementById("session-main").style.display = "none";
-      document.getElementById("questions-container").innerHTML = "";
-      const page = document.getElementById("way-select-page");
-      page.classList.remove("hidden");
-      const grid = document.getElementById("way-select-grid");
-      grid.innerHTML = WAYS.map(w => `
-        <div class="way-select-card" data-num="${w.num}">
-          <div class="way-select-num">WAY ${w.num}</div>
-          <div class="way-select-title">${w.titleKo}</div>
-          <div class="way-select-en">${w.titleEn}</div>
-          <span class="way-select-arrow">→</span>
-        </div>`).join("");
-      grid.querySelectorAll(".way-select-card").forEach(card => {
-        card.addEventListener("click", () => {
-          userWay = parseInt(card.dataset.num);
-          page.classList.add("hidden");
-          enterWay(userWay);
-        });
-      });
+    // ── 투표 페이지 ──
+    document.getElementById("hub-poll-btn").addEventListener("click", () => {
+      showPage("page-poll");
+      loadPolls();
+    });
+    document.getElementById("poll-back-btn").addEventListener("click", () => {
+      unsubscribers.filter(u=>u._type==="poll").forEach(fn=>fn());
+      showPage("page-hub");
+    });
+
+    function loadPolls() {
+      const container = document.getElementById("poll-list-container");
+      container.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+      const unsub = onSnapshot(
+        query(collection(db,"sessions",sessionId,"polls"), orderBy("order","asc")),
+        snap => {
+          const polls = []; snap.forEach(d => polls.push({ id:d.id, ...d.data() }));
+          if (!polls.length) { container.innerHTML=`<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>`; return; }
+          container.innerHTML = polls.map(poll => {
+            const myVote = localStorage.getItem(`vote_${sessionId}_${poll.id}`);
+            const total = Object.values(poll.votes||{}).reduce((a,b)=>a+b,0);
+            return `
+              <div style="background:white;border:1px solid #e5e5e5;border-left:4px solid var(--red);border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
+                <p style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.05em;margin-bottom:8px">${poll.type==="multi"?"복수선택":"단일선택"}</p>
+                <p style="font-size:16px;font-weight:600;color:var(--black);margin-bottom:16px">${esc(poll.question)}</p>
+                <div class="poll-options-wrap" data-poll="${poll.id}" data-type="${poll.type}" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+                  ${(poll.options||[]).map((opt,i)=>{
+                    const cnt=(poll.votes||{})[i]||0;
+                    const pct=total?Math.round(cnt/total*100):0;
+                    const sel=myVote&&myVote.split(",").includes(String(i));
+                    return `<div class="poll-opt-item ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}" style="padding:10px 14px;border:1.5px solid ${sel?"var(--red)":"#e5e5e5"};border-radius:8px;cursor:${myVote?"default":"pointer"};background:${sel?"#fff0f2":"white"}">
+                      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:500">${esc(opt)}</span>${myVote?`<span style="font-size:13px;font-weight:700;color:var(--red)">${pct}%</span>`:""}</div>
+                      ${myVote?`<div style="height:4px;background:#f0f0f0;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--red);border-radius:2px"></div></div><span style="font-size:11px;color:#999;margin-top:3px;display:block">${cnt}명</span>`:""}
+                    </div>`;
+                  }).join("")}
+                </div>
+                ${!myVote
+                  ?`<button class="btn btn-primary poll-submit-btn" data-poll="${poll.id}">투표하기</button>`
+                  :`<p style="font-size:13px;color:#16a34a;font-weight:500">✓ 투표 완료 (총 ${total}명 참여)</p>`}
+              </div>`;
+          }).join("");
+
+          // 선택
+          document.querySelectorAll(".poll-opt-item:not(.voted)").forEach(opt => {
+            opt.addEventListener("click", () => {
+              const wrap = opt.closest(".poll-options-wrap");
+              if (wrap.dataset.type==="single") wrap.querySelectorAll(".poll-opt-item").forEach(o=>o.classList.remove("selected"));
+              opt.classList.toggle("selected");
+            });
+          });
+          // 제출
+          document.querySelectorAll(".poll-submit-btn").forEach(btn => {
+            btn.addEventListener("click", async () => {
+              const pollId = btn.dataset.poll;
+              const wrap = document.querySelector(`.poll-options-wrap[data-poll="${pollId}"]`);
+              const selected = [...wrap.querySelectorAll(".poll-opt-item.selected")].map(o=>Number(o.dataset.idx));
+              if (!selected.length) { alert("선택지를 선택해주세요."); return; }
+              btn.disabled=true; btn.textContent="제출 중...";
+              const updates={};
+              selected.forEach(i=>{updates[`votes.${i}`]=increment(1);});
+              await updateDoc(doc(db,"sessions",sessionId,"polls",pollId), updates);
+              localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
+            });
+          });
+        }
+      );
+      unsub._type = "poll";
+      unsubscribers.push(unsub);
     }
+
+    // ── 미묘한 순간 시뮬레이션 ──
+    let simStep = 0;
+    let simQuestions = [];
+
+    document.getElementById("hub-sim-btn").addEventListener("click", async () => {
+      showPage("page-sim");
+      simStep = 0;
+
+      // sim 컬렉션 있으면 가져오고, 없으면 기본값
+      try {
+        const snap = await getDoc(doc(db,"sessions",sessionId));
+        // sim_questions 서브컬렉션 시도
+        const simSnap = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(m=>
+          m.getDocs(m.query(m.collection(db,"sessions",sessionId,"sim_questions"), m.orderBy("order","asc")))
+        );
+        if (simSnap.size > 0) {
+          simQuestions = [];
+          simSnap.forEach(d => simQuestions.push({ id:d.id, ...d.data() }));
+        } else {
+          simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
+        }
+      } catch(e) {
+        simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
+      }
+
+      renderSimProgress();
+      renderSimStep();
+    });
+
+    document.getElementById("sim-back-btn").addEventListener("click", () => { showPage("page-hub"); });
+
+    function renderSimProgress() {
+      const el = document.getElementById("sim-progress");
+      el.innerHTML = simQuestions.map((_,i) => `
+        <div class="sim-progress-dot ${i < simStep?"done":i===simStep?"current":""}"></div>`).join("");
+    }
+
+    function renderSimStep() {
+      const content = document.getElementById("sim-content");
+      if (simStep >= simQuestions.length) {
+        content.innerHTML = `
+          <div class="sim-complete">
+            <div class="sim-complete-icon">🎉</div>
+            <div class="sim-complete-title">시뮬레이션 완료!</div>
+            <div class="sim-complete-desc">모든 상황을 함께 탐색했습니다.<br>우리의 Ways of Working을 일상에서 실천해보세요.</div>
+            <button class="btn btn-primary" style="margin-top:24px" id="sim-restart-btn">처음부터 다시</button>
+          </div>`;
+        document.getElementById("sim-restart-btn").addEventListener("click", () => { simStep=0; renderSimProgress(); renderSimStep(); });
+        return;
+      }
+
+      const q = simQuestions[simStep];
+      const myVoteKey = `sim_${sessionId}_${q.id}`;
+      const myVote = localStorage.getItem(myVoteKey);
+
+      // poll 데이터 가져오기 (Firestore sim_polls 또는 로컬)
+      const simPollId = `sim_${q.id}`;
+
+      content.innerHTML = `
+        <div class="sim-q-card">
+          <div class="sim-q-num">SITUATION ${simStep+1} / ${simQuestions.length}</div>
+          <div class="sim-q-text">${esc(q.q)}</div>
+          ${q.context?`<div class="sim-q-context">${esc(q.context)}</div>`:""}
+          <div class="sim-options" id="sim-options-wrap">
+            ${(q.options||[]).map((opt,i)=>{
+              const voteKey = `sim_${sessionId}_${q.id}_votes_${i}`;
+              return `<div class="sim-option ${myVote?"voted":""} ${myVote&&myVote===String(i)?"selected":""}" data-idx="${i}">${esc(opt)}</div>`;
+            }).join("")}
+          </div>
+          <div class="sim-nav">
+            <button class="btn btn-sm" id="sim-prev-btn" ${simStep===0?"disabled":""}>← 이전</button>
+            <div style="display:flex;gap:8px;align-items:center">
+              ${!myVote?`<button class="btn btn-primary" id="sim-vote-btn">선택 완료</button>`:""}
+              <button class="btn btn-sm ${!myVote?"":"btn-primary"}" id="sim-next-btn">${simStep===simQuestions.length-1?"마치기":"다음 →"}</button>
+            </div>
+          </div>
+        </div>`;
+
+      // 선택
+      if (!myVote) {
+        document.querySelectorAll(".sim-option").forEach(opt => {
+          opt.addEventListener("click", () => {
+            document.querySelectorAll(".sim-option").forEach(o=>o.classList.remove("selected"));
+            opt.classList.add("selected");
+          });
+        });
+        document.getElementById("sim-vote-btn").addEventListener("click", async () => {
+          const sel = document.querySelector(".sim-option.selected");
+          if (!sel) { alert("선택지를 선택해주세요."); return; }
+          const idx = sel.dataset.idx;
+          localStorage.setItem(myVoteKey, idx);
+          // Firestore에도 저장
+          try {
+            await addDoc(collection(db,"sessions",sessionId,"sim_votes"), {
+              questionId: q.id, questionText: q.q, optionIdx: Number(idx),
+              optionText: q.options[idx], author: userName, team: userTeam,
+              createdAt: serverTimestamp()
+            });
+          } catch(e) {}
+          renderSimStep();
+        });
+      }
+
+      document.getElementById("sim-prev-btn").addEventListener("click", () => { if(simStep>0){simStep--;renderSimProgress();renderSimStep();} });
+      document.getElementById("sim-next-btn").addEventListener("click", () => { simStep++;renderSimProgress();renderSimStep(); });
+    }
+
+    // ── Way 세션 ──
+    document.getElementById("way-back-btn").addEventListener("click", () => {
+      unsubscribers.forEach(fn=>fn()); unsubscribers=[];
+      clearTyping();
+      document.getElementById("questions-container").innerHTML="";
+      showPage("page-hub");
+    });
 
     function enterWay(wayNum) {
-      const way = WAYS.find(w => w.num === wayNum);
-      document.getElementById("session-main").style.display = "block";
-      document.getElementById("my-way-badge").textContent = `WAY ${wayNum}`;
+      userWay = wayNum;
+      const way = WAYS.find(w=>w.num===wayNum);
+      document.getElementById("way-badge").textContent = `WAY ${wayNum}`;
       document.getElementById("way-info-section").innerHTML = `
         <div class="way-info-card">
           <div class="way-info-num">WAY ${way.num}</div>
@@ -258,313 +562,145 @@
           <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
           <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
         </div>`;
-      loadContent(wayNum);
-      window.scrollTo(0,0);
+      loadQuestions(wayNum);
+      showPage("page-way");
     }
 
-    document.getElementById("back-to-ways-btn").addEventListener("click", () => {
-      unsubscribers.forEach(fn => fn()); unsubscribers = [];
-      clearTyping();
-      showWaySelect();
-      window.scrollTo(0,0);
-    });
-
-    // ── 작성 중 상태 ──
-    async function setTyping(questionId, text) {
-      try {
-        await setDoc(doc(db, "sessions", sessionId, "typing", myTypingId), {
-          author: userName, team: userTeam, wayNum: userWay,
-          questionId, preview: text.slice(0,40), updatedAt: serverTimestamp()
-        });
-      } catch(e) { console.error("typing set error:", e); }
-    }
     async function clearTyping() {
-      try {
-        await setDoc(doc(db, "sessions", sessionId, "typing", myTypingId), {
-          author: userName, team: userTeam, wayNum: userWay,
-          questionId: null, preview: "", updatedAt: serverTimestamp()
-        });
-      } catch(e) {}
+      try { await setDoc(doc(db,"sessions",sessionId,"typing",myId), { questionId:null, preview:"", wayNum:userWay, author:userName, team:userTeam, updatedAt:serverTimestamp() }); } catch(e) {}
+    }
+    async function setTyping(qId, text) {
+      try { await setDoc(doc(db,"sessions",sessionId,"typing",myId), { questionId:qId, preview:text.slice(0,40), wayNum:userWay, author:userName, team:userTeam, updatedAt:serverTimestamp() }); } catch(e) {}
     }
 
-    // ── 콘텐츠 로드 ──
-    function loadContent(wayNum) {
+    function loadQuestions(wayNum) {
       const container = document.getElementById("questions-container");
       container.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>불러오는 중...</p></div>`;
-
-      // 질문
-      const qUnsub = onSnapshot(
-        query(collection(db, "sessions", sessionId, "questions"), orderBy("order","asc")),
+      const unsub = onSnapshot(
+        query(collection(db,"sessions",sessionId,"questions"), orderBy("order","asc")),
         snap => {
-          const questions = []; snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
-          if (!container.querySelector(".content-loaded")) {
-            container.innerHTML = `<div class="content-loaded"></div>`;
-          }
+          const questions=[]; snap.forEach(d=>questions.push({id:d.id,...d.data()}));
+          if (!container.querySelector(".content-loaded")) container.innerHTML=`<div class="content-loaded"></div>`;
           const loaded = container.querySelector(".content-loaded");
           questions.forEach(q => {
             if (!document.getElementById(`q-section-${q.id}`)) {
-              const tagClass = q.tag === "Real Talk" ? "real-talk" : q.tag === "Deep Dive" ? "deep-dive" : "none";
-              const tagLabel = q.tag || "Q";
+              const tagClass = q.tag==="Real Talk"?"real-talk":q.tag==="Deep Dive"?"deep-dive":"none";
+              const tagLabel = q.tag||"Q";
               const section = document.createElement("div");
-              section.className = "question-section"; section.id = `q-section-${q.id}`;
-              section.innerHTML = `
+              section.className="question-section"; section.id=`q-section-${q.id}`;
+              section.innerHTML=`
                 <div class="question-header">
                   <span class="question-tag ${tagClass}">${tagLabel}</span>
                   <div class="question-text-big">${esc(q.text)}</div>
                 </div>
-                <div id="typing-area-${q.id}" style="margin-bottom:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px"></div>
+                <div class="typing-area-grid" id="typing-area-${q.id}" style="display:none;margin-bottom:12px"></div>
                 <div class="padlet-grid" id="padlet-grid-${q.id}">
-                  <div class="padlet-add-card" id="add-btn-${q.id}">
-                    <span class="padlet-add-icon">＋</span><span>의견 남기기</span>
-                  </div>
+                  <div class="padlet-add-card" id="add-btn-${q.id}"><span class="padlet-add-icon">＋</span><span>의견 남기기</span></div>
                 </div>
                 <div class="padlet-write-form" id="write-form-${q.id}">
                   <textarea placeholder="자유롭게 의견을 작성해주세요..." maxlength="500"></textarea>
                   <div class="padlet-write-actions">
                     <span class="char-count write-char-${q.id}">0 / 500</span>
-                    <div style="display:flex;gap:8px">
-                      <button class="btn btn-sm cancel-btn">취소</button>
-                      <button class="btn btn-primary btn-sm submit-btn">등록</button>
-                    </div>
+                    <div style="display:flex;gap:8px"><button class="btn btn-sm cancel-btn">취소</button><button class="btn btn-primary btn-sm submit-btn">등록</button></div>
                   </div>
                 </div>`;
               loaded.appendChild(section);
-              attachQuestionEvents(q.id, wayNum);
+              attachEvents(q.id, wayNum);
               loadAnswers(q.id, wayNum);
               loadTyping(q.id, wayNum);
             }
           });
-          if (!questions.length) container.innerHTML = `<div class="empty-state"><p>아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p></div>`;
+          if (!questions.length) container.innerHTML=`<div class="empty-state"><p>아직 등록된 질문이 없습니다.</p></div>`;
         },
-        err => { container.innerHTML = `<div class="empty-state error"><p>${err.message}</p></div>`; }
+        err => { container.innerHTML=`<div class="empty-state error"><p>${err.message}</p></div>`; }
       );
-      unsubscribers.push(qUnsub);
-
-      // 투표
-      const pUnsub = onSnapshot(
-        query(collection(db, "sessions", sessionId, "polls"), orderBy("order","asc")),
-        snap => {
-          const polls = []; snap.forEach(d => polls.push({ id: d.id, ...d.data() }));
-          renderPolls(polls);
-        }
-      );
-      unsubscribers.push(pUnsub);
+      unsubscribers.push(unsub);
     }
 
-    function attachQuestionEvents(qId, wayNum) {
-      const addBtn = document.getElementById(`add-btn-${qId}`);
-      const form = document.getElementById(`write-form-${qId}`);
-      const ta = form.querySelector("textarea");
-
-      addBtn.addEventListener("click", () => { form.classList.add("open"); ta.focus(); addBtn.style.display="none"; });
-
-      ta.addEventListener("input", () => {
-        const section = document.getElementById(`q-section-${qId}`);
-        section.querySelector(`.write-char-${qId}`).textContent = `${ta.value.length} / 500`;
+    function attachEvents(qId, wayNum) {
+      const addBtn=document.getElementById(`add-btn-${qId}`);
+      const form=document.getElementById(`write-form-${qId}`);
+      const ta=form.querySelector("textarea");
+      addBtn.addEventListener("click",()=>{form.classList.add("open");ta.focus();addBtn.style.display="none";});
+      ta.addEventListener("input",()=>{
+        document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent=`${ta.value.length} / 500`;
         clearTimeout(typingTimer);
-        if (ta.value.trim()) typingTimer = setTimeout(() => setTyping(qId, ta.value), 400);
+        if(ta.value.trim()) typingTimer=setTimeout(()=>setTyping(qId,ta.value),400);
         else clearTyping();
       });
-
-      form.querySelector(".cancel-btn").addEventListener("click", () => {
-        form.classList.remove("open"); ta.value = "";
-        const section = document.getElementById(`q-section-${qId}`);
-        section.querySelector(`.write-char-${qId}`).textContent = "0 / 500";
-        addBtn.style.display=""; clearTyping();
-      });
-
-      form.querySelector(".submit-btn").addEventListener("click", async () => {
-        const text = ta.value.trim(); if (!text) return;
-        const btn = form.querySelector(".submit-btn");
-        btn.disabled=true; btn.textContent="등록 중...";
+      form.querySelector(".cancel-btn").addEventListener("click",()=>{form.classList.remove("open");ta.value="";document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent="0 / 500";addBtn.style.display="";clearTyping();});
+      form.querySelector(".submit-btn").addEventListener("click",async()=>{
+        const text=ta.value.trim(); if(!text) return;
+        const btn=form.querySelector(".submit-btn"); btn.disabled=true; btn.textContent="등록 중...";
         try {
-          await addDoc(collection(db, "sessions", sessionId, "questions", qId, "answers"), {
-            author: userName, team: userTeam, wayNum,
-            text, likes: 0, likedBy: [], createdAt: serverTimestamp()
-          });
-          ta.value="";
-          const section = document.getElementById(`q-section-${qId}`);
-          section.querySelector(`.write-char-${qId}`).textContent = "0 / 500";
+          await addDoc(collection(db,"sessions",sessionId,"questions",qId,"answers"),{author:userName,team:userTeam,wayNum,text,likes:0,likedBy:[],createdAt:serverTimestamp()});
+          ta.value=""; document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent="0 / 500";
           form.classList.remove("open"); addBtn.style.display=""; clearTyping();
-        } catch(e) { alert(e.message); }
+        } catch(e){alert(e.message);}
         btn.disabled=false; btn.textContent="등록";
       });
     }
 
-    // ── 작성 중 표시 ──
-    function loadTyping(questionId, wayNum) {
-      const unsub = onSnapshot(collection(db, "sessions", sessionId, "typing"), snap => {
-        const area = document.getElementById(`typing-area-${questionId}`);
-        if (!area) return;
-        const typists = [];
-        snap.forEach(d => {
-          const t = d.data();
-          if (d.id !== myTypingId && t.questionId === questionId && t.wayNum === wayNum && t.preview) {
-            typists.push(t);
-          }
-        });
-        if (!typists.length) { area.innerHTML = ""; area.style.display="none"; return; }
+    function loadTyping(qId, wayNum) {
+      const unsub=onSnapshot(collection(db,"sessions",sessionId,"typing"), snap=>{
+        const area=document.getElementById(`typing-area-${qId}`); if(!area) return;
+        const typists=[];
+        snap.forEach(d=>{const t=d.data(); if(d.id!==myId&&t.questionId===qId&&t.wayNum===wayNum&&t.preview) typists.push(t);});
+        if(!typists.length){area.innerHTML="";area.style.display="none";return;}
         area.style.display="grid";
-        area.innerHTML = typists.map(t => `
-          <div class="typing-card">
-            <div class="typing-indicator">
-              <span style="font-weight:600;color:#b08000">${esc(t.author)}</span>님이 작성 중
-              <span class="typing-dots"><span></span><span></span><span></span></span>
-            </div>
-            ${t.preview ? `<div class="typing-preview">${esc(t.preview)}...</div>` : ""}
-          </div>`).join("");
+        area.innerHTML=typists.map(t=>`<div class="typing-card"><div class="typing-indicator"><span style="font-weight:600;color:#b08000">${esc(t.author)}</span>님이 작성 중<span class="typing-dots"><span></span><span></span><span></span></span></div>${t.preview?`<div class="typing-preview">${esc(t.preview)}...</div>`:""}</div>`).join("");
       });
       unsubscribers.push(unsub);
     }
 
-    // ── 답변 로드 ──
-    function loadAnswers(questionId, wayNum) {
-      const unsub = onSnapshot(
-        query(collection(db, "sessions", sessionId, "questions", questionId, "answers"), orderBy("likes","desc")),
-        snap => {
-          const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-          const items = all.filter(a => a.wayNum === wayNum);
-          const grid = document.getElementById(`padlet-grid-${questionId}`);
-          const addBtn = document.getElementById(`add-btn-${questionId}`);
-          if (!grid) return;
-          grid.querySelectorAll(".padlet-card").forEach(c => c.remove());
-          const maxLikes = items.length ? Math.max(...items.map(i => Number(i.likes)||0)) : 0;
-
-          items.forEach(item => {
-            const likedBy = item.likedBy || [];
-            const liked = likedBy.includes(myTypingId);
-            const isTop = Number(item.likes) > 0 && Number(item.likes) === maxLikes;
-            const isMine = item.author === userName && item.team === userTeam;
-            const card = document.createElement("div");
-            card.className = `padlet-card${isTop?" top-card":""}`;
-            card.innerHTML = `
-              ${isTop?`<span class="top-crown">👑 대표 의견</span>`:""}
-              <p class="padlet-card-body">${esc(item.text)}</p>
-              <div class="edit-form" id="edit-form-${item.id}">
-                <textarea>${esc(item.text)}</textarea>
-                <div class="edit-form-actions">
-                  <button class="btn btn-sm edit-cancel-btn">취소</button>
-                  <button class="btn btn-primary btn-sm edit-save-btn">저장</button>
-                </div>
+    function loadAnswers(qId, wayNum) {
+      const unsub=onSnapshot(query(collection(db,"sessions",sessionId,"questions",qId,"answers"),orderBy("likes","desc")), snap=>{
+        const all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
+        const items=all.filter(a=>a.wayNum===wayNum);
+        const grid=document.getElementById(`padlet-grid-${qId}`);
+        const addBtn=document.getElementById(`add-btn-${qId}`);
+        if(!grid) return;
+        grid.querySelectorAll(".padlet-card").forEach(c=>c.remove());
+        const maxLikes=items.length?Math.max(...items.map(i=>Number(i.likes)||0)):0;
+        items.forEach(item=>{
+          const likedBy=item.likedBy||[];
+          const liked=likedBy.includes(myId);
+          const isTop=Number(item.likes)>0&&Number(item.likes)===maxLikes;
+          const isMine=item.author===userName&&item.team===userTeam;
+          const card=document.createElement("div");
+          card.className=`padlet-card${isTop?" top-card":""}`;
+          card.innerHTML=`
+            ${isTop?`<span class="top-crown">👑 대표 의견</span>`:""}
+            <p class="padlet-card-body">${esc(item.text)}</p>
+            <div class="edit-form" id="edit-form-${item.id}"><textarea>${esc(item.text)}</textarea><div class="edit-form-actions"><button class="btn btn-sm edit-cancel-btn">취소</button><button class="btn btn-primary btn-sm edit-save-btn">저장</button></div></div>
+            <div class="padlet-card-footer">
+              <div class="padlet-author"><strong>${esc(item.author)}</strong> · ${esc(item.team)}</div>
+              <div class="padlet-actions">
+                ${isMine?`<button class="padlet-edit-btn">✏️</button><button class="padlet-delete-btn">🗑️</button>`:""}
+                <button class="padlet-like-btn ${liked?"liked":""}" title="${liked?"좋아요 취소":"좋아요"}">${liked?"❤️":"🤍"} ${Number(item.likes)||0}</button>
               </div>
-              <div class="padlet-card-footer">
-                <div class="padlet-author"><strong>${esc(item.author)}</strong> · ${esc(item.team)}</div>
-                <div class="padlet-actions">
-                  ${isMine?`<button class="padlet-edit-btn" title="수정">✏️</button><button class="padlet-delete-btn" title="삭제">🗑️</button>`:""}
-                  <button class="padlet-like-btn ${liked?"liked":""}" title="${liked?"좋아요 취소":"좋아요"}">
-                    ${liked?"❤️":"🤍"} ${Number(item.likes)||0}
-                  </button>
-                </div>
-              </div>`;
-
-            // 좋아요 (undo 가능 — likedBy 배열로 관리)
-            card.querySelector(".padlet-like-btn").addEventListener("click", async () => {
-              const btn = card.querySelector(".padlet-like-btn");
-              const currentLikedBy = item.likedBy || [];
-              if (currentLikedBy.includes(myTypingId)) {
-                // undo
-                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), {
-                  likes: Math.max(0, (item.likes||0)-1),
-                  likedBy: currentLikedBy.filter(id => id !== myTypingId)
-                });
-              } else {
-                // like
-                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), {
-                  likes: increment(1),
-                  likedBy: [...currentLikedBy, myTypingId]
-                });
-              }
-            });
-
-            // 수정
-            if (isMine) {
-              card.querySelector(".padlet-edit-btn").addEventListener("click", () => {
-                card.querySelector(".padlet-card-body").style.display="none";
-                card.querySelector(`#edit-form-${item.id}`).classList.add("open");
-              });
-              card.querySelector(".edit-cancel-btn").addEventListener("click", () => {
-                card.querySelector(".padlet-card-body").style.display="";
-                card.querySelector(`#edit-form-${item.id}`).classList.remove("open");
-              });
-              card.querySelector(".edit-save-btn").addEventListener("click", async () => {
-                const newText = card.querySelector(`#edit-form-${item.id} textarea`).value.trim();
-                if (!newText) return;
-                await updateDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id), { text: newText });
-                card.querySelector(`#edit-form-${item.id}`).classList.remove("open");
-                card.querySelector(".padlet-card-body").style.display="";
-              });
-              card.querySelector(".padlet-delete-btn").addEventListener("click", async () => {
-                if (!confirm("의견을 삭제하시겠습니까?")) return;
-                await deleteDoc(doc(db,"sessions",sessionId,"questions",questionId,"answers",item.id));
-              });
-            }
-            grid.insertBefore(card, addBtn);
-          });
-        },
-        err => console.error(err)
-      );
-      unsubscribers.push(unsub);
-    }
-
-    // ── 투표 ──
-    function renderPolls(polls) {
-      const container = document.getElementById("questions-container");
-      let pollsDiv = document.getElementById("polls-section");
-      if (!pollsDiv) { pollsDiv = document.createElement("div"); pollsDiv.id="polls-section"; container.appendChild(pollsDiv); }
-      if (!polls.length) { pollsDiv.innerHTML=""; return; }
-      pollsDiv.innerHTML = `<h3 style="font-size:16px;font-weight:700;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--black)">🗳️ 투표 / 설문</h3>` +
-        polls.map(poll => {
-          const myVoteKey = `vote_${sessionId}_${poll.id}`;
-          const myVote = localStorage.getItem(myVoteKey);
-          const total = Object.values(poll.votes||{}).reduce((a,b)=>a+b,0);
-          return `
-            <div class="poll-card" id="poll-card-${poll.id}">
-              <div class="poll-badge">${poll.type==="multi"?"복수선택":"단일선택"}</div>
-              <div class="poll-question">${esc(poll.question)}</div>
-              <div class="poll-options" data-poll="${poll.id}" data-type="${poll.type}">
-                ${(poll.options||[]).map((opt,i) => {
-                  const cnt=(poll.votes||{})[i]||0;
-                  const pct=total?Math.round(cnt/total*100):0;
-                  const sel=myVote&&myVote.split(",").includes(String(i));
-                  return `
-                    <div class="poll-option ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}">
-                      <div class="poll-option-top">
-                        <span class="poll-option-label">${esc(opt)}</span>
-                        ${myVote?`<span class="poll-pct">${pct}%</span>`:""}
-                      </div>
-                      ${myVote?`<div class="poll-bar"><div class="poll-bar-fill" style="width:${pct}%"></div></div><span class="poll-votes-count">${cnt}명</span>`:""}
-                    </div>`;
-                }).join("")}
-              </div>
-              ${!myVote
-                ?`<button class="btn btn-primary poll-vote-btn" data-poll="${poll.id}">투표하기</button>`
-                :`<p class="voted-notice">✓ 투표 완료 (총 ${total}명 참여)</p>`}
             </div>`;
-        }).join("");
-
-      document.querySelectorAll(".poll-option:not(.voted)").forEach(opt => {
-        opt.addEventListener("click", () => {
-          const wrap = opt.closest(".poll-options");
-          if (wrap.dataset.type==="single") wrap.querySelectorAll(".poll-option").forEach(o=>o.classList.remove("selected"));
-          opt.classList.toggle("selected");
+          card.querySelector(".padlet-like-btn").addEventListener("click",async()=>{
+            const currentLikedBy=item.likedBy||[];
+            if(currentLikedBy.includes(myId)){
+              await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{likes:Math.max(0,(item.likes||0)-1),likedBy:currentLikedBy.filter(id=>id!==myId)});
+            } else {
+              await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{likes:increment(1),likedBy:[...currentLikedBy,myId]});
+            }
+          });
+          if(isMine){
+            card.querySelector(".padlet-edit-btn").addEventListener("click",()=>{card.querySelector(".padlet-card-body").style.display="none";card.querySelector(`#edit-form-${item.id}`).classList.add("open");});
+            card.querySelector(".edit-cancel-btn").addEventListener("click",()=>{card.querySelector(".padlet-card-body").style.display="";card.querySelector(`#edit-form-${item.id}`).classList.remove("open");});
+            card.querySelector(".edit-save-btn").addEventListener("click",async()=>{const t=card.querySelector(`#edit-form-${item.id} textarea`).value.trim();if(!t) return;await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{text:t});card.querySelector(`#edit-form-${item.id}`).classList.remove("open");card.querySelector(".padlet-card-body").style.display="";});
+            card.querySelector(".padlet-delete-btn").addEventListener("click",async()=>{if(!confirm("의견을 삭제하시겠습니까?")) return;await deleteDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id));});
+          }
+          grid.insertBefore(card,addBtn);
         });
-      });
-      document.querySelectorAll(".poll-vote-btn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const pollId = btn.dataset.poll;
-          const wrap = document.querySelector(`.poll-options[data-poll="${pollId}"]`);
-          const selected = [...wrap.querySelectorAll(".poll-option.selected")].map(o=>Number(o.dataset.idx));
-          if (!selected.length) { alert("선택지를 선택해주세요."); return; }
-          btn.disabled=true; btn.textContent="제출 중...";
-          const updates={};
-          selected.forEach(i => { updates[`votes.${i}`]=increment(1); });
-          await updateDoc(doc(db,"sessions",sessionId,"polls",pollId), updates);
-          localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
-        });
-      });
+      }, err=>console.error(err));
+      unsubscribers.push(unsub);
     }
 
-    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
   </script>
 </body>
 </html>
