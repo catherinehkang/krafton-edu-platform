@@ -1,776 +1,733 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>KRAFTON Ways of Working</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* ── 공통 ── */
-    .page { display:none; }
-    .page.active { display:block; }
-
-    /* ── 게이트 ── */
-    .gate-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300; display:flex; align-items:center; justify-content:center; padding:20px; }
-    .gate-card { background:white; border-radius:14px; padding:36px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.2); border-top:4px solid var(--red); }
-    .gate-logo { display:flex; align-items:center; gap:8px; margin-bottom:20px; }
-    .gate-logo span { font-size:13px; font-weight:600; color:var(--gray-600,#666); letter-spacing:0.05em; }
-
-    /* ── 허브 ── */
-    .hub-header { background:var(--black); border-radius:var(--radius); padding:20px 24px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between; }
-    .hub-header-left h1 { font-size:18px; font-weight:700; color:white; margin-bottom:2px; }
-    .hub-header-left p { font-size:13px; color:#aaa; }
-    .hub-user { font-size:13px; color:#888; white-space:nowrap; }
-
-    .hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-
-    .hub-panel { background:white; border:1px solid var(--border,#e5e5e5); border-radius:var(--radius); overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
-    .hub-panel-header { padding:16px 20px; border-bottom:1px solid var(--border,#e5e5e5); }
-    .hub-panel-title { font-size:13px; font-weight:700; color:var(--black); letter-spacing:0.02em; display:flex; align-items:center; gap:8px; }
-    .hub-panel-body { padding:16px 20px; }
-
-    /* 활동 카드 */
-    .activity-card { border:1px solid var(--border,#e5e5e5); border-radius:10px; padding:16px 18px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:14px; margin-bottom:10px; }
-    .activity-card:last-child { margin-bottom:0; }
-    .activity-card:hover { border-color:var(--red); background:#fff8f8; }
-    .activity-card-icon { width:40px; height:40px; border-radius:10px; background:#fff0f2; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-    .activity-card-info { flex:1; min-width:0; }
-    .activity-card-name { font-size:14px; font-weight:600; color:var(--black); margin-bottom:2px; }
-    .activity-card-desc { font-size:12px; color:var(--text-muted,#666); }
-    .activity-card-arrow { font-size:16px; color:var(--red); flex-shrink:0; }
-
-    /* Way 카드 */
-    .way-mini-grid { display:flex; flex-direction:column; gap:8px; }
-    .way-mini-card { border:1px solid var(--border,#e5e5e5); border-radius:8px; padding:12px 14px; cursor:pointer; transition:all 0.15s; display:flex; align-items:center; gap:10px; }
-    .way-mini-card:hover { border-color:var(--red); background:#fff8f8; }
-    .way-mini-num { font-size:10px; font-weight:700; color:var(--red); letter-spacing:0.06em; width:36px; flex-shrink:0; }
-    .way-mini-title { font-size:12px; font-weight:500; color:var(--black); line-height:1.35; flex:1; }
-    .way-mini-arrow { font-size:13px; color:#ccc; flex-shrink:0; }
-
-    /* ── Way 세션 ── */
-    .way-info-card { background:var(--black); border-radius:var(--radius); padding:22px 26px; margin-bottom:24px; position:relative; overflow:hidden; }
-    .way-info-card::before { content:""; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--red); }
-    .way-info-num { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.1em; margin-bottom:4px; }
-    .way-info-title-ko { font-size:20px; font-weight:700; color:white; margin-bottom:2px; line-height:1.3; }
-    .way-info-title-en { font-size:13px; color:#aaa; margin-bottom:14px; font-style:italic; }
-    .way-info-divider { border:none; border-top:1px solid #333; margin:12px 0; }
-    .way-info-desc-ko { font-size:14px; line-height:1.85; color:#e0e0e0; margin-bottom:8px; }
-    .way-info-desc-en { font-size:12px; line-height:1.75; color:#777; }
-
-    .question-section { margin-bottom:36px; }
-    .question-header { display:flex; align-items:flex-start; gap:12px; margin-bottom:18px; padding-bottom:14px; border-bottom:2px solid var(--black); }
-    .question-tag { display:inline-flex; align-items:center; flex-shrink:0; padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; margin-top:3px; }
-    .question-tag.real-talk { background:#fff0f2; color:var(--red); border:1px solid #fca5a5; }
-    .question-tag.deep-dive { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
-    .question-tag.none { background:#f3f4f6; color:#666; border:1px solid #e5e7eb; }
-    .question-text-big { font-size:17px; font-weight:600; color:var(--black); line-height:1.5; }
-
-    /* Padlet */
-    .padlet-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-bottom:14px; }
-    .padlet-add-card { background:white; border:2px dashed #e5e5e5; border-radius:var(--radius); padding:18px; cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; min-height:130px; transition:all 0.15s; color:#999; font-size:13px; font-weight:500; }
-    .padlet-add-card:hover { border-color:var(--red); background:#fff8f8; color:var(--red); }
-    .padlet-add-icon { font-size:26px; }
-    .padlet-card { background:white; border:1px solid #e5e5e5; border-radius:var(--radius); padding:14px; box-shadow:0 1px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column; gap:8px; min-height:130px; transition:box-shadow 0.15s,transform 0.15s; }
-    .padlet-card:hover { box-shadow:0 4px 14px rgba(0,0,0,0.10); transform:translateY(-1px); }
-    .padlet-card.top-card { border-top:3px solid var(--red); }
-    .padlet-card-body { font-size:14px; line-height:1.65; color:#111; white-space:pre-wrap; flex:1; }
-    .padlet-card-footer { display:flex; align-items:center; justify-content:space-between; padding-top:8px; border-top:1px solid #f3f4f6; flex-wrap:wrap; gap:4px; }
-    .padlet-author { font-size:11px; color:#999; }
-    .padlet-author strong { color:var(--red); font-weight:600; }
-    .padlet-actions { display:flex; gap:4px; align-items:center; }
-    .padlet-like-btn { display:inline-flex; align-items:center; gap:3px; background:none; border:1px solid #e5e5e5; border-radius:20px; padding:3px 10px; font-size:12px; font-weight:500; cursor:pointer; color:#999; transition:all 0.15s; font-family:inherit; }
-    .padlet-like-btn:hover { background:#fff0f2; border-color:#fca5a5; color:var(--red); }
-    .padlet-like-btn.liked { background:#fff0f2; border-color:var(--red); color:var(--red); }
-    .padlet-edit-btn,.padlet-delete-btn { background:none; border:none; cursor:pointer; font-size:13px; color:#ccc; padding:3px 5px; border-radius:4px; font-family:inherit; transition:all 0.15s; }
-    .padlet-edit-btn:hover { color:#111; background:#f3f4f6; }
-    .padlet-delete-btn:hover { color:var(--red); background:#fff0f2; }
-    .top-crown { font-size:11px; font-weight:700; color:var(--red); background:#fff0f2; border:1px solid #fca5a5; padding:2px 8px; border-radius:20px; margin-bottom:4px; display:inline-block; }
-    .typing-area-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; margin-bottom:12px; }
-    .typing-card { background:#fffbf0; border:1.5px dashed #f0c040; border-radius:var(--radius); padding:14px; display:flex; flex-direction:column; gap:6px; }
-    .typing-indicator { font-size:12px; color:#b08000; display:flex; align-items:center; gap:6px; }
-    .typing-dots span { display:inline-block; width:4px; height:4px; background:#b08000; border-radius:50%; animation:blink 1.2s infinite; }
-    .typing-dots span:nth-child(2){animation-delay:0.2s} .typing-dots span:nth-child(3){animation-delay:0.4s}
-    @keyframes blink{0%,80%,100%{opacity:0.2}40%{opacity:1}}
-    .typing-preview { font-size:12px; color:#bbb; font-style:italic; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .padlet-write-form { background:white; border:2px solid var(--red); border-radius:var(--radius); padding:14px; display:none; flex-direction:column; gap:8px; }
-    .padlet-write-form.open { display:flex; }
-    .padlet-write-form textarea { width:100%; border:1px solid #e5e5e5; border-radius:8px; padding:10px 12px; font-size:14px; font-family:inherit; resize:vertical; outline:none; min-height:90px; }
-    .padlet-write-form textarea:focus { border-color:var(--red); }
-    .padlet-write-actions { display:flex; justify-content:space-between; align-items:center; }
-    .edit-form { display:none; flex-direction:column; gap:6px; margin-top:6px; }
-    .edit-form.open { display:flex; }
-    .edit-form textarea { width:100%; border:1px solid var(--red); border-radius:8px; padding:8px 10px; font-size:14px; font-family:inherit; resize:vertical; outline:none; }
-    .edit-form-actions { display:flex; justify-content:flex-end; gap:6px; }
-
-    /* ── 미묘한 순간 시뮬레이션 ── */
-    .sim-header { background:var(--black); border-radius:var(--radius); padding:22px 26px; margin-bottom:24px; }
-    .sim-header-label { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.08em; margin-bottom:4px; }
-    .sim-header-title { font-size:20px; font-weight:700; color:white; margin-bottom:4px; }
-    .sim-header-desc { font-size:13px; color:#aaa; }
-    .sim-progress { display:flex; gap:6px; margin-bottom:24px; }
-    .sim-progress-dot { height:4px; border-radius:2px; flex:1; background:#e5e5e5; transition:background 0.3s; }
-    .sim-progress-dot.done { background:var(--red); }
-    .sim-progress-dot.current { background:var(--red); opacity:0.5; }
-    .sim-q-card { background:white; border:1px solid #e5e5e5; border-radius:var(--radius); padding:24px; box-shadow:0 1px 4px rgba(0,0,0,0.06); margin-bottom:20px; }
-    .sim-q-num { font-size:11px; font-weight:700; color:var(--red); letter-spacing:0.06em; margin-bottom:8px; }
-    .sim-q-text { font-size:17px; font-weight:600; color:var(--black); line-height:1.5; margin-bottom:20px; }
-    .sim-q-context { font-size:13px; color:#888; line-height:1.6; margin-bottom:20px; padding:12px 16px; background:#f9f9f9; border-radius:8px; border-left:3px solid #e5e5e5; }
-    .sim-options { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
-    .sim-option { padding:12px 16px; border:1.5px solid #e5e5e5; border-radius:10px; cursor:pointer; transition:all 0.15s; font-size:14px; font-weight:500; color:#333; }
-    .sim-option:hover:not(.voted) { border-color:var(--red); background:#fff8f8; }
-    .sim-option.selected { border-color:var(--red); background:#fff0f2; color:var(--red); }
-    .sim-option.voted { cursor:default; }
-    .sim-option-result { display:flex; align-items:center; justify-content:space-between; }
-    .sim-option-pct { font-size:13px; font-weight:700; color:var(--red); }
-    .sim-bar { height:4px; background:#f0f0f0; border-radius:2px; margin-top:6px; overflow:hidden; }
-    .sim-bar-fill { height:100%; background:var(--red); border-radius:2px; transition:width 0.4s; }
-    .sim-voted-count { font-size:12px; color:#999; margin-top:4px; }
-    .sim-nav { display:flex; align-items:center; justify-content:space-between; margin-top:8px; }
-    .sim-complete { text-align:center; padding:40px 20px; }
-    .sim-complete-icon { font-size:48px; margin-bottom:16px; }
-    .sim-complete-title { font-size:20px; font-weight:700; color:var(--black); margin-bottom:8px; }
-    .sim-complete-desc { font-size:14px; color:#888; }
-
-    .back-btn { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#999; background:none; border:1px solid #e5e5e5; border-radius:7px; padding:6px 14px; cursor:pointer; font-family:inherit; margin-bottom:20px; transition:all 0.15s; }
-    .back-btn:hover { color:var(--black); border-color:#999; }
-    .session-info-bar { background:var(--black); border-radius:var(--radius); padding:16px 22px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; }
-    .session-info-bar h1 { font-size:17px; font-weight:700; color:white; margin-bottom:2px; }
-    .session-info-bar .muted { color:#aaa; font-size:12px; }
-    .way-badge-large { background:var(--red); color:white; font-size:12px; font-weight:600; padding:5px 14px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
-
-    @media(max-width:640px){ .hub-grid{grid-template-columns:1fr} .padlet-grid{grid-template-columns:1fr 1fr} }
-    @media(max-width:400px){ .padlet-grid{grid-template-columns:1fr} }
+    .page{display:none}.page.active{display:block}
+    .way-select-page{padding:28px 0 60px}
+    .way-select-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .way-select-card{background:white;border:1px solid #e5e5e5;border-top:4px solid #C8102E;border-radius:10px;padding:20px;cursor:pointer;transition:box-shadow .15s,transform .15s;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .way-select-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.10);transform:translateY(-2px)}
+    .way-select-num{font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.08em;margin-bottom:8px}
+    .way-select-title{font-size:14px;font-weight:600;color:#111;line-height:1.4;margin-bottom:4px}
+    .way-select-en{font-size:11px;color:#999;font-style:italic}
+    .way-select-arrow{display:block;margin-top:14px;font-size:18px;color:#C8102E}
+    .way-info-card{background:#000;border-radius:10px;padding:22px 26px;margin-bottom:28px;position:relative;overflow:hidden}
+    .way-info-card::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:#C8102E}
+    .way-info-num{font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.1em;margin-bottom:4px}
+    .way-info-title-ko{font-size:20px;font-weight:700;color:white;margin-bottom:2px;line-height:1.3}
+    .way-info-title-en{font-size:13px;color:#aaa;margin-bottom:14px;font-style:italic}
+    .way-info-divider{border:none;border-top:1px solid #333;margin:12px 0}
+    .way-info-desc-ko{font-size:14px;line-height:1.85;color:#e0e0e0;margin-bottom:8px}
+    .way-info-desc-en{font-size:12px;line-height:1.75;color:#777}
+    .hub-header{background:#000;border-radius:10px;padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between}
+    .hub-header h1{font-size:18px;font-weight:700;color:white;margin-bottom:2px}
+    .hub-header p{font-size:13px;color:#aaa}
+    .hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .hub-panel{background:white;border:1px solid #e5e5e5;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .hub-panel-header{padding:14px 20px;border-bottom:1px solid #e5e5e5;display:flex;align-items:center;gap:8px}
+    .hub-panel-title{font-size:13px;font-weight:700;color:#111}
+    .hub-dot-red{width:8px;height:8px;border-radius:50%;background:#C8102E;display:inline-block}
+    .hub-dot-black{width:8px;height:8px;border-radius:50%;background:#111;display:inline-block}
+    .hub-panel-body{padding:16px 20px}
+    .activity-card{border:1px solid #e5e5e5;border-radius:10px;padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .activity-card:last-child{margin-bottom:0}
+    .activity-card:hover{border-color:#C8102E;background:#fff8f8}
+    .activity-card-icon{width:38px;height:38px;border-radius:9px;background:#fff0f2;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+    .activity-card-name{font-size:14px;font-weight:600;color:#111;margin-bottom:2px}
+    .activity-card-desc{font-size:12px;color:#999}
+    .activity-card-arrow{font-size:16px;color:#C8102E;flex-shrink:0}
+    .way-mini-card{border:1px solid #e5e5e5;border-radius:8px;padding:10px 13px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;margin-bottom:7px}
+    .way-mini-card:last-child{margin-bottom:0}
+    .way-mini-card:hover{border-color:#C8102E;background:#fff8f8}
+    .way-mini-num{font-size:10px;font-weight:700;color:#C8102E;width:36px;flex-shrink:0}
+    .way-mini-title{font-size:12px;font-weight:500;color:#111;line-height:1.35;flex:1}
+    .question-section{margin-bottom:36px}
+    .question-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:2px solid #111}
+    .question-tag{display:inline-flex;align-items:center;flex-shrink:0;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.04em;white-space:nowrap;margin-top:3px}
+    .question-tag.real-talk{background:#fff0f2;color:#C8102E;border:1px solid #fca5a5}
+    .question-tag.deep-dive{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd}
+    .question-tag.none{background:#f3f4f6;color:#666;border:1px solid #e5e7eb}
+    .question-text-big{font-size:17px;font-weight:600;color:#111;line-height:1.5}
+    .padlet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-bottom:14px}
+    .padlet-add-card{background:white;border:2px dashed #e5e5e5;border-radius:10px;padding:18px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:130px;transition:all .15s;color:#999;font-size:13px;font-weight:500}
+    .padlet-add-card:hover{border-color:#C8102E;background:#fff8f8;color:#C8102E}
+    .padlet-add-icon{font-size:26px}
+    .padlet-card{background:white;border:1px solid #e5e5e5;border-radius:10px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:8px;min-height:130px;transition:box-shadow .15s,transform .15s}
+    .padlet-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.10);transform:translateY(-1px)}
+    .padlet-card.top-card{border-top:3px solid #C8102E}
+    .padlet-card-body{font-size:14px;line-height:1.65;color:#111;white-space:pre-wrap;flex:1}
+    .padlet-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:8px;border-top:1px solid #f3f4f6;flex-wrap:wrap;gap:4px}
+    .padlet-author{font-size:11px;color:#999}
+    .padlet-author strong{color:#C8102E;font-weight:600}
+    .padlet-actions{display:flex;gap:4px;align-items:center}
+    .padlet-like-btn{display:inline-flex;align-items:center;gap:3px;background:none;border:1px solid #e5e5e5;border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;cursor:pointer;color:#999;transition:all .15s;font-family:inherit}
+    .padlet-like-btn:hover{background:#fff0f2;border-color:#fca5a5;color:#C8102E}
+    .padlet-like-btn.liked{background:#fff0f2;border-color:#C8102E;color:#C8102E}
+    .padlet-edit-btn,.padlet-delete-btn{background:none;border:none;cursor:pointer;font-size:13px;color:#ccc;padding:3px 5px;border-radius:4px;font-family:inherit;transition:all .15s}
+    .padlet-edit-btn:hover{color:#111;background:#f3f4f6}
+    .padlet-delete-btn:hover{color:#C8102E;background:#fff0f2}
+    .top-crown{font-size:11px;font-weight:700;color:#C8102E;background:#fff0f2;border:1px solid #fca5a5;padding:2px 8px;border-radius:20px;margin-bottom:4px;display:inline-block}
+    .typing-indicator-bar{background:#fffbf0;border:1.5px dashed #f0c040;border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#b08000;display:flex;align-items:center;gap:8px}
+    .typing-dots span{display:inline-block;width:4px;height:4px;background:#b08000;border-radius:50%;animation:blink 1.2s infinite}
+    .typing-dots span:nth-child(2){animation-delay:.2s}.typing-dots span:nth-child(3){animation-delay:.4s}
+    @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+    .padlet-write-form{background:white;border:2px solid #C8102E;border-radius:10px;padding:14px;display:none;flex-direction:column;gap:8px}
+    .padlet-write-form.open{display:flex}
+    .padlet-write-form textarea{width:100%;border:1px solid #e5e5e5;border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;resize:vertical;outline:none;min-height:90px}
+    .padlet-write-form textarea:focus{border-color:#C8102E}
+    .padlet-write-actions{display:flex;justify-content:space-between;align-items:center}
+    .edit-form{display:none;flex-direction:column;gap:6px;margin-top:6px}
+    .edit-form.open{display:flex}
+    .edit-form textarea{width:100%;border:1px solid #C8102E;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;resize:vertical;outline:none}
+    .edit-form-actions{display:flex;justify-content:flex-end;gap:6px}
+    .sim-header{background:#000;border-radius:10px;padding:22px 26px;margin-bottom:24px}
+    .sim-header-label{font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.08em;margin-bottom:4px}
+    .sim-header-title{font-size:20px;font-weight:700;color:white;margin-bottom:4px}
+    .sim-header-desc{font-size:13px;color:#aaa}
+    .sim-progress{display:flex;gap:6px;margin-bottom:24px}
+    .sim-progress-dot{height:4px;border-radius:2px;flex:1;background:#e5e5e5;transition:background .3s}
+    .sim-progress-dot.done{background:#C8102E}
+    .sim-progress-dot.current{background:#C8102E;opacity:.5}
+    .sim-q-card{background:white;border:1px solid #e5e5e5;border-radius:10px;padding:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:20px}
+    .sim-q-num{font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.06em;margin-bottom:8px}
+    .sim-q-text{font-size:17px;font-weight:600;color:#111;line-height:1.5;margin-bottom:20px}
+    .sim-q-context{font-size:13px;color:#888;line-height:1.7;margin-bottom:20px;padding:14px 16px;background:#f9f9f9;border-radius:8px;border-left:3px solid #e5e5e5}
+    .sim-options{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+    .sim-option{padding:12px 16px;border:1.5px solid #e5e5e5;border-radius:10px;cursor:pointer;transition:all .15s;font-size:14px;font-weight:500;color:#333}
+    .sim-option:hover:not(.voted){border-color:#C8102E;background:#fff8f8}
+    .sim-option.selected:not(.voted){border-color:#C8102E;background:#fff0f2;color:#C8102E}
+    .sim-option.voted{cursor:default}
+    .sim-option.voted.selected{border-color:#C8102E;background:#fff0f2}
+    .sim-result-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .sim-pct{font-size:16px;font-weight:700;color:#C8102E}
+    .sim-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin:5px 0}
+    .sim-bar-fill{height:100%;background:#C8102E;border-radius:3px;transition:width .5s ease}
+    .sim-votes-count{font-size:11px;color:#999}
+    .sim-total-line{font-size:12px;color:#999;margin-bottom:12px}
+    .sim-nav{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+    .sim-complete{text-align:center;padding:40px 20px}
+    .sim-complete-icon{font-size:48px;margin-bottom:16px}
+    .sim-complete-title{font-size:20px;font-weight:700;color:#111;margin-bottom:8px}
+    .sim-complete-desc{font-size:14px;color:#888}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#999;background:none;border:1px solid #e5e5e5;border-radius:7px;padding:6px 14px;cursor:pointer;font-family:inherit;margin-bottom:20px;transition:all .15s}
+    .back-btn:hover{color:#111;border-color:#999}
+    .session-info-bar{background:#000;border-radius:10px;padding:16px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+    .session-info-bar h1{font-size:17px;font-weight:700;color:white;margin-bottom:2px}
+    .session-info-bar .muted{color:#aaa;font-size:12px}
+    .way-badge-large{background:#C8102E;color:white;font-size:12px;font-weight:600;padding:5px 14px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+    .poll-card{background:white;border:1px solid #e5e5e5;border-left:4px solid #C8102E;border-radius:10px;padding:20px 24px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    .poll-badge{font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.05em;margin-bottom:8px}
+    .poll-question{font-size:16px;font-weight:600;color:#111;margin-bottom:16px}
+    .poll-opt-item{padding:10px 14px;border:1.5px solid #e5e5e5;border-radius:8px;cursor:pointer;transition:all .15s;margin-bottom:8px}
+    .poll-opt-item:hover:not(.voted){border-color:#C8102E;background:#fff8f8}
+    .poll-opt-item.selected{border-color:#C8102E;background:#fff0f2}
+    .poll-opt-item.voted{cursor:default}
+    .poll-opt-row{display:flex;justify-content:space-between;align-items:center}
+    .poll-opt-label{font-size:14px;font-weight:500}
+    .poll-opt-pct{font-size:13px;font-weight:700;color:#C8102E}
+    .poll-bar{height:4px;background:#f0f0f0;border-radius:2px;margin-top:8px;overflow:hidden}
+    .poll-bar-fill{height:100%;background:#C8102E;border-radius:2px;transition:width .4s}
+    @media(max-width:640px){.hub-grid{grid-template-columns:1fr}.way-select-grid{grid-template-columns:1fr 1fr}.padlet-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:400px){.way-select-grid{grid-template-columns:1fr}.padlet-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <div class="header-inner">
-        <a href="index.html" class="back-link">← 목록으로</a>
-        <div class="logo">
-          <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-          <span id="session-label">KRAFTON WoW</span>
-        </div>
-        <span class="header-right" id="participant-info"></span>
+<header class="site-header">
+  <div class="container">
+    <div class="header-inner">
+      <a href="index.html" class="back-link">← 목록으로</a>
+      <div class="logo">
+        <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span id="session-label">KRAFTON WoW</span>
       </div>
-    </div>
-  </header>
-
-  <!-- 이름 입력 게이트 -->
-  <div id="name-gate" class="gate-overlay">
-    <div class="gate-card">
-      <div class="gate-logo">
-        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <span>KRAFTON Ways of Working</span>
-      </div>
-      <h2>참여자 정보 입력</h2>
-      <p class="muted" style="margin-bottom:20px">이름과 팀명을 입력하고 참여하세요.</p>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div><label class="form-label">이름</label><input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20"/></div>
-        <div><label class="form-label">팀명</label><input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30"/></div>
-      </div>
-      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">입장하기 →</button>
+      <span class="header-right" id="participant-info"></span>
     </div>
   </div>
+</header>
 
-  <!-- 허브 페이지 -->
-  <div id="page-hub" class="page container main-content">
-    <div class="hub-header">
-      <div class="hub-header-left">
-        <h1 id="hub-title">-</h1>
-        <p id="hub-date">-</p>
-      </div>
-      <div class="hub-user" id="hub-user"></div>
+<!-- 이름 게이트 -->
+<div id="name-gate" class="gate-overlay">
+  <div class="gate-card">
+    <div class="gate-logo">
+      <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span>KRAFTON Ways of Working</span>
     </div>
-    <div class="hub-grid">
-      <!-- 왼쪽: 활동 -->
-      <div class="hub-panel">
-        <div class="hub-panel-header">
-          <div class="hub-panel-title">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--red);display:inline-block"></span>
-            활동
-          </div>
+    <h2>참여자 정보 입력</h2>
+    <p class="muted" style="margin-bottom:20px">이름과 팀명을 입력하고 참여하세요.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div><label class="form-label">이름</label><input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20"/></div>
+      <div><label class="form-label">팀명</label><input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30"/></div>
+    </div>
+    <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">입장하기 →</button>
+  </div>
+</div>
+
+<!-- 허브 -->
+<div id="page-hub" class="page container main-content">
+  <div class="hub-header">
+    <div><h1 id="hub-title">-</h1><p id="hub-date">-</p></div>
+    <div style="font-size:13px;color:#888" id="hub-user"></div>
+  </div>
+  <div class="hub-grid">
+    <div class="hub-panel">
+      <div class="hub-panel-header"><span class="hub-dot-red"></span><span class="hub-panel-title">활동</span></div>
+      <div class="hub-panel-body">
+        <div class="activity-card" id="hub-poll-btn">
+          <div class="activity-card-icon">🗳️</div>
+          <div style="flex:1"><div class="activity-card-name">투표 / 설문</div><div class="activity-card-desc">진행 중인 투표에 참여하세요</div></div>
+          <span class="activity-card-arrow">→</span>
         </div>
-        <div class="hub-panel-body">
-          <div class="activity-card" id="hub-poll-btn">
-            <div class="activity-card-icon">🗳️</div>
-            <div class="activity-card-info">
-              <div class="activity-card-name">투표 / 설문</div>
-              <div class="activity-card-desc">진행 중인 투표에 참여하세요</div>
-            </div>
-            <span class="activity-card-arrow">→</span>
-          </div>
-          <div class="activity-card" id="hub-sim-btn">
-            <div class="activity-card-icon">💬</div>
-            <div class="activity-card-info">
-              <div class="activity-card-name">미묘한 순간 시뮬레이션</div>
-              <div class="activity-card-desc">6가지 상황을 함께 탐색해요</div>
-            </div>
-            <span class="activity-card-arrow">→</span>
-          </div>
-        </div>
-      </div>
-      <!-- 오른쪽: 조별 활동 -->
-      <div class="hub-panel">
-        <div class="hub-panel-header">
-          <div class="hub-panel-title">
-            <span style="width:8px;height:8px;border-radius:50%;background:var(--black);display:inline-block"></span>
-            조별 활동
-          </div>
-        </div>
-        <div class="hub-panel-body">
-          <div class="way-mini-grid" id="hub-way-grid"></div>
+        <div class="activity-card" id="hub-sim-btn">
+          <div class="activity-card-icon">💬</div>
+          <div style="flex:1"><div class="activity-card-name">미묘한 순간 시뮬레이션</div><div class="activity-card-desc">5가지 상황을 함께 탐색해요</div></div>
+          <span class="activity-card-arrow">→</span>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- 투표 페이지 -->
-  <div id="page-poll" class="page container main-content">
-    <button class="back-btn" id="poll-back-btn">← 허브로</button>
-    <div class="session-info-bar">
-      <div><h1 id="poll-session-title">-</h1><p class="muted">투표 / 설문</p></div>
-    </div>
-    <div id="poll-list-container">
-      <div class="loading-state"><div class="spinner"></div></div>
+    <div class="hub-panel">
+      <div class="hub-panel-header"><span class="hub-dot-black"></span><span class="hub-panel-title">조별 활동</span></div>
+      <div class="hub-panel-body"><div id="hub-way-grid"></div></div>
     </div>
   </div>
+</div>
 
-  <!-- 미묘한 순간 시뮬레이션 페이지 -->
-  <div id="page-sim" class="page container main-content">
-    <button class="back-btn" id="sim-back-btn">← 허브로</button>
-    <div class="sim-header">
-      <div class="sim-header-label">ACTIVITY</div>
-      <div class="sim-header-title">미묘한 순간 시뮬레이션</div>
-      <div class="sim-header-desc">일상 속 상황을 함께 살펴보며 우리의 Ways of Working을 탐색합니다.</div>
-    </div>
-    <div class="sim-progress" id="sim-progress"></div>
-    <div id="sim-content"></div>
+<!-- 투표 -->
+<div id="page-poll" class="page container main-content">
+  <button class="back-btn" id="poll-back-btn">← 허브로</button>
+  <div class="session-info-bar"><div><h1 id="poll-session-title">-</h1><p class="muted">투표 / 설문</p></div></div>
+  <div id="poll-list-container"><div class="loading-state"><div class="spinner"></div></div></div>
+</div>
+
+<!-- 시뮬레이션 -->
+<div id="page-sim" class="page container main-content">
+  <button class="back-btn" id="sim-back-btn">← 허브로</button>
+  <div class="sim-header">
+    <div class="sim-header-label">ACTIVITY</div>
+    <div class="sim-header-title">미묘한 순간 시뮬레이션</div>
+    <div class="sim-header-desc">일상 속 상황을 함께 살펴보며 우리의 Ways of Working을 탐색합니다.</div>
   </div>
+  <div class="sim-progress" id="sim-progress"></div>
+  <div id="sim-content"></div>
+</div>
 
-  <!-- Way 세션 페이지 -->
-  <div id="page-way" class="page container main-content">
-    <button class="back-btn" id="way-back-btn">← 허브로</button>
-    <div class="session-info-bar">
-      <div><h1 id="way-session-title">-</h1><p class="muted" id="way-session-date">-</p></div>
-      <div id="way-badge" class="way-badge-large"></div>
-    </div>
-    <div id="way-info-section"></div>
-    <div id="questions-container"></div>
+<!-- Way 세션 -->
+<div id="page-way" class="page container main-content">
+  <button class="back-btn" id="way-back-btn">← 허브로</button>
+  <div class="session-info-bar">
+    <div><h1 id="way-session-title">-</h1><p class="muted" id="way-session-date">-</p></div>
+    <div id="way-badge" class="way-badge-large"></div>
   </div>
+  <div id="way-info-section"></div>
+  <div id="questions-container"></div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, doc, getDoc, deleteDoc,
-      query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp, setDoc
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { FIREBASE_CONFIG } from "./firebase-config.js";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, doc, getDoc, deleteDoc,
+  query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp, setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { FIREBASE_CONFIG } from "./firebase-config.js";
 
-    const WAYS = [
-      { num:1, titleKo:"도전은 담대하게, 시작은 작고 빠르게", titleEn:"Be Bold, Start Small & Fast.", descKo:"모든 도전은 높은 지향점을 향해 담대하게 나아가야 합니다.\n높은 목표를 세우고, 작고 빠른 실행을 반복하며, 배움을 쌓아 갑니다.\n크게 생각하고, 작게 시작해서, 빠르게 학습하는 것, 이것이 바로 우리가 한 걸음 더 나아가는 방법입니다.", descEn:"Every challenge should move us toward a higher ambition.\nWe set bold objectives, take small and fast actions, and build on what we learn.\nThink big, start small, learn fast. That is how we move one step further." },
-      { num:2, titleKo:"일의 방향이 다르면 달려도 제자리", titleEn:"One Direction or Zero Results.", descKo:"아무리 최선을 다해도, 서로 다른 방향으로 달리면 결과는 제자리입니다.\n큰 조직일수록, 모두가 같은 방향을 향하고 있어야 합니다.\n\"내가 가는 방향이 팀과, 조직과, 회사의 방향과 일치하는가?\" 먼저 생각하세요.\n방향이 같아야, 속도도 더해집니다.", descEn:"Progress stalls when teams move in different directions.\nAs we grow, shared alignment becomes increasingly critical.\nAlways ask: \"Is my direction aligned with my team and company's path?\"\nWhen we align, momentum multiplies." },
-      { num:3, titleKo:"모든 일에는 한 명의 책임자", titleEn:"Every Task, One Owner.", descKo:"모든 일에는 결정을 내리고 책임지는 한 사람이 필요합니다.\n자신의 권한에 책임을 지는 '라스트맨'이 성장하고 많아질수록 조직도 함께 성장합니다.\n책임자를 분명히 할 때, 조직은 충돌 속에서도 더 강해지고 앞으로 나아갑니다.", descEn:"Each task needs a single owner. One steps up, makes the hard calls, and takes full responsibility for the outcome.\nAs more rise to that last line of accountability, the whole team grows stronger.\nClear ownership turns conflict into cohesion and moves us forward." },
-      { num:4, titleKo:"충돌은 더 나은 결과를 만드는 기회", titleEn:"Conflict Sparks Progress.", descKo:"우리는 더 나은 결정을 위해 계속 부딪혀야 합니다.\n다양한 관점에서 자신의 소신을 바탕으로 제안하고, 서로 충돌하며 결국 모두에게 더 큰 이익이 되는 방향을 찾아가야 합니다.", descEn:"Better decisions don't come from silence.\nThey are born from friction where strong perspectives meet, collide, and challenge each other.\nSpeak up. Stand firm. Move forward. Only then can we forge a path that serves the greater good." },
-      { num:5, titleKo:"문화는 수평적으로, 업무는 수직적으로", titleEn:"Horizontal Culture, Vertical Workflow.", descKo:"우리의 조직 문화는 자유로운 토론과 다양한 의견을 존중합니다.\n하지만 토론이 끝난 뒤에는 모두가 하나의 결정에 따라 움직입니다.\n수평의 다양성과 수직의 추진력이 하나가 될 때, 비로소 성과를 만들어내는 힘이 됩니다.", descEn:"Different perspectives sharpen our strategy.\nWe debate openly until we reach a final decision. Once the decision is made, diverse thinking aligns into shared momentum.\nMany voices moving as one create real impact." },
-      { num:6, titleKo:"로컬의 감각으로 글로벌 최적화", titleEn:"Locally Grounded. Globally Optimized.", descKo:"글로벌은 끊임없이 변하는 시장 환경 속에서 최적의 균형을 찾는 과정입니다.\n로컬의 감각을 유지하면서, 글로벌의 시선에서 가장 효율적인 해법을 찾습니다.\n로컬의 고유성과 글로벌의 보편성이 만드는 긴장, 그 속에서 균형점을 찾는 것이 글로벌 역량입니다.", descEn:"Going global means finding balance in markets that never stop shifting.\nRooted in local insight, we apply a global perspective to craft the most effective solutions.\nTrue global capability emerges where local character and universal relevance align." },
-      { num:7, titleKo:"AI는 모든 업무의 최우선 파트너", titleEn:"AI First in All We Do.", descKo:"AI는 빠른 변화에 맞춰 우리를 더 민첩하게 움직이게 해주는, 가장 강력한 파트너입니다.\n업무의 전 과정과 의사결정에서 우리는 AI를 항상 '최우선'으로 떠올려야 합니다.\n문제를 마주했다면, AI로 먼저 확인하고, 그 위에 우리의 판단을 더해 풀어가야 합니다.", descEn:"We make AI our primary partner to stay agile in a fast-paced world.\nIt is our starting point across every workflow and decision.\nDrawing on AI insights and building upon them with human judgment, we turn complexity into clarity." },
-      { num:8, titleKo:"자율은 스스로 원칙을 지키는 자세", titleEn:"Self-Driven. Led by Principles.", descKo:"자율적인 문화는 책임을 이해하고, 기준을 지키는 태도에서 만들어집니다.\n우리에게 주어진 자율은, 회사, 조직, 동료와 신뢰를 지키겠다는 약속의 결과이기도 합니다.\n자율은, 마음대로 하는 자유가 아닌 스스로 원칙을 지키는 자세입니다.", descEn:"An autonomous culture is rooted in accountability and shared principles.\nThe autonomy we earn comes with a commitment to uphold the trust placed in us.\nAutonomy is not the freedom to do whatever we want, but the discipline to live by our principles." },
-      { num:9, titleKo:"주도하거나, 따르거나, 떠나거나", titleEn:"Lead, Follow, or Leave.", descKo:"문제를 보는 눈보다 책임지고 해결하려는 태도가 더 중요합니다.\n내가 주도적으로 이끌거나, 아니면 최선을 다해 따릅니다.\n만약 함께 가기 어렵다면, 서로를 위해 다른 길을 택하는 결심이 필요합니다.", descEn:"Problems need solvers, not spectators. Anyone can spot what's broken, but committing to fixing it is what truly matters.\nTake the lead or fully support someone who does.\nIf neither is possible, choosing a different path is the most honest choice for everyone." },
-    ];
+const WAYS = [
+  {num:1,titleKo:"도전은 담대하게, 시작은 작고 빠르게",titleEn:"Be Bold, Start Small & Fast.",descKo:"모든 도전은 높은 지향점을 향해 담대하게 나아가야 합니다.\n높은 목표를 세우고, 작고 빠른 실행을 반복하며, 배움을 쌓아 갑니다.\n크게 생각하고, 작게 시작해서, 빠르게 학습하는 것, 이것이 바로 우리가 한 걸음 더 나아가는 방법입니다.",descEn:"Every challenge should move us toward a higher ambition.\nWe set bold objectives, take small and fast actions, and build on what we learn.\nThink big, start small, learn fast. That is how we move one step further."},
+  {num:2,titleKo:"일의 방향이 다르면 달려도 제자리",titleEn:"One Direction or Zero Results.",descKo:"아무리 최선을 다해도, 서로 다른 방향으로 달리면 결과는 제자리입니다.\n큰 조직일수록, 모두가 같은 방향을 향하고 있어야 합니다.\n\"내가 가는 방향이 팀과, 조직과, 회사의 방향과 일치하는가?\" 먼저 생각하세요.\n방향이 같아야, 속도도 더해집니다.",descEn:"Progress stalls when teams move in different directions.\nAs we grow, shared alignment becomes increasingly critical.\nAlways ask: \"Is my direction aligned with my team and company's path?\"\nWhen we align, momentum multiplies."},
+  {num:3,titleKo:"모든 일에는 한 명의 책임자",titleEn:"Every Task, One Owner.",descKo:"모든 일에는 결정을 내리고 책임지는 한 사람이 필요합니다.\n자신의 권한에 책임을 지는 '라스트맨'이 성장하고 많아질수록 조직도 함께 성장합니다.\n책임자를 분명히 할 때, 조직은 충돌 속에서도 더 강해지고 앞으로 나아갑니다.",descEn:"Each task needs a single owner. One steps up, makes the hard calls, and takes full responsibility for the outcome.\nAs more rise to that last line of accountability, the whole team grows stronger.\nClear ownership turns conflict into cohesion and moves us forward."},
+  {num:4,titleKo:"충돌은 더 나은 결과를 만드는 기회",titleEn:"Conflict Sparks Progress.",descKo:"우리는 더 나은 결정을 위해 계속 부딪혀야 합니다.\n다양한 관점에서 자신의 소신을 바탕으로 제안하고, 서로 충돌하며 결국 모두에게 더 큰 이익이 되는 방향을 찾아가야 합니다.",descEn:"Better decisions don't come from silence.\nThey are born from friction where strong perspectives meet, collide, and challenge each other.\nSpeak up. Stand firm. Move forward. Only then can we forge a path that serves the greater good."},
+  {num:5,titleKo:"문화는 수평적으로, 업무는 수직적으로",titleEn:"Horizontal Culture, Vertical Workflow.",descKo:"우리의 조직 문화는 자유로운 토론과 다양한 의견을 존중합니다.\n하지만 토론이 끝난 뒤에는 모두가 하나의 결정에 따라 움직입니다.\n수평의 다양성과 수직의 추진력이 하나가 될 때, 비로소 성과를 만들어내는 힘이 됩니다.",descEn:"Different perspectives sharpen our strategy.\nWe debate openly until we reach a final decision. Once the decision is made, diverse thinking aligns into shared momentum.\nMany voices moving as one create real impact."},
+  {num:6,titleKo:"로컬의 감각으로 글로벌 최적화",titleEn:"Locally Grounded. Globally Optimized.",descKo:"글로벌은 끊임없이 변하는 시장 환경 속에서 최적의 균형을 찾는 과정입니다.\n로컬의 감각을 유지하면서, 글로벌의 시선에서 가장 효율적인 해법을 찾습니다.\n로컬의 고유성과 글로벌의 보편성이 만드는 긴장, 그 속에서 균형점을 찾는 것이 글로벌 역량입니다.",descEn:"Going global means finding balance in markets that never stop shifting.\nRooted in local insight, we apply a global perspective to craft the most effective solutions.\nTrue global capability emerges where local character and universal relevance align."},
+  {num:7,titleKo:"AI는 모든 업무의 최우선 파트너",titleEn:"AI First in All We Do.",descKo:"AI는 빠른 변화에 맞춰 우리를 더 민첩하게 움직이게 해주는, 가장 강력한 파트너입니다.\n업무의 전 과정과 의사결정에서 우리는 AI를 항상 '최우선'으로 떠올려야 합니다.\n문제를 마주했다면, AI로 먼저 확인하고, 그 위에 우리의 판단을 더해 풀어가야 합니다.",descEn:"We make AI our primary partner to stay agile in a fast-paced world.\nIt is our starting point across every workflow and decision.\nDrawing on AI insights and building upon them with human judgment, we turn complexity into clarity."},
+  {num:8,titleKo:"자율은 스스로 원칙을 지키는 자세",titleEn:"Self-Driven. Led by Principles.",descKo:"자율적인 문화는 책임을 이해하고, 기준을 지키는 태도에서 만들어집니다.\n우리에게 주어진 자율은, 회사, 조직, 동료와 신뢰를 지키겠다는 약속의 결과이기도 합니다.\n자율은, 마음대로 하는 자유가 아닌 스스로 원칙을 지키는 자세입니다.",descEn:"An autonomous culture is rooted in accountability and shared principles.\nThe autonomy we earn comes with a commitment to uphold the trust placed in us.\nAutonomy is not the freedom to do whatever we want, but the discipline to live by our principles."},
+  {num:9,titleKo:"주도하거나, 따르거나, 떠나거나",titleEn:"Lead, Follow, or Leave.",descKo:"문제를 보는 눈보다 책임지고 해결하려는 태도가 더 중요합니다.\n내가 주도적으로 이끌거나, 아니면 최선을 다해 따릅니다.\n만약 함께 가기 어렵다면, 서로를 위해 다른 길을 택하는 결심이 필요합니다.",descEn:"Problems need solvers, not spectators. Anyone can spot what's broken, but committing to fixing it is what truly matters.\nTake the lead or fully support someone who does.\nIf neither is possible, choosing a different path is the most honest choice for everyone."},
+];
 
-    // 미묘한 순간 시뮬레이션 — 관리자가 추가한 poll을 sim 컬렉션에서 가져옴
-    // 기본 6개 시나리오 (관리자가 커스텀 안 했을 때 fallback)
-    const DEFAULT_SIM = [
-      {
-        q: "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.",
-        context: "이번 프로젝트의 신규 콘텐츠 기획 방향성이 공유되었습니다.\n하지만 실무자로서의 오랜 경험과 데이터를 볼 때, 이 방향은 실패할 확률이 높아 보입니다. 하지만 팀 리드는 우리 프로젝트에도 새로운 시도가 필요하고, 상위에서 결정된 방향이니 일단 실행해보자는 반응입니다.\n'지금 이야기할까?, 괜히 분위기만 어색해지는 거 아닐까?' 여러 생각이 스칩니다.",
-        multi: true,
-        maxSelect: 2,
-        options: ["WAY 2 – 일의 방향이 다르면 달려도 제자리", "WAY 4 – 충돌은 더 나은 결과를 만드는 기회", "WAY 5 – 문화는 수평적으로, 업무는 수직적으로", "WAY 3 – 모든 일에는 한 명의 책임자"]
-      },
-      {
-        q: "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.",
-        context: "글로벌 공통 정책을 검토하는 회의가 진행되고 있습니다.\nHQ 관점에서는 나쁘지 않지만, 글로벌 오피스의 상황과는 맞지 않는다는 생각이 들고 있습니다. 논의를 위해 데이터도 가져갔고, 논리도 있었지만 나의 의견은 반영되지 않았습니다. 업무는 추진되어야 하니 알겠다고는 했지만,\n막상 실행하려니 손이 잘 안 움직입니다. '어차피 내 생각대로 안 됐는데, 일단 지켜보지 뭐'라는 마음이 드는 게 솔직한 심정입니다.",
-        multi: true,
-        maxSelect: 2,
-        options: ["WAY 2 – 일의 방향이 다르면 달려도 제자리", "WAY 3 – 모든 일에는 한 명의 책임자", "WAY 6 – 로컬의 감각으로 글로벌 최적화", "WAY 9 – 주도하거나, 따르거나, 떠나거나"]
-      },
-      {
-        q: "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.",
-        context: "프로젝트에서 반복적으로 발생하는 이슈가 있습니다.\n대부분 관련 히스토리를 알고 있고, 해결 방안도 비교적 명확합니다.\n하지만 누구도 먼저 나서지 않습니다. 누군가 하겠지 하는 분위기 속 슬랙 질문에는 특정인을 태그해야만 답변이 달리고, 몇 번의 회의를 거쳐도 아무 진전이 없습니다.\n같은 문제는 해결 없이 반복됩니다.",
-        multi: true,
-        maxSelect: 2,
-        options: ["WAY 2 – 일의 방향이 다르면 달려도 제자리", "WAY 3 – 모든 일에는 한 명의 책임자", "WAY 7 – AI는 모든 업무의 최우선 파트너", "WAY 8 – 자율은 스스로 원칙을 지키는 자세"]
-      },
-      {
-        q: "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.",
-        context: "중요한 마일스톤이 코앞입니다. 데드라인이 촉박해 팀 전체가 예민합니다.\n일정에 맞추려면 지금 당장 집중 작업에 들어가야 하는데, 수정 방향에 대한 의견이 갈리면서 벌써 몇 시간째 논의만 반복되고 있습니다. 중요한 시점인데\n방향이 정렬되지 않은 채 실행에 들어가기도 어렵고, 그렇다고 논의를 계속 이어갈 수도 없습니다.",
-        multi: true,
-        maxSelect: 2,
-        tag: "리더의 관점",
-        options: ["WAY 2 – 일의 방향이 다르면 달려도 제자리", "WAY 3 – 모든 일에는 한 명의 책임자", "WAY 4 – 충돌은 더 나은 결과를 만드는 기회", "WAY 5 – 문화는 수평적으로, 업무는 수직적으로"]
-      },
-      {
-        q: "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.",
-        context: "신규 사업 기획안을 준비하고 있습니다. 처음 시도하는 일이지만 회사의 중장기 목표의 성패를 가를 주요한 과제입니다. 하지만 시작부터 의견이 갈립니다.\n한 구성원은 AI로 초안을 만들고 빠르게 검증하자라고 말합니다.\n반면 다른 구성원은 중요한 의사 결정인데 유사 산업군을 벤치마킹하며 충분한 데이터와 아이디어를 모아야 한다고 이야기합니다.",
-        multi: true,
-        maxSelect: 2,
-        options: ["WAY 1 – 도전은 담대하게, 시작은 작고 빠르게", "WAY 4 – 충돌은 더 나은 결과를 만드는 기회", "WAY 6 – 로컬의 감각으로 글로벌 최적화", "WAY 7 – AI는 모든 업무의 최우선 파트너"]
-      },
-    ];
+const SIM_STEPS = [
+  {id:"sim0",context:"이번 프로젝트의 신규 콘텐츠 기획 방향성이 공유되었습니다.\n하지만 실무자로서의 오랜 경험과 데이터를 볼 때, 이 방향은 실패할 확률이 높아 보입니다. 하지만 팀 리드는 새로운 시도가 필요하고, 상위에서 결정된 방향이니 일단 실행해보자는 반응입니다.\n'지금 이야기할까?, 괜히 분위기만 어색해지는 거 아닐까?' 여러 생각이 스칩니다.",options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로","WAY 3 – 모든 일에는 한 명의 책임자"],maxSelect:2},
+  {id:"sim1",context:"글로벌 공통 정책을 검토하는 회의가 진행되고 있습니다.\nHQ 관점에서는 나쁘지 않지만, 글로벌 오피스의 상황과는 맞지 않는다는 생각이 들고 있습니다. 논의를 위해 데이터도 가져갔고, 논리도 있었지만 나의 의견은 반영되지 않았습니다.\n막상 실행하려니 손이 잘 안 움직입니다. '어차피 내 생각대로 안 됐는데, 일단 지켜보지 뭐'라는 마음이 드는 게 솔직한 심정입니다.",options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 9 – 주도하거나, 따르거나, 떠나거나"],maxSelect:2},
+  {id:"sim2",context:"프로젝트에서 반복적으로 발생하는 이슈가 있습니다.\n대부분 관련 히스토리를 알고 있고, 해결 방안도 비교적 명확합니다.\n하지만 누구도 먼저 나서지 않습니다. 누군가 하겠지 하는 분위기 속 슬랙 질문에는 특정인을 태그해야만 답변이 달리고, 몇 번의 회의를 거쳐도 아무 진전이 없습니다.\n같은 문제는 해결 없이 반복됩니다.",options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 7 – AI는 모든 업무의 최우선 파트너","WAY 8 – 자율은 스스로 원칙을 지키는 자세"],maxSelect:2},
+  {id:"sim3",context:"중요한 마일스톤이 코앞입니다. 데드라인이 촉박해 팀 전체가 예민합니다.\n일정에 맞추려면 지금 당장 집중 작업에 들어가야 하는데, 수정 방향에 대한 의견이 갈리면서 벌써 몇 시간째 논의만 반복되고 있습니다.\n방향이 정렬되지 않은 채 실행에 들어가기도 어렵고, 그렇다고 논의를 계속 이어갈 수도 없습니다.",options:["WAY 2 – 일의 방향이 다르면 달려도 제자리","WAY 3 – 모든 일에는 한 명의 책임자","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 5 – 문화는 수평적으로, 업무는 수직적으로"],maxSelect:2,leaderTag:true},
+  {id:"sim4",context:"신규 사업 기획안을 준비하고 있습니다. 처음 시도하는 일이지만 회사의 중장기 목표의 성패를 가를 주요한 과제입니다. 하지만 시작부터 의견이 갈립니다.\n한 구성원은 AI로 초안을 만들고 빠르게 검증하자라고 말합니다.\n반면 다른 구성원은 중요한 의사 결정인데 유사 산업군을 벤치마킹하며 충분한 데이터와 아이디어를 모아야 한다고 이야기합니다.",options:["WAY 1 – 도전은 담대하게, 시작은 작고 빠르게","WAY 4 – 충돌은 더 나은 결과를 만드는 기회","WAY 6 – 로컬의 감각으로 글로벌 최적화","WAY 7 – AI는 모든 업무의 최우선 파트너"],maxSelect:2},
+];
 
-    const app = initializeApp(FIREBASE_CONFIG);
-    const db = getFirestore(app);
-    const params = new URLSearchParams(location.search);
-    const sessionId = params.get("id");
-    if (!sessionId) { location.href = "index.html"; }
+const Q_TEXT = "위 상황에서 어떤 Way를 우선 적용할 것인지 선택하고, 그 이유를 이야기해 주세요.";
 
-    let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
-    let userTeam = localStorage.getItem(`edu_team_${sessionId}`) || "";
-    let userWay = null;
-    let sessionData = null;
-    let unsubscribers = [];
-    let typingTimer = null;
-    const myId = `${Date.now()}_${Math.random().toString(36).slice(2,7)}`;
+const app = initializeApp(FIREBASE_CONFIG);
+const db = getFirestore(app);
+const params = new URLSearchParams(location.search);
+const sessionId = params.get("id");
+if (!sessionId) { location.href = "index.html"; }
 
-    // ── 페이지 전환 ──
-    function showPage(id) {
-      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      window.scrollTo(0,0);
-    }
+let userName = localStorage.getItem("edu_name_" + sessionId) || "";
+let userTeam = localStorage.getItem("edu_team_" + sessionId) || "";
+let userWay = null;
+let sessionData = null;
+let unsubList = [];
+let typingTimer = null;
+const myId = Date.now() + "_" + Math.random().toString(36).slice(2,7);
 
-    // ── 초기 진입 ──
-    if (userName && userTeam) {
-      document.getElementById("name-gate").style.display = "none";
-      initAndShowHub();
-    }
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
 
-    document.getElementById("name-submit").addEventListener("click", () => {
-      const name = document.getElementById("name-input").value.trim();
-      const team = document.getElementById("team-input").value.trim();
-      if (!name || !team) { alert("이름과 팀명을 모두 입력해주세요."); return; }
-      userName = name; userTeam = team;
-      localStorage.setItem(`edu_name_${sessionId}`, name);
-      localStorage.setItem(`edu_team_${sessionId}`, team);
-      document.getElementById("name-gate").style.display = "none";
-      initAndShowHub();
-    });
-    document.getElementById("name-input").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("team-input").focus(); });
-    document.getElementById("team-input").addEventListener("keydown", e => { if(e.key==="Enter") document.getElementById("name-submit").click(); });
+if (userName && userTeam) {
+  document.getElementById("name-gate").style.display = "none";
+  initAndShowHub();
+}
 
-    async function initAndShowHub() {
-      document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
-      try {
-        const snap = await getDoc(doc(db, "sessions", sessionId));
-        if (!snap.exists()) { location.href = "index.html"; return; }
-        sessionData = snap.data();
-        const d = sessionData.date?.toDate ? sessionData.date.toDate() : new Date(sessionData.date);
-        const dateStr = d.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"}) + " " + d.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
-        document.getElementById("session-label").textContent = `${sessionData.order}차 교육`;
-        document.getElementById("hub-title").textContent = sessionData.title;
-        document.getElementById("hub-date").textContent = dateStr;
-        document.getElementById("hub-user").textContent = `👤 ${userName} · ${userTeam}`;
-        document.getElementById("poll-session-title").textContent = sessionData.title;
-        document.getElementById("way-session-title").textContent = sessionData.title;
-        document.getElementById("way-session-date").textContent = dateStr;
-        document.title = `${sessionData.title} | KRAFTON WoW`;
-      } catch(e) { console.error(e); }
+document.getElementById("name-submit").addEventListener("click", () => {
+  const name = document.getElementById("name-input").value.trim();
+  const team = document.getElementById("team-input").value.trim();
+  if (!name || !team) { alert("이름과 팀명을 모두 입력해주세요."); return; }
+  userName = name; userTeam = team;
+  localStorage.setItem("edu_name_" + sessionId, name);
+  localStorage.setItem("edu_team_" + sessionId, team);
+  document.getElementById("name-gate").style.display = "none";
+  initAndShowHub();
+});
+document.getElementById("name-input").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("team-input").focus(); });
+document.getElementById("team-input").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("name-submit").click(); });
 
-      // Way 미니 카드
-      const grid = document.getElementById("hub-way-grid");
-      grid.innerHTML = WAYS.map(w => `
-        <div class="way-mini-card" data-num="${w.num}">
-          <span class="way-mini-num">WAY ${w.num}</span>
-          <span class="way-mini-title">${w.titleKo}</span>
-          <span class="way-mini-arrow">→</span>
-        </div>`).join("");
-      grid.querySelectorAll(".way-mini-card").forEach(card => {
-        card.addEventListener("click", () => { enterWay(parseInt(card.dataset.num)); });
+async function initAndShowHub() {
+  document.getElementById("participant-info").textContent = "👤 " + userName + " · " + userTeam;
+  try {
+    const snap = await getDoc(doc(db, "sessions", sessionId));
+    if (!snap.exists()) { location.href = "index.html"; return; }
+    sessionData = snap.data();
+    const d = sessionData.date && sessionData.date.toDate ? sessionData.date.toDate() : new Date(sessionData.date);
+    const dateStr = d.toLocaleDateString("ko-KR",{year:"numeric",month:"long",day:"numeric",weekday:"long"}) + " " + d.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"});
+    document.getElementById("session-label").textContent = sessionData.order + "차 교육";
+    document.getElementById("hub-title").textContent = sessionData.title;
+    document.getElementById("hub-date").textContent = dateStr;
+    document.getElementById("hub-user").textContent = "👤 " + userName + " · " + userTeam;
+    document.getElementById("poll-session-title").textContent = sessionData.title;
+    document.getElementById("way-session-title").textContent = sessionData.title;
+    document.getElementById("way-session-date").textContent = dateStr;
+    document.title = sessionData.title + " | KRAFTON WoW";
+  } catch(e) { console.error(e); }
+
+  const grid = document.getElementById("hub-way-grid");
+  grid.innerHTML = WAYS.map(w =>
+    '<div class="way-mini-card" data-num="' + w.num + '">' +
+    '<span class="way-mini-num">WAY ' + w.num + '</span>' +
+    '<span class="way-mini-title">' + w.titleKo + '</span>' +
+    '<span style="font-size:13px;color:#ccc">→</span></div>'
+  ).join("");
+  grid.querySelectorAll(".way-mini-card").forEach(card => {
+    card.addEventListener("click", () => enterWay(parseInt(card.dataset.num)));
+  });
+  showPage("page-hub");
+}
+
+// ── 투표 ──
+document.getElementById("hub-poll-btn").addEventListener("click", () => {
+  showPage("page-poll");
+  loadPolls();
+});
+document.getElementById("poll-back-btn").addEventListener("click", () => {
+  unsubList.filter(u => u._type === "poll").forEach(fn => fn());
+  showPage("page-hub");
+});
+
+function loadPolls() {
+  const container = document.getElementById("poll-list-container");
+  container.innerHTML = '<div class="loading-state"><div class="spinner"></div></div>';
+  const unsub = onSnapshot(query(collection(db,"sessions",sessionId,"polls"), orderBy("order","asc")), snap => {
+    const polls = []; snap.forEach(d => polls.push({id:d.id,...d.data()}));
+    if (!polls.length) { container.innerHTML = '<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>'; return; }
+    container.innerHTML = polls.map(poll => {
+      const myVote = localStorage.getItem("vote_" + sessionId + "_" + poll.id);
+      const total = Object.values(poll.votes || {}).reduce((a,b) => a+b, 0);
+      return '<div class="poll-card">' +
+        '<p class="poll-badge">' + (poll.type==="multi"?"복수선택":"단일선택") + '</p>' +
+        '<p class="poll-question">' + esc(poll.question) + '</p>' +
+        '<div class="poll-options-wrap" data-poll="' + poll.id + '" data-type="' + poll.type + '">' +
+        (poll.options||[]).map((opt,i) => {
+          const cnt = (poll.votes||{})[i] || 0;
+          const pct = total ? Math.round(cnt/total*100) : 0;
+          const sel = myVote && myVote.split(",").includes(String(i));
+          return '<div class="poll-opt-item ' + (sel?"selected ":"") + (myVote?"voted":"") + '" data-idx="' + i + '">' +
+            '<div class="poll-opt-row"><span class="poll-opt-label">' + esc(opt) + '</span>' +
+            (myVote ? '<span class="poll-opt-pct">' + pct + '%</span>' : '') + '</div>' +
+            (myVote ? '<div class="poll-bar"><div class="poll-bar-fill" style="width:' + pct + '%"></div></div><span style="font-size:11px;color:#999">' + cnt + '명</span>' : '') +
+            '</div>';
+        }).join("") + '</div>' +
+        (!myVote ? '<button class="btn btn-primary poll-submit-btn" data-poll="' + poll.id + '">투표하기</button>' :
+          '<p style="font-size:13px;color:#16a34a;font-weight:500;margin-top:4px">✓ 투표 완료 (총 ' + total + '명 참여)</p>') +
+        '</div>';
+    }).join("");
+
+    container.querySelectorAll(".poll-opt-item:not(.voted)").forEach(opt => {
+      opt.addEventListener("click", () => {
+        const wrap = opt.closest(".poll-options-wrap");
+        if (wrap.dataset.type === "single") wrap.querySelectorAll(".poll-opt-item").forEach(o => o.classList.remove("selected"));
+        opt.classList.toggle("selected");
       });
-
-      showPage("page-hub");
-    }
-
-    // ── 투표 페이지 ──
-    document.getElementById("hub-poll-btn").addEventListener("click", () => {
-      showPage("page-poll");
-      loadPolls();
     });
-    document.getElementById("poll-back-btn").addEventListener("click", () => {
-      unsubscribers.filter(u=>u._type==="poll").forEach(fn=>fn());
-      showPage("page-hub");
+    container.querySelectorAll(".poll-submit-btn").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const pollId = btn.dataset.poll;
+        const wrap = container.querySelector('.poll-options-wrap[data-poll="' + pollId + '"]');
+        const selected = [...wrap.querySelectorAll(".poll-opt-item.selected")].map(o => Number(o.dataset.idx));
+        if (!selected.length) { alert("선택지를 선택해주세요."); return; }
+        btn.disabled = true; btn.textContent = "제출 중...";
+        const updates = {};
+        selected.forEach(i => { updates["votes." + i] = increment(1); });
+        await updateDoc(doc(db,"sessions",sessionId,"polls",pollId), updates);
+        localStorage.setItem("vote_" + sessionId + "_" + pollId, selected.join(","));
+      });
+    });
+  });
+  unsub._type = "poll";
+  unsubList.push(unsub);
+}
+
+// ── 시뮬레이션 ──
+let simStep = 0;
+let simAggUnsub = null;
+
+document.getElementById("hub-sim-btn").addEventListener("click", () => {
+  showPage("page-sim");
+  simStep = 0;
+  renderSimProgress();
+  renderSimStep();
+});
+document.getElementById("sim-back-btn").addEventListener("click", () => {
+  if (simAggUnsub) { simAggUnsub(); simAggUnsub = null; }
+  showPage("page-hub");
+});
+
+function renderSimProgress() {
+  document.getElementById("sim-progress").innerHTML = SIM_STEPS.map((_,i) =>
+    '<div class="sim-progress-dot ' + (i < simStep ? "done" : i === simStep ? "current" : "") + '"></div>'
+  ).join("");
+}
+
+function renderSimStep() {
+  if (simAggUnsub) { simAggUnsub(); simAggUnsub = null; }
+  const content = document.getElementById("sim-content");
+
+  if (simStep >= SIM_STEPS.length) {
+    content.innerHTML = '<div class="sim-complete">' +
+      '<div class="sim-complete-icon">🎉</div>' +
+      '<div class="sim-complete-title">시뮬레이션 완료!</div>' +
+      '<div class="sim-complete-desc">모든 상황을 함께 탐색했습니다.<br>우리의 Ways of Working을 일상에서 실천해보세요.</div>' +
+      '<button class="btn btn-primary" style="margin-top:24px" id="sim-restart-btn">처음부터 다시</button></div>';
+    document.getElementById("sim-restart-btn").addEventListener("click", () => { simStep = 0; renderSimProgress(); renderSimStep(); });
+    return;
+  }
+
+  const q = SIM_STEPS[simStep];
+  const myVoteKey = "sim_" + sessionId + "_" + q.id;
+  const myVoteRaw = localStorage.getItem(myVoteKey);
+  const myVotes = myVoteRaw ? myVoteRaw.split(",").map(Number) : null;
+  const contextHtml = q.context.replace(/\n/g, "<br>");
+
+  content.innerHTML = '<div class="sim-q-card">' +
+    (q.leaderTag ? '<div style="display:inline-block;background:#F5C400;color:#000;font-size:12px;font-weight:700;padding:4px 14px;border-radius:6px;margin-bottom:14px">리더의 관점</div>' : '') +
+    '<div class="sim-q-num">SITUATION ' + (simStep+1) + ' / ' + SIM_STEPS.length + '</div>' +
+    '<div class="sim-q-text">' + Q_TEXT + '</div>' +
+    '<div class="sim-q-context">' + contextHtml + '</div>' +
+    (!myVotes ? '<p style="font-size:12px;color:#999;margin-bottom:10px">최대 ' + q.maxSelect + '개 선택 가능</p>' : '') +
+    (myVotes ? '<p class="sim-total-line" id="sim-total-line">집계 중...</p>' : '') +
+    '<div class="sim-options" id="sim-opts">' +
+    q.options.map((opt,i) => {
+      const isMine = myVotes && myVotes.includes(i);
+      return '<div class="sim-option ' + (myVotes?"voted ":"") + (isMine?"selected":"") + '" data-idx="' + i + '">' +
+        '<div class="sim-result-row"><span>' + esc(opt) + '</span>' +
+        (myVotes ? '<span class="sim-pct" id="sim-pct-' + i + '">0%</span>' : '') + '</div>' +
+        (myVotes ? '<div class="sim-bar"><div class="sim-bar-fill" id="sim-bar-' + i + '" style="width:0%"></div></div><span class="sim-votes-count" id="sim-cnt-' + i + '">0명</span>' : '') +
+        '</div>';
+    }).join("") + '</div>' +
+    '<div class="sim-nav">' +
+    '<button class="btn btn-sm" id="sim-prev" ' + (simStep===0?"disabled":"") + '>← 이전</button>' +
+    '<div style="display:flex;gap:8px;align-items:center">' +
+    (!myVotes ? '<button class="btn btn-primary" id="sim-vote-btn">선택 완료</button>' : '') +
+    '<button class="btn btn-sm ' + (myVotes?"btn-primary":"") + '" id="sim-next">' + (simStep===SIM_STEPS.length-1?"마치기":"다음 →") + '</button>' +
+    '</div></div></div>';
+
+  // 선택 후 실시간 결과 구독
+  if (myVotes) {
+    const aggRef = doc(db, "sessions", sessionId, "sim_agg", "step_" + simStep);
+    simAggUnsub = onSnapshot(aggRef, snap => {
+      const data = snap.exists() ? snap.data() : {};
+      const total = data.total || 0;
+      const counts = data.counts || {};
+      const totalLine = document.getElementById("sim-total-line");
+      if (totalLine) totalLine.textContent = "총 " + total + "명 참여";
+      q.options.forEach((_, i) => {
+        const cnt = counts[i] || 0;
+        const pct = total ? Math.round(cnt/total*100) : 0;
+        const pctEl = document.getElementById("sim-pct-" + i);
+        const barEl = document.getElementById("sim-bar-" + i);
+        const cntEl = document.getElementById("sim-cnt-" + i);
+        if (pctEl) pctEl.textContent = pct + "%";
+        if (barEl) barEl.style.width = pct + "%";
+        if (cntEl) cntEl.textContent = cnt + "명";
+      });
+    });
+  } else {
+    // 선택 이벤트
+    const opts = content.querySelectorAll(".sim-option");
+    opts.forEach(opt => {
+      opt.addEventListener("click", () => {
+        const selected = content.querySelectorAll(".sim-option.selected");
+        if (!opt.classList.contains("selected") && selected.length >= q.maxSelect) {
+          content.querySelector(".sim-option.selected").classList.remove("selected");
+        }
+        opt.classList.toggle("selected");
+      });
     });
 
-    function loadPolls() {
-      const container = document.getElementById("poll-list-container");
-      container.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
-      const unsub = onSnapshot(
-        query(collection(db,"sessions",sessionId,"polls"), orderBy("order","asc")),
-        snap => {
-          const polls = []; snap.forEach(d => polls.push({ id:d.id, ...d.data() }));
-          if (!polls.length) { container.innerHTML=`<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>`; return; }
-          container.innerHTML = polls.map(poll => {
-            const myVote = localStorage.getItem(`vote_${sessionId}_${poll.id}`);
-            const total = Object.values(poll.votes||{}).reduce((a,b)=>a+b,0);
-            return `
-              <div style="background:white;border:1px solid #e5e5e5;border-left:4px solid var(--red);border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06)">
-                <p style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.05em;margin-bottom:8px">${poll.type==="multi"?"복수선택":"단일선택"}</p>
-                <p style="font-size:16px;font-weight:600;color:var(--black);margin-bottom:16px">${esc(poll.question)}</p>
-                <div class="poll-options-wrap" data-poll="${poll.id}" data-type="${poll.type}" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
-                  ${(poll.options||[]).map((opt,i)=>{
-                    const cnt=(poll.votes||{})[i]||0;
-                    const pct=total?Math.round(cnt/total*100):0;
-                    const sel=myVote&&myVote.split(",").includes(String(i));
-                    return `<div class="poll-opt-item ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}" style="padding:10px 14px;border:1.5px solid ${sel?"var(--red)":"#e5e5e5"};border-radius:8px;cursor:${myVote?"default":"pointer"};background:${sel?"#fff0f2":"white"}">
-                      <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;font-weight:500">${esc(opt)}</span>${myVote?`<span style="font-size:13px;font-weight:700;color:var(--red)">${pct}%</span>`:""}</div>
-                      ${myVote?`<div style="height:4px;background:#f0f0f0;border-radius:2px;margin-top:8px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--red);border-radius:2px"></div></div><span style="font-size:11px;color:#999;margin-top:3px;display:block">${cnt}명</span>`:""}
-                    </div>`;
-                  }).join("")}
-                </div>
-                ${!myVote
-                  ?`<button class="btn btn-primary poll-submit-btn" data-poll="${poll.id}">투표하기</button>`
-                  :`<p style="font-size:13px;color:#16a34a;font-weight:500">✓ 투표 완료 (총 ${total}명 참여)</p>`}
-              </div>`;
-          }).join("");
+    document.getElementById("sim-vote-btn").addEventListener("click", async () => {
+      const sels = [...content.querySelectorAll(".sim-option.selected")];
+      if (!sels.length) { alert("선택지를 선택해주세요."); return; }
+      const idxs = sels.map(s => Number(s.dataset.idx));
+      const btn = document.getElementById("sim-vote-btn");
+      btn.disabled = true; btn.textContent = "저장 중...";
 
-          // 선택
-          document.querySelectorAll(".poll-opt-item:not(.voted)").forEach(opt => {
-            opt.addEventListener("click", () => {
-              const wrap = opt.closest(".poll-options-wrap");
-              if (wrap.dataset.type==="single") wrap.querySelectorAll(".poll-opt-item").forEach(o=>o.classList.remove("selected"));
-              opt.classList.toggle("selected");
+      localStorage.setItem(myVoteKey, idxs.join(","));
+
+      try {
+        // 개인 기록 저장
+        await addDoc(collection(db,"sessions",sessionId,"sim_votes"), {
+          stepIdx: simStep,
+          stepId: q.id,
+          questionText: Q_TEXT,
+          context: q.context,
+          optionIdxs: idxs,
+          optionTexts: idxs.map(i => q.options[i]),
+          author: userName,
+          team: userTeam,
+          createdAt: serverTimestamp()
+        });
+
+        // 집계 업데이트 (각 필드 개별 increment)
+        const aggRef = doc(db, "sessions", sessionId, "sim_agg", "step_" + simStep);
+        const aggUpdate = { total: increment(1) };
+        idxs.forEach(i => { aggUpdate["counts." + i] = increment(1); });
+        await setDoc(aggRef, aggUpdate, { merge: true });
+
+      } catch(e) { console.error("sim save error:", e); }
+
+      renderSimStep(); // 저장 후 결과 화면으로 전환
+    });
+  }
+
+  document.getElementById("sim-prev").addEventListener("click", () => {
+    if (simStep > 0) { simStep--; renderSimProgress(); renderSimStep(); }
+  });
+  document.getElementById("sim-next").addEventListener("click", () => {
+    simStep++; renderSimProgress(); renderSimStep();
+  });
+}
+
+// ── Way 세션 ──
+document.getElementById("way-back-btn").addEventListener("click", () => {
+  unsubList.forEach(fn => fn()); unsubList = [];
+  clearTyping();
+  document.getElementById("questions-container").innerHTML = "";
+  showPage("page-hub");
+});
+
+function enterWay(wayNum) {
+  userWay = wayNum;
+  const way = WAYS.find(w => w.num === wayNum);
+  document.getElementById("way-badge").textContent = "WAY " + wayNum;
+  document.getElementById("way-info-section").innerHTML =
+    '<div class="way-info-card">' +
+    '<div class="way-info-num">WAY ' + way.num + '</div>' +
+    '<div class="way-info-title-ko">' + way.titleKo + '</div>' +
+    '<div class="way-info-title-en">' + way.titleEn + '</div>' +
+    '<hr class="way-info-divider">' +
+    '<div class="way-info-desc-ko">' + way.descKo.replace(/\n/g,"<br>") + '</div>' +
+    '<div class="way-info-desc-en">' + way.descEn.replace(/\n/g,"<br>") + '</div></div>';
+  loadQuestions(wayNum);
+  showPage("page-way");
+}
+
+async function clearTyping() {
+  try {
+    await setDoc(doc(db,"sessions",sessionId,"typing",myId), {
+      questionId: null, preview: "", wayNum: userWay, author: userName, team: userTeam, updatedAt: serverTimestamp()
+    });
+  } catch(e) {}
+}
+async function setTyping(qId, text) {
+  try {
+    await setDoc(doc(db,"sessions",sessionId,"typing",myId), {
+      questionId: qId, preview: text.slice(0,40), wayNum: userWay, author: userName, team: userTeam, updatedAt: serverTimestamp()
+    });
+  } catch(e) {}
+}
+
+function loadQuestions(wayNum) {
+  const container = document.getElementById("questions-container");
+  container.innerHTML = '<div class="loading-state"><div class="spinner"></div><p>불러오는 중...</p></div>';
+  const unsub = onSnapshot(
+    query(collection(db,"sessions",sessionId,"questions"), orderBy("order","asc")),
+    snap => {
+      const questions = []; snap.forEach(d => questions.push({id:d.id,...d.data()}));
+      if (!container.querySelector(".content-loaded")) container.innerHTML = '<div class="content-loaded"></div>';
+      const loaded = container.querySelector(".content-loaded");
+      questions.forEach(q => {
+        if (!document.getElementById("q-section-" + q.id)) {
+          const tagClass = q.tag === "Real Talk" ? "real-talk" : q.tag === "Deep Dive" ? "deep-dive" : "none";
+          const tagLabel = q.tag || "Q";
+          const section = document.createElement("div");
+          section.className = "question-section"; section.id = "q-section-" + q.id;
+          section.innerHTML =
+            '<div class="question-header">' +
+            '<span class="question-tag ' + tagClass + '">' + tagLabel + '</span>' +
+            '<div class="question-text-big">' + esc(q.text) + '</div></div>' +
+            '<div id="typing-area-' + q.id + '" style="display:none;margin-bottom:12px"></div>' +
+            '<div class="padlet-grid" id="padlet-grid-' + q.id + '">' +
+            '<div class="padlet-add-card" id="add-btn-' + q.id + '"><span class="padlet-add-icon">＋</span><span>의견 남기기</span></div></div>' +
+            '<div class="padlet-write-form" id="write-form-' + q.id + '">' +
+            '<textarea placeholder="자유롭게 의견을 작성해주세요..." maxlength="500"></textarea>' +
+            '<div class="padlet-write-actions">' +
+            '<span class="char-count" id="char-' + q.id + '">0 / 500</span>' +
+            '<div style="display:flex;gap:8px"><button class="btn btn-sm cancel-btn">취소</button><button class="btn btn-primary btn-sm submit-btn">등록</button></div>' +
+            '</div></div>';
+          loaded.appendChild(section);
+          attachEvents(q.id, wayNum);
+          loadAnswers(q.id, wayNum);
+          loadTyping(q.id, wayNum);
+        }
+      });
+      if (!questions.length) container.innerHTML = '<div class="empty-state"><p>아직 등록된 질문이 없습니다.</p></div>';
+    },
+    err => { container.innerHTML = '<div class="empty-state error"><p>' + err.message + '</p></div>'; }
+  );
+  unsubList.push(unsub);
+}
+
+function attachEvents(qId, wayNum) {
+  const addBtn = document.getElementById("add-btn-" + qId);
+  const form = document.getElementById("write-form-" + qId);
+  const ta = form.querySelector("textarea");
+  addBtn.addEventListener("click", () => { form.classList.add("open"); ta.focus(); addBtn.style.display = "none"; });
+  ta.addEventListener("input", () => {
+    document.getElementById("char-" + qId).textContent = ta.value.length + " / 500";
+    clearTimeout(typingTimer);
+    if (ta.value.trim()) typingTimer = setTimeout(() => setTyping(qId, ta.value), 400);
+    else clearTyping();
+  });
+  form.querySelector(".cancel-btn").addEventListener("click", () => {
+    form.classList.remove("open"); ta.value = "";
+    document.getElementById("char-" + qId).textContent = "0 / 500";
+    addBtn.style.display = ""; clearTyping();
+  });
+  form.querySelector(".submit-btn").addEventListener("click", async () => {
+    const text = ta.value.trim(); if (!text) return;
+    const btn = form.querySelector(".submit-btn"); btn.disabled = true; btn.textContent = "등록 중...";
+    try {
+      await addDoc(collection(db,"sessions",sessionId,"questions",qId,"answers"), {
+        author: userName, team: userTeam, wayNum, text, likes: 0, likedBy: [], createdAt: serverTimestamp()
+      });
+      ta.value = ""; document.getElementById("char-" + qId).textContent = "0 / 500";
+      form.classList.remove("open"); addBtn.style.display = ""; clearTyping();
+    } catch(e) { alert(e.message); }
+    btn.disabled = false; btn.textContent = "등록";
+  });
+}
+
+function loadTyping(qId, wayNum) {
+  const unsub = onSnapshot(collection(db,"sessions",sessionId,"typing"), snap => {
+    const area = document.getElementById("typing-area-" + qId); if (!area) return;
+    const typists = [];
+    snap.forEach(d => {
+      const t = d.data();
+      if (d.id !== myId && t.questionId === qId && t.wayNum === wayNum && t.preview) typists.push(t);
+    });
+    if (!typists.length) { area.innerHTML = ""; area.style.display = "none"; return; }
+    const names = typists.map(t => esc(t.author)).join(", ");
+    area.style.display = "block";
+    area.innerHTML = '<div class="typing-indicator-bar"><span style="font-weight:600">' + names + '</span> 님이 작성 중<span class="typing-dots"><span></span><span></span><span></span></span></div>';
+  });
+  unsubList.push(unsub);
+}
+
+function loadAnswers(qId, wayNum) {
+  const unsub = onSnapshot(
+    query(collection(db,"sessions",sessionId,"questions",qId,"answers"), orderBy("likes","desc")),
+    snap => {
+      const all = []; snap.forEach(d => all.push({id:d.id,...d.data()}));
+      const items = all.filter(a => a.wayNum === wayNum);
+      const grid = document.getElementById("padlet-grid-" + qId);
+      const addBtn = document.getElementById("add-btn-" + qId);
+      if (!grid) return;
+      grid.querySelectorAll(".padlet-card").forEach(c => c.remove());
+      const maxLikes = items.length ? Math.max(...items.map(i => Number(i.likes)||0)) : 0;
+      items.forEach(item => {
+        const likedBy = item.likedBy || [];
+        const liked = likedBy.includes(myId);
+        const isTop = Number(item.likes) > 0 && Number(item.likes) === maxLikes;
+        const isMine = item.author === userName && item.team === userTeam;
+        const card = document.createElement("div");
+        card.className = "padlet-card" + (isTop ? " top-card" : "");
+        card.innerHTML =
+          (isTop ? '<span class="top-crown">👑 대표 의견</span>' : '') +
+          '<p class="padlet-card-body" id="body-' + item.id + '">' + esc(item.text) + '</p>' +
+          '<div class="edit-form" id="edit-' + item.id + '"><textarea>' + esc(item.text) + '</textarea>' +
+          '<div class="edit-form-actions"><button class="btn btn-sm ec-btn">취소</button><button class="btn btn-primary btn-sm es-btn">저장</button></div></div>' +
+          '<div class="padlet-card-footer">' +
+          '<div class="padlet-author"><strong>' + esc(item.author) + '</strong> · ' + esc(item.team) + '</div>' +
+          '<div class="padlet-actions">' +
+          (isMine ? '<button class="padlet-edit-btn pe-btn">✏️</button><button class="padlet-delete-btn pd-btn">🗑️</button>' : '') +
+          '<button class="padlet-like-btn' + (liked?" liked":"") + ' pl-btn" title="' + (liked?"좋아요 취소":"좋아요") + '">' + (liked?"❤️":"🤍") + ' ' + (Number(item.likes)||0) + '</button>' +
+          '</div></div>';
+
+        card.querySelector(".pl-btn").addEventListener("click", async () => {
+          const currentLikedBy = item.likedBy || [];
+          if (currentLikedBy.includes(myId)) {
+            await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id), {
+              likes: Math.max(0,(item.likes||0)-1), likedBy: currentLikedBy.filter(id => id !== myId)
             });
+          } else {
+            await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id), {
+              likes: increment(1), likedBy: [...currentLikedBy, myId]
+            });
+          }
+        });
+        if (isMine) {
+          card.querySelector(".pe-btn").addEventListener("click", () => {
+            document.getElementById("body-" + item.id).style.display = "none";
+            document.getElementById("edit-" + item.id).classList.add("open");
           });
-          // 제출
-          document.querySelectorAll(".poll-submit-btn").forEach(btn => {
-            btn.addEventListener("click", async () => {
-              const pollId = btn.dataset.poll;
-              const wrap = document.querySelector(`.poll-options-wrap[data-poll="${pollId}"]`);
-              const selected = [...wrap.querySelectorAll(".poll-opt-item.selected")].map(o=>Number(o.dataset.idx));
-              if (!selected.length) { alert("선택지를 선택해주세요."); return; }
-              btn.disabled=true; btn.textContent="제출 중...";
-              const updates={};
-              selected.forEach(i=>{updates[`votes.${i}`]=increment(1);});
-              await updateDoc(doc(db,"sessions",sessionId,"polls",pollId), updates);
-              localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
-            });
+          card.querySelector(".ec-btn").addEventListener("click", () => {
+            document.getElementById("body-" + item.id).style.display = "";
+            document.getElementById("edit-" + item.id).classList.remove("open");
+          });
+          card.querySelector(".es-btn").addEventListener("click", async () => {
+            const t = card.querySelector("#edit-" + item.id + " textarea").value.trim();
+            if (!t) return;
+            await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id), {text:t});
+            document.getElementById("edit-" + item.id).classList.remove("open");
+            document.getElementById("body-" + item.id).style.display = "";
+          });
+          card.querySelector(".pd-btn").addEventListener("click", async () => {
+            if (!confirm("의견을 삭제하시겠습니까?")) return;
+            await deleteDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id));
           });
         }
-      );
-      unsub._type = "poll";
-      unsubscribers.push(unsub);
-    }
-
-    // ── 미묘한 순간 시뮬레이션 ──
-    let simStep = 0;
-    let simQuestions = [];
-
-    document.getElementById("hub-sim-btn").addEventListener("click", () => {
-      showPage("page-sim");
-      simStep = 0;
-      simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
-      renderSimProgress();
-      renderSimStep();
-    });
-
-    document.getElementById("sim-back-btn").addEventListener("click", () => { showPage("page-hub"); });
-
-    function renderSimProgress() {
-      const el = document.getElementById("sim-progress");
-      el.innerHTML = simQuestions.map((_,i) => `
-        <div class="sim-progress-dot ${i < simStep?"done":i===simStep?"current":""}"></div>`).join("");
-    }
-
-    function renderSimStep() {
-      const content = document.getElementById("sim-content");
-      if (simStep >= simQuestions.length) {
-        content.innerHTML = `
-          <div class="sim-complete">
-            <div class="sim-complete-icon">🎉</div>
-            <div class="sim-complete-title">시뮬레이션 완료!</div>
-            <div class="sim-complete-desc">모든 상황을 함께 탐색했습니다.<br>우리의 Ways of Working을 일상에서 실천해보세요.</div>
-            <button class="btn btn-primary" style="margin-top:24px" id="sim-restart-btn">처음부터 다시</button>
-          </div>`;
-        document.getElementById("sim-restart-btn").addEventListener("click", () => { simStep=0; renderSimProgress(); renderSimStep(); });
-        return;
-      }
-
-      const q = simQuestions[simStep];
-      const myVoteKey = `sim_${sessionId}_${q.id}`;
-      const myVoteRaw = localStorage.getItem(myVoteKey);
-      const myVotes = myVoteRaw ? myVoteRaw.split(",").map(Number) : null;
-      const maxSelect = q.maxSelect || 1;
-      const contextHtml = q.context
-        ? q.context.replace(/\n/g,"<br>")
-        : "";
-
-      content.innerHTML = `
-        <div class="sim-q-card">
-          ${q.tag ? `<div style="display:inline-block;background:#F5C400;color:#000;font-size:12px;font-weight:700;padding:4px 14px;border-radius:6px;margin-bottom:14px">${esc(q.tag)}</div>` : ""}
-          <div class="sim-q-num">SITUATION ${simStep+1} / ${simQuestions.length}</div>
-          <div class="sim-q-text">${esc(q.q)}</div>
-          ${contextHtml ? `<div class="sim-q-context">${contextHtml}</div>` : ""}
-          <p style="font-size:12px;color:#999;margin-bottom:10px">최대 ${maxSelect}개 선택 가능</p>
-          <div class="sim-options" id="sim-options-wrap">
-            ${(q.options||[]).map((opt,i)=>{
-              const sel = myVotes && myVotes.includes(i);
-              return `<div class="sim-option ${myVotes?"voted":""} ${sel?"selected":""}" data-idx="${i}">${esc(opt)}</div>`;
-            }).join("")}
-          </div>
-          ${myVotes ? `<p id="sim-total-count" style="font-size:12px;color:#999;margin-bottom:12px"></p>` : ""}
-          <div class="sim-nav">
-            <button class="btn btn-sm" id="sim-prev-btn" ${simStep===0?"disabled":""}>← 이전</button>
-            <div style="display:flex;gap:8px;align-items:center">
-              ${!myVotes?`<button class="btn btn-primary" id="sim-vote-btn">선택 완료</button>`:""}
-              <button class="btn btn-sm ${!myVotes?"":"btn-primary"}" id="sim-next-btn">${simStep===simQuestions.length-1?"마치기":"다음 →"}</button>
-            </div>
-          </div>
-        </div>`;
-
-      // 복수 선택 (최대 maxSelect개)
-      if (!myVotes) {
-        document.querySelectorAll(".sim-option").forEach(opt => {
-          opt.addEventListener("click", () => {
-            const isSelected = opt.classList.contains("selected");
-            const currentSelected = document.querySelectorAll(".sim-option.selected").length;
-            if (!isSelected && currentSelected >= maxSelect) {
-              document.querySelector(".sim-option.selected").classList.remove("selected");
-            }
-            opt.classList.toggle("selected");
-          });
-        });
-        document.getElementById("sim-vote-btn").addEventListener("click", async () => {
-          const sels = [...document.querySelectorAll(".sim-option.selected")];
-          if (!sels.length) { alert("선택지를 선택해주세요."); return; }
-          const idxs = sels.map(s => Number(s.dataset.idx));
-          const btn = document.getElementById("sim-vote-btn");
-          btn.disabled = true; btn.textContent = "저장 중...";
-          localStorage.setItem(myVoteKey, idxs.join(","));
-          try {
-            // 개인 기록
-            await addDoc(collection(db,"sessions",sessionId,"sim_votes"), {
-              questionId: q.id, stepIdx: simStep, questionText: q.q,
-              optionIdxs: idxs, optionTexts: idxs.map(i => q.options[i]),
-              author: userName, team: userTeam, createdAt: serverTimestamp()
-            });
-            // 집계 업데이트
-            const aggRef = doc(db,"sessions",sessionId,"sim_agg",`step_${simStep}`);
-            const updates = { question: q.q, stepIdx: simStep, total: increment(1) };
-            idxs.forEach(i => { updates[`counts.${i}`] = increment(1); });
-            await setDoc(aggRef, updates, { merge: true });
-          } catch(e) { console.error(e); }
-          renderSimStep();
-        });
-      } else {
-        // 투표 후 실시간 결과 구독
-        loadSimResults(simStep, q);
-      }
-
-      document.getElementById("sim-prev-btn").addEventListener("click", () => {
-        if(simStep>0){ simStep--; renderSimProgress(); renderSimStep(); }
+        grid.insertBefore(card, addBtn);
       });
-      document.getElementById("sim-next-btn").addEventListener("click", () => {
-        simStep++; renderSimProgress(); renderSimStep();
-      });
-    }
+    },
+    err => console.error(err)
+  );
+  unsubList.push(unsub);
+}
 
-    // ── Way 세션 ──
-    document.getElementById("way-back-btn").addEventListener("click", () => {
-      unsubscribers.forEach(fn=>fn()); unsubscribers=[];
-      clearTyping();
-      document.getElementById("questions-container").innerHTML="";
-      showPage("page-hub");
-    });
-
-    function enterWay(wayNum) {
-      userWay = wayNum;
-      const way = WAYS.find(w=>w.num===wayNum);
-      document.getElementById("way-badge").textContent = `WAY ${wayNum}`;
-      document.getElementById("way-info-section").innerHTML = `
-        <div class="way-info-card">
-          <div class="way-info-num">WAY ${way.num}</div>
-          <div class="way-info-title-ko">${way.titleKo}</div>
-          <div class="way-info-title-en">${way.titleEn}</div>
-          <hr class="way-info-divider">
-          <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
-          <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
-        </div>`;
-      loadQuestions(wayNum);
-      showPage("page-way");
-    }
-
-    async function clearTyping() {
-      try { await setDoc(doc(db,"sessions",sessionId,"typing",myId), { questionId:null, preview:"", wayNum:userWay, author:userName, team:userTeam, updatedAt:serverTimestamp() }); } catch(e) {}
-    }
-    async function setTyping(qId, text) {
-      try { await setDoc(doc(db,"sessions",sessionId,"typing",myId), { questionId:qId, preview:text.slice(0,40), wayNum:userWay, author:userName, team:userTeam, updatedAt:serverTimestamp() }); } catch(e) {}
-    }
-
-    function loadQuestions(wayNum) {
-      const container = document.getElementById("questions-container");
-      container.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>불러오는 중...</p></div>`;
-      const unsub = onSnapshot(
-        query(collection(db,"sessions",sessionId,"questions"), orderBy("order","asc")),
-        snap => {
-          const questions=[]; snap.forEach(d=>questions.push({id:d.id,...d.data()}));
-          if (!container.querySelector(".content-loaded")) container.innerHTML=`<div class="content-loaded"></div>`;
-          const loaded = container.querySelector(".content-loaded");
-          questions.forEach(q => {
-            if (!document.getElementById(`q-section-${q.id}`)) {
-              const tagClass = q.tag==="Real Talk"?"real-talk":q.tag==="Deep Dive"?"deep-dive":"none";
-              const tagLabel = q.tag||"Q";
-              const section = document.createElement("div");
-              section.className="question-section"; section.id=`q-section-${q.id}`;
-              section.innerHTML=`
-                <div class="question-header">
-                  <span class="question-tag ${tagClass}">${tagLabel}</span>
-                  <div class="question-text-big">${esc(q.text)}</div>
-                </div>
-                <div class="typing-area-grid" id="typing-area-${q.id}" style="display:none;margin-bottom:12px"></div>
-                <div class="padlet-grid" id="padlet-grid-${q.id}">
-                  <div class="padlet-add-card" id="add-btn-${q.id}"><span class="padlet-add-icon">＋</span><span>의견 남기기</span></div>
-                </div>
-                <div class="padlet-write-form" id="write-form-${q.id}">
-                  <textarea placeholder="자유롭게 의견을 작성해주세요..." maxlength="500"></textarea>
-                  <div class="padlet-write-actions">
-                    <span class="char-count write-char-${q.id}">0 / 500</span>
-                    <div style="display:flex;gap:8px"><button class="btn btn-sm cancel-btn">취소</button><button class="btn btn-primary btn-sm submit-btn">등록</button></div>
-                  </div>
-                </div>`;
-              loaded.appendChild(section);
-              attachEvents(q.id, wayNum);
-              loadAnswers(q.id, wayNum);
-              loadTyping(q.id, wayNum);
-            }
-          });
-          if (!questions.length) container.innerHTML=`<div class="empty-state"><p>아직 등록된 질문이 없습니다.</p></div>`;
-        },
-        err => { container.innerHTML=`<div class="empty-state error"><p>${err.message}</p></div>`; }
-      );
-      unsubscribers.push(unsub);
-    }
-
-    function attachEvents(qId, wayNum) {
-      const addBtn=document.getElementById(`add-btn-${qId}`);
-      const form=document.getElementById(`write-form-${qId}`);
-      const ta=form.querySelector("textarea");
-      addBtn.addEventListener("click",()=>{form.classList.add("open");ta.focus();addBtn.style.display="none";});
-      ta.addEventListener("input",()=>{
-        document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent=`${ta.value.length} / 500`;
-        clearTimeout(typingTimer);
-        if(ta.value.trim()) typingTimer=setTimeout(()=>setTyping(qId,ta.value),400);
-        else clearTyping();
-      });
-      form.querySelector(".cancel-btn").addEventListener("click",()=>{form.classList.remove("open");ta.value="";document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent="0 / 500";addBtn.style.display="";clearTyping();});
-      form.querySelector(".submit-btn").addEventListener("click",async()=>{
-        const text=ta.value.trim(); if(!text) return;
-        const btn=form.querySelector(".submit-btn"); btn.disabled=true; btn.textContent="등록 중...";
-        try {
-          await addDoc(collection(db,"sessions",sessionId,"questions",qId,"answers"),{author:userName,team:userTeam,wayNum,text,likes:0,likedBy:[],createdAt:serverTimestamp()});
-          ta.value=""; document.getElementById(`q-section-${qId}`).querySelector(`.write-char-${qId}`).textContent="0 / 500";
-          form.classList.remove("open"); addBtn.style.display=""; clearTyping();
-        } catch(e){alert(e.message);}
-        btn.disabled=false; btn.textContent="등록";
-      });
-    }
-
-    function loadTyping(qId, wayNum) {
-      const unsub=onSnapshot(collection(db,"sessions",sessionId,"typing"), snap=>{
-        const area=document.getElementById(`typing-area-${qId}`); if(!area) return;
-        const typists=[];
-        snap.forEach(d=>{const t=d.data(); if(d.id!==myId&&t.questionId===qId&&t.wayNum===wayNum&&t.preview) typists.push(t);});
-        if(!typists.length){area.innerHTML="";area.style.display="none";return;}
-        area.style.display="block";
-        const names = typists.map(t => esc(t.author)).join(", ");
-        area.innerHTML=`<div class="typing-card" style="display:flex;align-items:center;gap:8px;min-height:auto;padding:10px 14px"><div class="typing-indicator"><span style="font-weight:600;color:#b08000">${names}</span> 님이 작성 중<span class="typing-dots"><span></span><span></span><span></span></span></div></div>`;
-      });
-      unsubscribers.push(unsub);
-    }
-
-    function loadAnswers(qId, wayNum) {
-      const unsub=onSnapshot(query(collection(db,"sessions",sessionId,"questions",qId,"answers"),orderBy("likes","desc")), snap=>{
-        const all=[]; snap.forEach(d=>all.push({id:d.id,...d.data()}));
-        const items=all.filter(a=>a.wayNum===wayNum);
-        const grid=document.getElementById(`padlet-grid-${qId}`);
-        const addBtn=document.getElementById(`add-btn-${qId}`);
-        if(!grid) return;
-        grid.querySelectorAll(".padlet-card").forEach(c=>c.remove());
-        const maxLikes=items.length?Math.max(...items.map(i=>Number(i.likes)||0)):0;
-        items.forEach(item=>{
-          const likedBy=item.likedBy||[];
-          const liked=likedBy.includes(myId);
-          const isTop=Number(item.likes)>0&&Number(item.likes)===maxLikes;
-          const isMine=item.author===userName&&item.team===userTeam;
-          const card=document.createElement("div");
-          card.className=`padlet-card${isTop?" top-card":""}`;
-          card.innerHTML=`
-            ${isTop?`<span class="top-crown">👑 대표 의견</span>`:""}
-            <p class="padlet-card-body">${esc(item.text)}</p>
-            <div class="edit-form" id="edit-form-${item.id}"><textarea>${esc(item.text)}</textarea><div class="edit-form-actions"><button class="btn btn-sm edit-cancel-btn">취소</button><button class="btn btn-primary btn-sm edit-save-btn">저장</button></div></div>
-            <div class="padlet-card-footer">
-              <div class="padlet-author"><strong>${esc(item.author)}</strong> · ${esc(item.team)}</div>
-              <div class="padlet-actions">
-                ${isMine?`<button class="padlet-edit-btn">✏️</button><button class="padlet-delete-btn">🗑️</button>`:""}
-                <button class="padlet-like-btn ${liked?"liked":""}" title="${liked?"좋아요 취소":"좋아요"}">${liked?"❤️":"🤍"} ${Number(item.likes)||0}</button>
-              </div>
-            </div>`;
-          card.querySelector(".padlet-like-btn").addEventListener("click",async()=>{
-            const currentLikedBy=item.likedBy||[];
-            if(currentLikedBy.includes(myId)){
-              await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{likes:Math.max(0,(item.likes||0)-1),likedBy:currentLikedBy.filter(id=>id!==myId)});
-            } else {
-              await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{likes:increment(1),likedBy:[...currentLikedBy,myId]});
-            }
-          });
-          if(isMine){
-            card.querySelector(".padlet-edit-btn").addEventListener("click",()=>{card.querySelector(".padlet-card-body").style.display="none";card.querySelector(`#edit-form-${item.id}`).classList.add("open");});
-            card.querySelector(".edit-cancel-btn").addEventListener("click",()=>{card.querySelector(".padlet-card-body").style.display="";card.querySelector(`#edit-form-${item.id}`).classList.remove("open");});
-            card.querySelector(".edit-save-btn").addEventListener("click",async()=>{const t=card.querySelector(`#edit-form-${item.id} textarea`).value.trim();if(!t) return;await updateDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id),{text:t});card.querySelector(`#edit-form-${item.id}`).classList.remove("open");card.querySelector(".padlet-card-body").style.display="";});
-            card.querySelector(".padlet-delete-btn").addEventListener("click",async()=>{if(!confirm("의견을 삭제하시겠습니까?")) return;await deleteDoc(doc(db,"sessions",sessionId,"questions",qId,"answers",item.id));});
-          }
-          grid.insertBefore(card,addBtn);
-        });
-      }, err=>console.error(err));
-      unsubscribers.push(unsub);
-    }
-
-    // ── 시뮬레이션 실시간 결과 ──
-    let simResultUnsub = null;
-    function loadSimResults(stepIdx, q) {
-      if (simResultUnsub) { simResultUnsub(); simResultUnsub = null; }
-      const aggRef = doc(db,"sessions",sessionId,"sim_agg",`step_${stepIdx}`);
-      simResultUnsub = onSnapshot(aggRef, snap => {
-        const wrap = document.getElementById("sim-options-wrap");
-        if (!wrap) return;
-        const data = snap.exists() ? snap.data() : {};
-        const total = data.total || 0;
-        const counts = data.counts || {};
-        const myVoteRaw = localStorage.getItem(`sim_${sessionId}_${q.id}`);
-        const myVotes = myVoteRaw ? myVoteRaw.split(",").map(Number) : [];
-        wrap.innerHTML = (q.options||[]).map((opt,i) => {
-          const cnt = counts[i] || 0;
-          const pct = total ? Math.round(cnt/total*100) : 0;
-          const isMine = myVotes.includes(i);
-          return `
-            <div class="sim-option voted ${isMine?"selected":""}" style="cursor:default">
-              <div class="sim-option-result">
-                <span style="font-weight:${isMine?700:400}">${esc(opt)}</span>
-                <span class="sim-option-pct">${pct}%</span>
-              </div>
-              <div class="sim-bar"><div class="sim-bar-fill" style="width:${pct}%"></div></div>
-              <span class="sim-voted-count">${cnt}명 선택</span>
-            </div>`;
-        }).join("");
-        const countEl = document.getElementById("sim-total-count");
-        if (countEl) countEl.textContent = `총 ${total}명 참여`;
-      });
-      unsubscribers.push(() => { if(simResultUnsub) { simResultUnsub(); simResultUnsub=null; } });
-    }
-
-    function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-  </script>
+function esc(s) {
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+</script>
 </body>
 </html>
