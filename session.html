@@ -7,6 +7,51 @@
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Way 선택 화면 */
+    .way-select-page { padding: 28px 0 60px; }
+    .way-select-intro { margin-bottom: 24px; }
+    .way-select-intro h1 { font-size: 22px; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+    .way-select-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .way-select-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--red);
+      border-radius: var(--radius);
+      padding: 20px;
+      cursor: pointer;
+      transition: box-shadow 0.15s, transform 0.15s;
+      box-shadow: var(--shadow);
+      text-align: left;
+    }
+    .way-select-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+      border-color: var(--red);
+    }
+    .way-select-num {
+      font-size: 11px; font-weight: 700;
+      color: var(--red); letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .way-select-title {
+      font-size: 14px; font-weight: 600;
+      color: var(--black); line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .way-select-en {
+      font-size: 11px; color: var(--text-muted);
+      font-style: italic; line-height: 1.4;
+    }
+    .way-select-arrow {
+      display: block; margin-top: 14px;
+      font-size: 18px; color: var(--red);
+    }
+
+    /* Way 안 설명 카드 */
     .way-info-card {
       background: var(--black);
       border-radius: var(--radius);
@@ -17,18 +62,32 @@
       overflow: hidden;
     }
     .way-info-card::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
+      content: ""; position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
       background: var(--red);
     }
     .way-info-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.1em; margin-bottom: 4px; }
     .way-info-title-ko { font-size: 20px; font-weight: 700; color: white; margin-bottom: 2px; line-height: 1.3; }
     .way-info-title-en { font-size: 13px; color: #aaa; margin-bottom: 16px; font-style: italic; }
+    .way-info-divider { border: none; border-top: 1px solid #333; margin: 14px 0; }
     .way-info-desc-ko { font-size: 14px; line-height: 1.85; color: #e0e0e0; margin-bottom: 10px; }
     .way-info-desc-en { font-size: 13px; line-height: 1.75; color: #888; }
-    .way-info-divider { border: none; border-top: 1px solid #333; margin: 14px 0; }
+    .back-to-ways {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--text-muted);
+      background: none; border: 1px solid var(--border);
+      border-radius: 7px; padding: 6px 14px;
+      cursor: pointer; font-family: inherit;
+      margin-bottom: 20px; transition: all 0.15s;
+    }
+    .back-to-ways:hover { color: var(--black); border-color: #999; }
+
+    @media (max-width: 640px) {
+      .way-select-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 400px) {
+      .way-select-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -68,21 +127,16 @@
     </div>
   </div>
 
-  <!-- Step 2: Way 조 선택 -->
-  <div id="way-gate" class="gate-overlay hidden">
-    <div class="gate-card" style="max-width:580px">
-      <div class="gate-logo">
-        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
-        <span>KRAFTON Ways of Working</span>
-      </div>
-      <h2>내 조 선택</h2>
-      <p class="muted" style="margin-bottom:16px">배정받은 Way 조를 선택하세요.</p>
-      <div class="way-grid" id="way-grid"></div>
-      <p id="way-error" class="error-text hidden" style="margin-top:8px">조를 선택해주세요.</p>
-      <button id="way-submit" class="btn btn-primary full-width" style="margin-top:16px">입장하기</button>
+  <!-- Step 2: Way 카드 선택 화면 (전체 페이지) -->
+  <div id="way-select-page" class="container way-select-page hidden">
+    <div class="way-select-intro">
+      <h1 id="way-select-session-title">교육 세션</h1>
+      <p class="muted">배정받은 Way 조를 선택해 입장하세요.</p>
     </div>
+    <div class="way-select-grid" id="way-select-grid"></div>
   </div>
 
+  <!-- Step 3: Way 내부 세션 -->
   <main class="container main-content" id="session-main" style="display:none">
     <div class="session-info-bar">
       <div>
@@ -91,6 +145,9 @@
       </div>
       <div id="my-way-badge" class="way-badge-large"></div>
     </div>
+
+    <button class="back-to-ways" id="back-to-ways-btn">← 다른 조로 이동</button>
+
     <div id="way-info-section"></div>
     <div id="questions-container">
       <div class="loading-state"><div class="spinner"></div><p>질문을 불러오는 중...</p></div>
@@ -126,30 +183,14 @@
 
     let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
     let userTeam = localStorage.getItem(`edu_team_${sessionId}`) || "";
-    let userWay = localStorage.getItem(`edu_way_${sessionId}`) ? parseInt(localStorage.getItem(`edu_way_${sessionId}`)) : null;
+    let userWay = null; // 매번 새로 선택 (저장 안 함)
+    let sessionData = null;
+    let unsubscribers = [];
 
-    // Way 선택 카드
-    const wayGrid = document.getElementById("way-grid");
-    wayGrid.innerHTML = WAYS.map(w => `
-      <div class="way-card" data-num="${w.num}">
-        <div class="way-num">WAY ${w.num}</div>
-        <div class="way-label">${w.titleKo}</div>
-      </div>`).join("");
-
-    wayGrid.querySelectorAll(".way-card").forEach(card => {
-      card.addEventListener("click", () => {
-        wayGrid.querySelectorAll(".way-card").forEach(c => c.classList.remove("selected"));
-        card.classList.add("selected");
-        userWay = parseInt(card.dataset.num);
-      });
-    });
-
-    // 진입 분기
-    if (userName && userTeam && userWay) {
-      showMain();
-    } else if (userName && userTeam) {
-      document.getElementById("name-gate").classList.add("hidden");
-      document.getElementById("way-gate").classList.remove("hidden");
+    // 이름 게이트 — 저장된 이름 있으면 스킵
+    if (userName && userTeam) {
+      document.getElementById("name-gate").style.display = "none";
+      initSessionInfo().then(showWaySelect);
     }
 
     document.getElementById("name-submit").addEventListener("click", () => {
@@ -159,121 +200,169 @@
       userName = name; userTeam = team;
       localStorage.setItem(`edu_name_${sessionId}`, name);
       localStorage.setItem(`edu_team_${sessionId}`, team);
-      document.getElementById("name-gate").classList.add("hidden");
-      document.getElementById("way-gate").classList.remove("hidden");
+      document.getElementById("name-gate").style.display = "none";
+      initSessionInfo().then(showWaySelect);
     });
     document.getElementById("name-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("team-input").focus(); });
     document.getElementById("team-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("name-submit").click(); });
 
-    document.getElementById("way-submit").addEventListener("click", () => {
-      if (!userWay) { document.getElementById("way-error").classList.remove("hidden"); return; }
-      localStorage.setItem(`edu_way_${sessionId}`, userWay);
-      document.getElementById("way-gate").classList.add("hidden");
-      showMain();
-    });
-
-    async function showMain() {
-      document.getElementById("session-main").style.display = "block";
-      document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
-      const way = WAYS.find(w => w.num === userWay);
-      document.getElementById("my-way-badge").textContent = `WAY ${userWay}`;
-
-      // Way 설명 카드
-      if (way) {
-        document.getElementById("way-info-section").innerHTML = `
-          <div class="way-info-card">
-            <div class="way-info-num">WAY ${way.num}</div>
-            <div class="way-info-title-ko">${way.titleKo}</div>
-            <div class="way-info-title-en">${way.titleEn}</div>
-            <hr class="way-info-divider">
-            <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
-            <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
-          </div>`;
-      }
-
+    async function initSessionInfo() {
       try {
         const snap = await getDoc(doc(db, "sessions", sessionId));
         if (!snap.exists()) { location.href = "index.html"; return; }
-        const s = snap.data();
-        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
-        document.getElementById("session-label").textContent = `${s.order}차 교육`;
-        document.getElementById("session-title-main").textContent = s.title;
+        sessionData = snap.data();
+        const d = sessionData.date?.toDate ? sessionData.date.toDate() : new Date(sessionData.date);
+        document.getElementById("session-label").textContent = `${sessionData.order}차 교육`;
+        document.getElementById("session-title-main").textContent = sessionData.title;
         document.getElementById("session-date-main").textContent =
           d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) + " " +
           d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-        document.title = `${s.title} | KRAFTON WoW`;
+        document.title = `${sessionData.title} | KRAFTON WoW`;
+        document.getElementById("way-select-session-title").textContent = sessionData.title;
+        document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
       } catch(e) { console.error(e); }
-
-      loadQuestions();
     }
 
-    async function loadQuestions() {
+    function showWaySelect() {
+      // 언사브스크라이브 기존 리스너
+      unsubscribers.forEach(fn => fn());
+      unsubscribers = [];
+
+      document.getElementById("session-main").style.display = "none";
+      const wayPage = document.getElementById("way-select-page");
+      wayPage.classList.remove("hidden");
+
+      const grid = document.getElementById("way-select-grid");
+      grid.innerHTML = WAYS.map(w => `
+        <div class="way-select-card" data-num="${w.num}">
+          <div class="way-select-num">WAY ${w.num}</div>
+          <div class="way-select-title">${w.titleKo}</div>
+          <div class="way-select-en">${w.titleEn}</div>
+          <span class="way-select-arrow">→</span>
+        </div>`).join("");
+
+      grid.querySelectorAll(".way-select-card").forEach(card => {
+        card.addEventListener("click", () => {
+          userWay = parseInt(card.dataset.num);
+          enterWay(userWay);
+        });
+      });
+    }
+
+    function enterWay(wayNum) {
+      const way = WAYS.find(w => w.num === wayNum);
+      document.getElementById("way-select-page").classList.add("hidden");
+      document.getElementById("session-main").style.display = "block";
+      document.getElementById("my-way-badge").textContent = `WAY ${wayNum}`;
+
+      // Way 설명 카드
+      document.getElementById("way-info-section").innerHTML = `
+        <div class="way-info-card">
+          <div class="way-info-num">WAY ${way.num}</div>
+          <div class="way-info-title-ko">${way.titleKo}</div>
+          <div class="way-info-title-en">${way.titleEn}</div>
+          <hr class="way-info-divider">
+          <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
+          <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
+        </div>`;
+
+      loadQuestions(wayNum);
+      window.scrollTo(0, 0);
+    }
+
+    document.getElementById("back-to-ways-btn").addEventListener("click", () => {
+      unsubscribers.forEach(fn => fn());
+      unsubscribers = [];
+      document.getElementById("questions-container").innerHTML =
+        `<div class="loading-state"><div class="spinner"></div><p>질문을 불러오는 중...</p></div>`;
+      showWaySelect();
+      window.scrollTo(0, 0);
+    });
+
+    function loadQuestions(wayNum) {
       const container = document.getElementById("questions-container");
-      const q = query(collection(db, "sessions", sessionId, "questions"), orderBy("order", "asc"));
-      onSnapshot(q, async (snap) => {
+      container.innerHTML = `<div class="loading-state"><div class="spinner"></div><p>질문을 불러오는 중...</p></div>`;
+
+      const q = query(collection(db, "sessions", sessionId, "questions"), orderBy("order","asc"));
+      const unsub = onSnapshot(q, snap => {
         const questions = [];
         snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
+
         if (!questions.length) {
           container.innerHTML = `<div class="empty-state"><p>아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p></div>`;
           return;
         }
-        container.innerHTML = "";
-        for (const q of questions) {
-          const block = document.createElement("div");
-          block.className = "question-block";
-          block.id = `q-${q.id}`;
-          block.innerHTML = `
-            <div class="question-label">Q${q.order}</div>
-            <div class="question-text">${esc(q.text)}</div>
-            <div style="margin-top:14px">
-              <label class="form-label">WAY ${userWay} 조의 의견을 작성해주세요</label>
-              <textarea class="form-textarea answer-ta" placeholder="자유롭게 작성해주세요..." rows="3" maxlength="500"></textarea>
-              <div class="form-footer" style="margin-top:8px">
-                <span class="char-count answer-char">0 / 500</span>
-                <button class="btn btn-primary answer-submit">의견 등록</button>
-              </div>
-            </div>
-            <div class="section-header" style="margin-top:20px">
-              <h3>WAY ${userWay} 조 의견 <span class="count-badge answer-count-${q.id}">0</span></h3>
-            </div>
-            <div class="answer-list" id="answers-${q.id}">
-              <div class="loading-state"><div class="spinner"></div></div>
-            </div>`;
-          container.appendChild(block);
 
-          block.querySelector(".answer-ta").addEventListener("input", function() {
-            block.querySelector(".answer-char").textContent = `${this.value.length} / 500`;
+        // 기존 질문 블록 없으면 새로 렌더, 있으면 유지
+        const existingIds = [...container.querySelectorAll(".question-block")].map(b => b.id.replace("q-",""));
+        const newIds = questions.map(q => q.id);
+        if (JSON.stringify(existingIds) !== JSON.stringify(newIds)) {
+          container.innerHTML = "";
+          questions.forEach(q => {
+            const block = document.createElement("div");
+            block.className = "question-block";
+            block.id = `q-${q.id}`;
+            block.innerHTML = `
+              <div class="question-label">Q${q.order}</div>
+              <div class="question-text">${esc(q.text)}</div>
+              <div style="margin-top:14px">
+                <label class="form-label">WAY ${wayNum} 조의 의견을 작성해주세요</label>
+                <textarea class="form-textarea answer-ta" placeholder="자유롭게 작성해주세요..." rows="3" maxlength="500"></textarea>
+                <div class="form-footer" style="margin-top:8px">
+                  <span class="char-count answer-char">0 / 500</span>
+                  <button class="btn btn-primary answer-submit">의견 등록</button>
+                </div>
+              </div>
+              <div class="section-header" style="margin-top:20px">
+                <h3>WAY ${wayNum} 조 의견 <span class="count-badge answer-count-${q.id}">0</span></h3>
+              </div>
+              <div class="answer-list" id="answers-${q.id}">
+                <div class="loading-state"><div class="spinner"></div></div>
+              </div>`;
+            container.appendChild(block);
+
+            block.querySelector(".answer-ta").addEventListener("input", function() {
+              block.querySelector(".answer-char").textContent = `${this.value.length} / 500`;
+            });
+            block.querySelector(".answer-submit").addEventListener("click", async () => {
+              const ta = block.querySelector(".answer-ta");
+              const text = ta.value.trim();
+              if (!text) return;
+              const btn = block.querySelector(".answer-submit");
+              btn.disabled = true; btn.textContent = "등록 중...";
+              try {
+                await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
+                  author: userName, team: userTeam, wayNum,
+                  text, likes: 0, createdAt: serverTimestamp()
+                });
+                ta.value = ""; block.querySelector(".answer-char").textContent = "0 / 500";
+              } catch(e) { alert(e.message); }
+              btn.disabled = false; btn.textContent = "의견 등록";
+            });
+
+            loadAnswers(q.id, wayNum);
           });
-          block.querySelector(".answer-submit").addEventListener("click", async () => {
-            const ta = block.querySelector(".answer-ta");
-            const text = ta.value.trim();
-            if (!text) return;
-            const btn = block.querySelector(".answer-submit");
-            btn.disabled = true; btn.textContent = "등록 중...";
-            try {
-              await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
-                author: userName, team: userTeam, wayNum: userWay,
-                text, likes: 0, createdAt: serverTimestamp()
-              });
-              ta.value = ""; block.querySelector(".answer-char").textContent = "0 / 500";
-            } catch(e) { alert(e.message); }
-            btn.disabled = false; btn.textContent = "의견 등록";
-          });
-          loadAnswers(q.id, userWay);
         }
       });
+      unsubscribers.push(unsub);
     }
 
     function loadAnswers(questionId, wayNum) {
-      const q = query(collection(db, "sessions", sessionId, "questions", questionId, "answers"), orderBy("likes","desc"));
-      onSnapshot(q, snap => {
+      const q = query(
+        collection(db, "sessions", sessionId, "questions", questionId, "answers"),
+        orderBy("likes","desc")
+      );
+      const unsub = onSnapshot(q, snap => {
         const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
         const items = all.filter(a => a.wayNum === wayNum);
         const countEl = document.querySelector(`.answer-count-${questionId}`);
         if (countEl) countEl.textContent = items.length;
         const list = document.getElementById(`answers-${questionId}`);
         if (!list) return;
-        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 작성된 의견이 없습니다. 첫 번째로 남겨보세요!</p></div>`; return; }
+        if (!items.length) {
+          list.innerHTML = `<div class="empty-state"><p>아직 작성된 의견이 없습니다. 첫 번째로 남겨보세요!</p></div>`;
+          return;
+        }
         const maxLikes = Math.max(...items.map(i => Number(i.likes)||0));
         list.innerHTML = items.map(item => {
           const likedKey = `like_${sessionId}_${questionId}_${item.id}`;
@@ -297,15 +386,20 @@
               </div>
             </div>`;
         }).join("");
+
         list.querySelectorAll(".like-btn").forEach(btn => {
           btn.addEventListener("click", async () => {
             if (btn.dataset.liked==="true") return;
             localStorage.setItem(`like_${sessionId}_${btn.dataset.qid}_${btn.dataset.id}`, "1");
             btn.dataset.liked = "true";
-            await updateDoc(doc(db,"sessions",sessionId,"questions",btn.dataset.qid,"answers",btn.dataset.id), { likes: increment(1) });
+            await updateDoc(
+              doc(db,"sessions",sessionId,"questions",btn.dataset.qid,"answers",btn.dataset.id),
+              { likes: increment(1) }
+            );
           });
         });
       });
+      unsubscribers.push(unsub);
     }
 
     function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
