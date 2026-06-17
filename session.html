@@ -647,8 +647,9 @@
         const typists=[];
         snap.forEach(d=>{const t=d.data(); if(d.id!==myId&&t.questionId===qId&&t.wayNum===wayNum&&t.preview) typists.push(t);});
         if(!typists.length){area.innerHTML="";area.style.display="none";return;}
-        area.style.display="grid";
-        area.innerHTML=typists.map(t=>`<div class="typing-card"><div class="typing-indicator"><span style="font-weight:600;color:#b08000">${esc(t.author)}</span>님이 작성 중<span class="typing-dots"><span></span><span></span><span></span></span></div>${t.preview?`<div class="typing-preview">${esc(t.preview)}...</div>`:""}</div>`).join("");
+        area.style.display="block";
+        const names = typists.map(t => esc(t.author)).join(", ");
+        area.innerHTML=`<div class="typing-card" style="display:flex;align-items:center;gap:8px;min-height:auto;padding:10px 14px"><div class="typing-indicator"><span style="font-weight:600;color:#b08000">${names}</span> 님이 작성 중<span class="typing-dots"><span></span><span></span><span></span></span></div></div>`;
       });
       unsubscribers.push(unsub);
     }
