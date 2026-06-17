@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>전사 교육 플랫폼</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="logo">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#2563EB"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+          <span>전사 교육 플랫폼</span>
+        </div>
+        <a href="admin.html" class="admin-link">관리자</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <div class="page-intro">
+      <h1>교육 차수 선택</h1>
+      <p class="muted">참여할 교육 차수를 선택하고 담당자에게 받은 비밀번호를 입력하세요.</p>
+    </div>
+    <div id="session-grid" class="session-grid">
+      <div class="loading-state"><div class="spinner"></div><p>불러오는 중...</p></div>
+    </div>
+  </main>
+
+  <!-- Password Modal -->
+  <div id="pw-modal" class="modal-backdrop hidden">
+    <div class="modal">
+      <button class="modal-close" id="modal-close-btn">✕</button>
+      <div class="modal-header">
+        <h2 id="modal-title">교육 입장</h2>
+        <p id="modal-subtitle" class="muted"></p>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">비밀번호</label>
+        <input type="password" id="pw-input" class="form-input" placeholder="비밀번호를 입력하세요" />
+        <p id="pw-error" class="error-text hidden">비밀번호가 올바르지 않습니다.</p>
+        <button id="pw-submit" class="btn btn-primary full-width" style="margin-top:10px">입장하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, getDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { FIREBASE_CONFIG } from "./firebase-config.js";
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    let selectedSession = null;
+
+    async function loadSessions() {
+      const grid = document.getElementById("session-grid");
+      try {
+        const q = query(collection(db, "sessions"), orderBy("order", "asc"));
+        const snap = await getDocs(q);
+        const sessions = [];
+        snap.forEach(d => sessions.push({ id: d.id, ...d.data() }));
+
+        if (!sessions.length) {
+          grid.innerHTML = `<div class="empty-state"><p>등록된 교육 차수가 없습니다.</p></div>`;
+          return;
+        }
+
+        grid.innerHTML = sessions.map(s => {
+          const sessionDate = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+          const isPast = sessionDate < new Date();
+          const dateStr = sessionDate.toLocaleDateString("ko-KR", { month: "long", day: "numeric", weekday: "short" });
+          const timeStr = sessionDate.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" });
+          return `
+            <div class="session-card ${isPast ? "past" : ""}">
+              <div class="session-badge">${s.order}차</div>
+              <h3 class="session-title">${esc(s.title)}</h3>
+              <div class="session-meta">
+                <span>📅 ${dateStr}</span>
+                <span>🕐 ${timeStr}</span>
+              </div>
+              ${s.description ? `<p class="session-desc">${esc(s.description)}</p>` : ""}
+              <div class="session-footer">
+                <span class="status-badge ${isPast ? "past" : "upcoming"}">${isPast ? "종료" : "예정"}</span>
+                <button class="btn-enter"
+                  data-id="${s.id}"
+                  data-title="${esc(s.title)}"
+                  data-date="${dateStr}"
+                  data-time="${timeStr}">
+                  입장 →
+                </button>
+              </div>
+            </div>`;
+        }).join("");
+
+        document.querySelectorAll(".btn-enter").forEach(btn => {
+          btn.addEventListener("click", () => {
+            selectedSession = {
+              id: btn.dataset.id,
+              title: btn.dataset.title,
+              date: btn.dataset.date,
+              time: btn.dataset.time
+            };
+            openModal();
+          });
+        });
+      } catch (e) {
+        grid.innerHTML = `<div class="empty-state error"><p>데이터를 불러오지 못했습니다.<br>${e.message}</p></div>`;
+      }
+    }
+
+    function openModal() {
+      document.getElementById("modal-title").textContent = selectedSession.title;
+      document.getElementById("modal-subtitle").textContent = `${selectedSession.date} · ${selectedSession.time}`;
+      document.getElementById("pw-input").value = "";
+      document.getElementById("pw-error").classList.add("hidden");
+      document.getElementById("pw-modal").classList.remove("hidden");
+      setTimeout(() => document.getElementById("pw-input").focus(), 100);
+    }
+
+    async function checkPassword() {
+      const entered = document.getElementById("pw-input").value.trim();
+      if (!entered) return;
+      try {
+        const ref = doc(db, "sessions", selectedSession.id);
+        const snap = await getDoc(ref);
+        if (snap.exists() && snap.data().password === entered) {
+          window.location.href = `session.html?id=${selectedSession.id}`;
+        } else {
+          document.getElementById("pw-error").classList.remove("hidden");
+          document.getElementById("pw-input").select();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    document.getElementById("pw-submit").addEventListener("click", checkPassword);
+    document.getElementById("pw-input").addEventListener("keydown", e => { if (e.key === "Enter") checkPassword(); });
+    document.getElementById("modal-close-btn").addEventListener("click", () =>
+      document.getElementById("pw-modal").classList.add("hidden"));
+    document.getElementById("pw-modal").addEventListener("click", e => {
+      if (e.target.id === "pw-modal") document.getElementById("pw-modal").classList.add("hidden");
+    });
+
+    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+    loadSessions();
+  </script>
+</body>
+</html>
