@@ -537,6 +537,7 @@
               return `<div class="sim-option ${myVotes?"voted":""} ${sel?"selected":""}" data-idx="${i}">${esc(opt)}</div>`;
             }).join("")}
           </div>
+          ${myVotes ? `<p id="sim-total-count" style="font-size:12px;color:#999;margin-bottom:12px"></p>` : ""}
           <div class="sim-nav">
             <button class="btn btn-sm" id="sim-prev-btn" ${simStep===0?"disabled":""}>← 이전</button>
             <div style="display:flex;gap:8px;align-items:center">
@@ -553,7 +554,6 @@
             const isSelected = opt.classList.contains("selected");
             const currentSelected = document.querySelectorAll(".sim-option.selected").length;
             if (!isSelected && currentSelected >= maxSelect) {
-              // 가장 먼저 선택된 것 해제 후 새로 선택
               document.querySelector(".sim-option.selected").classList.remove("selected");
             }
             opt.classList.toggle("selected");
@@ -563,22 +563,35 @@
           const sels = [...document.querySelectorAll(".sim-option.selected")];
           if (!sels.length) { alert("선택지를 선택해주세요."); return; }
           const idxs = sels.map(s => Number(s.dataset.idx));
+          const btn = document.getElementById("sim-vote-btn");
+          btn.disabled = true; btn.textContent = "저장 중...";
           localStorage.setItem(myVoteKey, idxs.join(","));
           try {
+            // 개인 기록
             await addDoc(collection(db,"sessions",sessionId,"sim_votes"), {
-              questionId: q.id, questionText: q.q,
-              optionIdxs: idxs,
-              optionTexts: idxs.map(i => q.options[i]),
-              author: userName, team: userTeam,
-              createdAt: serverTimestamp()
+              questionId: q.id, stepIdx: simStep, questionText: q.q,
+              optionIdxs: idxs, optionTexts: idxs.map(i => q.options[i]),
+              author: userName, team: userTeam, createdAt: serverTimestamp()
             });
-          } catch(e) {}
+            // 집계 업데이트
+            const aggRef = doc(db,"sessions",sessionId,"sim_agg",`step_${simStep}`);
+            const updates = { question: q.q, stepIdx: simStep, total: increment(1) };
+            idxs.forEach(i => { updates[`counts.${i}`] = increment(1); });
+            await setDoc(aggRef, updates, { merge: true });
+          } catch(e) { console.error(e); }
           renderSimStep();
         });
+      } else {
+        // 투표 후 실시간 결과 구독
+        loadSimResults(simStep, q);
       }
 
-      document.getElementById("sim-prev-btn").addEventListener("click", () => { if(simStep>0){simStep--;renderSimProgress();renderSimStep();} });
-      document.getElementById("sim-next-btn").addEventListener("click", () => { simStep++;renderSimProgress();renderSimStep(); });
+      document.getElementById("sim-prev-btn").addEventListener("click", () => {
+        if(simStep>0){ simStep--; renderSimProgress(); renderSimStep(); }
+      });
+      document.getElementById("sim-next-btn").addEventListener("click", () => {
+        simStep++; renderSimProgress(); renderSimStep();
+      });
     }
 
     // ── Way 세션 ──
@@ -741,7 +754,40 @@
       unsubscribers.push(unsub);
     }
 
-    function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+    // ── 시뮬레이션 실시간 결과 ──
+    let simResultUnsub = null;
+    function loadSimResults(stepIdx, q) {
+      if (simResultUnsub) { simResultUnsub(); simResultUnsub = null; }
+      const aggRef = doc(db,"sessions",sessionId,"sim_agg",`step_${stepIdx}`);
+      simResultUnsub = onSnapshot(aggRef, snap => {
+        const wrap = document.getElementById("sim-options-wrap");
+        if (!wrap) return;
+        const data = snap.exists() ? snap.data() : {};
+        const total = data.total || 0;
+        const counts = data.counts || {};
+        const myVoteRaw = localStorage.getItem(`sim_${sessionId}_${q.id}`);
+        const myVotes = myVoteRaw ? myVoteRaw.split(",").map(Number) : [];
+        wrap.innerHTML = (q.options||[]).map((opt,i) => {
+          const cnt = counts[i] || 0;
+          const pct = total ? Math.round(cnt/total*100) : 0;
+          const isMine = myVotes.includes(i);
+          return `
+            <div class="sim-option voted ${isMine?"selected":""}" style="cursor:default">
+              <div class="sim-option-result">
+                <span style="font-weight:${isMine?700:400}">${esc(opt)}</span>
+                <span class="sim-option-pct">${pct}%</span>
+              </div>
+              <div class="sim-bar"><div class="sim-bar-fill" style="width:${pct}%"></div></div>
+              <span class="sim-voted-count">${cnt}명 선택</span>
+            </div>`;
+        }).join("");
+        const countEl = document.getElementById("sim-total-count");
+        if (countEl) countEl.textContent = `총 ${total}명 참여`;
+      });
+      unsubscribers.push(() => { if(simResultUnsub) { simResultUnsub(); simResultUnsub=null; } });
+    }
+
+    function esc(s){return String(s||""").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
   </script>
 </body>
 </html>
