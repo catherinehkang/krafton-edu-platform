@@ -351,14 +351,13 @@ document.getElementById("sim-session-select").addEventListener("change", e => {
       if (!el) return;
       const data = snap.exists() ? snap.data() : {};
       const total = data.total || 0;
-      const counts = data.counts || {};
       el.innerHTML =
         '<div style="background:#000;border-radius:10px;padding:16px 22px;margin-bottom:16px">' +
         '<p style="font-size:11px;font-weight:700;color:#C8102E;letter-spacing:.08em;margin-bottom:4px">' + step.label + '</p>' +
         '<p style="color:white;font-size:28px;font-weight:700;margin-bottom:2px">' + total + '<span style="font-size:15px;color:#aaa;font-weight:400">명 참여</span></p>' +
         '<p style="color:#666;font-size:12px">실시간 업데이트 중</p></div>' +
         step.options.map((opt,i) => {
-          const cnt = counts[i] || 0;
+          const cnt = data["counts." + i] || 0;
           const pct = total ? Math.round(cnt/total*100) : 0;
           return '<div class="sim-result-card">' +
             '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">' +
