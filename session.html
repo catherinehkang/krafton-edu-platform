@@ -458,11 +458,10 @@ function renderSimStep() {
     simAggUnsub = onSnapshot(aggRef, snap => {
       const data = snap.exists() ? snap.data() : {};
       const total = data.total || 0;
-      const counts = data.counts || {};
       const totalLine = document.getElementById("sim-total-line");
       if (totalLine) totalLine.textContent = "총 " + total + "명 참여";
       q.options.forEach((_, i) => {
-        const cnt = counts[i] || 0;
+        const cnt = data["counts." + i] || 0;
         const pct = total ? Math.round(cnt/total*100) : 0;
         const pctEl = document.getElementById("sim-pct-" + i);
         const barEl = document.getElementById("sim-bar-" + i);
