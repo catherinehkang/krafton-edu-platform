@@ -40,6 +40,11 @@
     .result-bar-row { display:flex; align-items:center; gap:8px; margin:4px 0; font-size:13px; }
     .result-bar-bg { flex:1; height:6px; background:var(--gray-200); border-radius:3px; overflow:hidden; }
     .result-bar-fill { height:100%; background:var(--red); border-radius:3px; }
+    .tag-select-btn { padding:5px 14px; border:1px solid var(--border); border-radius:20px; font-size:12px; font-weight:500; cursor:pointer; background:white; color:var(--text-muted); font-family:inherit; transition:all 0.15s; }
+    .tag-select-btn.active { box-shadow:0 0 0 2px var(--black); font-weight:700; }
+    .q-tag-pill { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:20px; margin-right:6px; }
+    .q-tag-pill.real-talk { background:#fff0f2; color:#C8102E; border:1px solid #fca5a5; }
+    .q-tag-pill.deep-dive { background:#eff6ff; color:#1d4ed8; border:1px solid #93c5fd; }
   </style>
 </head>
 <body>
@@ -115,6 +120,11 @@
         <!-- 질문 관리 -->
         <div class="card admin-section">
           <h2 class="card-title">질문 추가</h2>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <button class="tag-select-btn active" data-tag="">태그 없음</button>
+            <button class="tag-select-btn" data-tag="Real Talk" style="color:#C8102E;border-color:#fca5a5;background:#fff0f2">🔥 Real Talk</button>
+            <button class="tag-select-btn" data-tag="Deep Dive" style="color:#1d4ed8;border-color:#93c5fd;background:#eff6ff">🔍 Deep Dive</button>
+          </div>
           <textarea id="question-text" class="form-textarea" placeholder="예: Ways of Working 중 우리 팀에서 가장 잘 실천하고 있는 Way는 무엇인가요?" rows="2"></textarea>
           <button id="add-question-btn" class="btn btn-primary" style="margin-top:10px;align-self:flex-end">질문 추가</button>
         </div>
@@ -306,12 +316,22 @@
       loadQuestions(); loadPolls();
     });
 
+    
+    let selectedTag = "";
+    document.querySelectorAll(".tag-select-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tag-select-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        selectedTag = btn.dataset.tag;
+      });
+    });
+
     document.getElementById("add-question-btn").addEventListener("click", async () => {
       const text=document.getElementById("question-text").value.trim();
       if (!text) { alert("질문 내용을 입력하세요."); return; }
       const snap=await getDocs(collection(db,"sessions",activeContentSessionId,"questions"));
       const btn=document.getElementById("add-question-btn"); btn.disabled=true; btn.textContent="추가 중...";
-      await addDoc(collection(db,"sessions",activeContentSessionId,"questions"), { text, order:snap.size+1, createdAt:serverTimestamp() });
+      await addDoc(collection(db,"sessions",activeContentSessionId,"questions"), { text, tag: selectedTag, order:snap.size+1, createdAt:serverTimestamp() });
       document.getElementById("question-text").value="";
       btn.disabled=false; btn.textContent="질문 추가";
       loadQuestions(); loadAdminData();
@@ -328,7 +348,7 @@
         <div class="question-admin-item" id="q-admin-${q.id}">
           <div class="question-view">
             <div style="flex:1">
-              <span style="font-size:11px;font-weight:700;color:var(--red)">Q${q.order}</span>
+              <span style="font-size:11px;font-weight:700;color:var(--red)">Q${q.order}</span>${q.tag ? `<span class="q-tag-pill ${q.tag==="Real Talk"?"real-talk":"deep-dive"}">${q.tag}</span>` : ""}
               <p style="font-size:14px;font-weight:500;margin-top:4px" id="q-text-${q.id}">${esc(q.text)}</p>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0">
