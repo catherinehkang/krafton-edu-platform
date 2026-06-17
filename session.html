@@ -468,27 +468,10 @@
     let simStep = 0;
     let simQuestions = [];
 
-    document.getElementById("hub-sim-btn").addEventListener("click", async () => {
+    document.getElementById("hub-sim-btn").addEventListener("click", () => {
       showPage("page-sim");
       simStep = 0;
-
-      // sim 컬렉션 있으면 가져오고, 없으면 기본값
-      try {
-        const snap = await getDoc(doc(db,"sessions",sessionId));
-        // sim_questions 서브컬렉션 시도
-        const simSnap = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js").then(m=>
-          m.getDocs(m.query(m.collection(db,"sessions",sessionId,"sim_questions"), m.orderBy("order","asc")))
-        );
-        if (simSnap.size > 0) {
-          simQuestions = [];
-          simSnap.forEach(d => simQuestions.push({ id:d.id, ...d.data() }));
-        } else {
-          simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
-        }
-      } catch(e) {
-        simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
-      }
-
+      simQuestions = DEFAULT_SIM.map((q,i) => ({ ...q, id:`default_${i}`, order:i+1 }));
       renderSimProgress();
       renderSimStep();
     });
