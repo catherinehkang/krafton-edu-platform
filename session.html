@@ -6,6 +6,30 @@
   <title>KRAFTON Ways of Working</title>
   <link rel="stylesheet" href="style.css" />
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    .way-info-card {
+      background: var(--black);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    .way-info-card::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--red);
+    }
+    .way-info-num { font-size: 11px; font-weight: 700; color: var(--red); letter-spacing: 0.1em; margin-bottom: 4px; }
+    .way-info-title-ko { font-size: 20px; font-weight: 700; color: white; margin-bottom: 2px; line-height: 1.3; }
+    .way-info-title-en { font-size: 13px; color: #aaa; margin-bottom: 16px; font-style: italic; }
+    .way-info-desc-ko { font-size: 14px; line-height: 1.85; color: #e0e0e0; margin-bottom: 10px; }
+    .way-info-desc-en { font-size: 13px; line-height: 1.75; color: #888; }
+    .way-info-divider { border: none; border-top: 1px solid #333; margin: 14px 0; }
+  </style>
 </head>
 <body>
   <header class="site-header">
@@ -21,7 +45,7 @@
     </div>
   </header>
 
-  <!-- Step 1: 이름 + 팀명 입력 -->
+  <!-- Step 1: 이름 + 팀명 -->
   <div id="name-gate" class="gate-overlay">
     <div class="gate-card">
       <div class="gate-logo">
@@ -46,7 +70,7 @@
 
   <!-- Step 2: Way 조 선택 -->
   <div id="way-gate" class="gate-overlay hidden">
-    <div class="gate-card" style="max-width:560px">
+    <div class="gate-card" style="max-width:580px">
       <div class="gate-logo">
         <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
         <span>KRAFTON Ways of Working</span>
@@ -67,7 +91,7 @@
       </div>
       <div id="my-way-badge" class="way-badge-large"></div>
     </div>
-
+    <div id="way-info-section"></div>
     <div id="questions-container">
       <div class="loading-state"><div class="spinner"></div><p>질문을 불러오는 중...</p></div>
     </div>
@@ -76,21 +100,21 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, doc, getDoc, getDocs,
+      getFirestore, collection, addDoc, doc, getDoc,
       query, orderBy, onSnapshot, updateDoc, increment, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { FIREBASE_CONFIG } from "./firebase-config.js";
 
     const WAYS = [
-      { num: 1, label: "도전은 담대하게, 시작은 작고 빠르게" },
-      { num: 2, label: "일의 방향이 다르면 달려도 제자리" },
-      { num: 3, label: "모든 일에는 한 명의 책임자" },
-      { num: 4, label: "충돌은 더 나은 결과를 만드는 기회" },
-      { num: 5, label: "문화는 수평적으로, 업무는 수직적으로" },
-      { num: 6, label: "로컬의 감각으로 글로벌 최적화" },
-      { num: 7, label: "AI는 모든 업무의 최우선 파트너" },
-      { num: 8, label: "자율은 스스로 원칙을 지키는 자세" },
-      { num: 9, label: "주도하거나, 따르거나, 떠나거나" },
+      { num:1, titleKo:"도전은 담대하게, 시작은 작고 빠르게", titleEn:"Be Bold, Start Small & Fast.", descKo:"모든 도전은 높은 지향점을 향해 담대하게 나아가야 합니다.\n높은 목표를 세우고, 작고 빠른 실행을 반복하며, 배움을 쌓아 갑니다.\n크게 생각하고, 작게 시작해서, 빠르게 학습하는 것, 이것이 바로 우리가 한 걸음 더 나아가는 방법입니다.", descEn:"Every challenge should move us toward a higher ambition.\nWe set bold objectives, take small and fast actions, and build on what we learn.\nThink big, start small, learn fast. That is how we move one step further." },
+      { num:2, titleKo:"일의 방향이 다르면 달려도 제자리", titleEn:"One Direction or Zero Results.", descKo:"아무리 최선을 다해도, 서로 다른 방향으로 달리면 결과는 제자리입니다.\n큰 조직일수록, 모두가 같은 방향을 향하고 있어야 합니다.\n\"내가 가는 방향이 팀과, 조직과, 회사의 방향과 일치하는가?\" 먼저 생각하세요.\n방향이 같아야, 속도도 더해집니다.", descEn:"Progress stalls when teams move in different directions.\nAs we grow, shared alignment becomes increasingly critical.\nAlways ask: \"Is my direction aligned with my team and company's path?\"\nWhen we align, momentum multiplies." },
+      { num:3, titleKo:"모든 일에는 한 명의 책임자", titleEn:"Every Task, One Owner.", descKo:"모든 일에는 결정을 내리고 책임지는 한 사람이 필요합니다.\n자신의 권한에 책임을 지는 '라스트맨'이 성장하고 많아질수록 조직도 함께 성장합니다.\n책임자를 분명히 할 때, 조직은 충돌 속에서도 더 강해지고 앞으로 나아갑니다.", descEn:"Each task needs a single owner. One steps up, makes the hard calls, and takes full responsibility for the outcome.\nAs more rise to that last line of accountability, the whole team grows stronger.\nClear ownership turns conflict into cohesion and moves us forward." },
+      { num:4, titleKo:"충돌은 더 나은 결과를 만드는 기회", titleEn:"Conflict Sparks Progress.", descKo:"우리는 더 나은 결정을 위해 계속 부딪혀야 합니다.\n다양한 관점에서 자신의 소신을 바탕으로 제안하고, 서로 충돌하며 결국 모두에게 더 큰 이익이 되는 방향을 찾아가야 합니다.", descEn:"Better decisions don't come from silence.\nThey are born from friction where strong perspectives meet, collide, and challenge each other.\nSpeak up. Stand firm. Move forward. Only then can we forge a path that serves the greater good." },
+      { num:5, titleKo:"문화는 수평적으로, 업무는 수직적으로", titleEn:"Horizontal Culture, Vertical Workflow.", descKo:"우리의 조직 문화는 자유로운 토론과 다양한 의견을 존중합니다.\n하지만 토론이 끝난 뒤에는 모두가 하나의 결정에 따라 움직입니다.\n수평의 다양성과 수직의 추진력이 하나가 될 때, 비로소 성과를 만들어내는 힘이 됩니다.", descEn:"Different perspectives sharpen our strategy.\nWe debate openly until we reach a final decision. Once the decision is made, diverse thinking aligns into shared momentum.\nMany voices moving as one create real impact." },
+      { num:6, titleKo:"로컬의 감각으로 글로벌 최적화", titleEn:"Locally Grounded. Globally Optimized.", descKo:"글로벌은 끊임없이 변하는 시장 환경 속에서 최적의 균형을 찾는 과정입니다.\n로컬의 감각을 유지하면서, 글로벌의 시선에서 가장 효율적인 해법을 찾습니다.\n로컬의 고유성과 글로벌의 보편성이 만드는 긴장, 그 속에서 균형점을 찾는 것이 글로벌 역량입니다.", descEn:"Going global means finding balance in markets that never stop shifting.\nRooted in local insight, we apply a global perspective to craft the most effective solutions.\nTrue global capability emerges where local character and universal relevance align." },
+      { num:7, titleKo:"AI는 모든 업무의 최우선 파트너", titleEn:"AI First in All We Do.", descKo:"AI는 빠른 변화에 맞춰 우리를 더 민첩하게 움직이게 해주는, 가장 강력한 파트너입니다.\n업무의 전 과정과 의사결정에서 우리는 AI를 항상 '최우선'으로 떠올려야 합니다.\n문제를 마주했다면, AI로 먼저 확인하고, 그 위에 우리의 판단을 더해 풀어가야 합니다.", descEn:"We make AI our primary partner to stay agile in a fast-paced world.\nIt is our starting point across every workflow and decision.\nDrawing on AI insights and building upon them with human judgment, we turn complexity into clarity." },
+      { num:8, titleKo:"자율은 스스로 원칙을 지키는 자세", titleEn:"Self-Driven. Led by Principles.", descKo:"자율적인 문화는 책임을 이해하고, 기준을 지키는 태도에서 만들어집니다.\n우리에게 주어진 자율은, 회사, 조직, 동료와 신뢰를 지키겠다는 약속의 결과이기도 합니다.\n자율은, 마음대로 하는 자유가 아닌 스스로 원칙을 지키는 자세입니다.", descEn:"An autonomous culture is rooted in accountability and shared principles.\nThe autonomy we earn comes with a commitment to uphold the trust placed in us.\nAutonomy is not the freedom to do whatever we want, but the discipline to live by our principles." },
+      { num:9, titleKo:"주도하거나, 따르거나, 떠나거나", titleEn:"Lead, Follow, or Leave.", descKo:"문제를 보는 눈보다 책임지고 해결하려는 태도가 더 중요합니다.\n내가 주도적으로 이끌거나, 아니면 최선을 다해 따릅니다.\n만약 함께 가기 어렵다면, 서로를 위해 다른 길을 택하는 결심이 필요합니다.", descEn:"Problems need solvers, not spectators. Anyone can spot what's broken, but committing to fixing it is what truly matters.\nTake the lead or fully support someone who does.\nIf neither is possible, choosing a different path is the most honest choice for everyone." },
     ];
 
     const app = initializeApp(FIREBASE_CONFIG);
@@ -100,20 +124,16 @@
     const sessionId = params.get("id");
     if (!sessionId) { location.href = "index.html"; }
 
-    const storedName = localStorage.getItem(`edu_name_${sessionId}`);
-    const storedTeam = localStorage.getItem(`edu_team_${sessionId}`);
-    const storedWay = localStorage.getItem(`edu_way_${sessionId}`);
+    let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
+    let userTeam = localStorage.getItem(`edu_team_${sessionId}`) || "";
+    let userWay = localStorage.getItem(`edu_way_${sessionId}`) ? parseInt(localStorage.getItem(`edu_way_${sessionId}`)) : null;
 
-    let userName = storedName || "";
-    let userTeam = storedTeam || "";
-    let userWay = storedWay ? parseInt(storedWay) : null;
-
-    // Build way grid
+    // Way 선택 카드
     const wayGrid = document.getElementById("way-grid");
     wayGrid.innerHTML = WAYS.map(w => `
       <div class="way-card" data-num="${w.num}">
         <div class="way-num">WAY ${w.num}</div>
-        <div class="way-label">${w.label}</div>
+        <div class="way-label">${w.titleKo}</div>
       </div>`).join("");
 
     wayGrid.querySelectorAll(".way-card").forEach(card => {
@@ -124,7 +144,7 @@
       });
     });
 
-    // Gate logic
+    // 진입 분기
     if (userName && userTeam && userWay) {
       showMain();
     } else if (userName && userTeam) {
@@ -142,7 +162,8 @@
       document.getElementById("name-gate").classList.add("hidden");
       document.getElementById("way-gate").classList.remove("hidden");
     });
-    document.getElementById("name-input").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("team-input").focus(); });
+    document.getElementById("name-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("team-input").focus(); });
+    document.getElementById("team-input").addEventListener("keydown", e => { if (e.key==="Enter") document.getElementById("name-submit").click(); });
 
     document.getElementById("way-submit").addEventListener("click", () => {
       if (!userWay) { document.getElementById("way-error").classList.remove("hidden"); return; }
@@ -154,9 +175,21 @@
     async function showMain() {
       document.getElementById("session-main").style.display = "block";
       document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
-
       const way = WAYS.find(w => w.num === userWay);
-      document.getElementById("my-way-badge").textContent = `WAY ${userWay} · ${way?.label || ""}`;
+      document.getElementById("my-way-badge").textContent = `WAY ${userWay}`;
+
+      // Way 설명 카드
+      if (way) {
+        document.getElementById("way-info-section").innerHTML = `
+          <div class="way-info-card">
+            <div class="way-info-num">WAY ${way.num}</div>
+            <div class="way-info-title-ko">${way.titleKo}</div>
+            <div class="way-info-title-en">${way.titleEn}</div>
+            <hr class="way-info-divider">
+            <div class="way-info-desc-ko">${way.descKo.replace(/\n/g,"<br>")}</div>
+            <div class="way-info-desc-en">${way.descEn.replace(/\n/g,"<br>")}</div>
+          </div>`;
+      }
 
       try {
         const snap = await getDoc(doc(db, "sessions", sessionId));
@@ -166,8 +199,8 @@
         document.getElementById("session-label").textContent = `${s.order}차 교육`;
         document.getElementById("session-title-main").textContent = s.title;
         document.getElementById("session-date-main").textContent =
-          d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) +
-          " " + d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
+          d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) + " " +
+          d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
         document.title = `${s.title} | KRAFTON WoW`;
       } catch(e) { console.error(e); }
 
@@ -177,16 +210,13 @@
     async function loadQuestions() {
       const container = document.getElementById("questions-container");
       const q = query(collection(db, "sessions", sessionId, "questions"), orderBy("order", "asc"));
-
       onSnapshot(q, async (snap) => {
         const questions = [];
         snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
-
         if (!questions.length) {
           container.innerHTML = `<div class="empty-state"><p>아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p></div>`;
           return;
         }
-
         container.innerHTML = "";
         for (const q of questions) {
           const block = document.createElement("div");
@@ -195,14 +225,15 @@
           block.innerHTML = `
             <div class="question-label">Q${q.order}</div>
             <div class="question-text">${esc(q.text)}</div>
-            <div class="answer-write">
-              <textarea class="form-textarea answer-ta" data-qid="${q.id}" placeholder="WAY ${userWay} 조의 의견을 작성해주세요..." rows="3" maxlength="500"></textarea>
+            <div style="margin-top:14px">
+              <label class="form-label">WAY ${userWay} 조의 의견을 작성해주세요</label>
+              <textarea class="form-textarea answer-ta" placeholder="자유롭게 작성해주세요..." rows="3" maxlength="500"></textarea>
               <div class="form-footer" style="margin-top:8px">
-                <span class="char-count answer-char" data-qid="${q.id}">0 / 500</span>
-                <button class="btn btn-primary answer-submit" data-qid="${q.id}">의견 등록</button>
+                <span class="char-count answer-char">0 / 500</span>
+                <button class="btn btn-primary answer-submit">의견 등록</button>
               </div>
             </div>
-            <div class="section-header" style="margin-top:16px">
+            <div class="section-header" style="margin-top:20px">
               <h3>WAY ${userWay} 조 의견 <span class="count-badge answer-count-${q.id}">0</span></h3>
             </div>
             <div class="answer-list" id="answers-${q.id}">
@@ -210,82 +241,68 @@
             </div>`;
           container.appendChild(block);
 
-          // char count
           block.querySelector(".answer-ta").addEventListener("input", function() {
-            block.querySelector(`.answer-char`).textContent = `${this.value.length} / 500`;
+            block.querySelector(".answer-char").textContent = `${this.value.length} / 500`;
           });
-
-          // submit
           block.querySelector(".answer-submit").addEventListener("click", async () => {
             const ta = block.querySelector(".answer-ta");
             const text = ta.value.trim();
             if (!text) return;
             const btn = block.querySelector(".answer-submit");
             btn.disabled = true; btn.textContent = "등록 중...";
-            await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
-              author: userName, team: userTeam, wayNum: userWay,
-              text, likes: 0, createdAt: serverTimestamp()
-            });
-            ta.value = "";
-            block.querySelector(".answer-char").textContent = "0 / 500";
+            try {
+              await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
+                author: userName, team: userTeam, wayNum: userWay,
+                text, likes: 0, createdAt: serverTimestamp()
+              });
+              ta.value = ""; block.querySelector(".answer-char").textContent = "0 / 500";
+            } catch(e) { alert(e.message); }
             btn.disabled = false; btn.textContent = "의견 등록";
           });
-
-          // load answers for this way
           loadAnswers(q.id, userWay);
         }
       });
     }
 
     function loadAnswers(questionId, wayNum) {
-      const q = query(
-        collection(db, "sessions", sessionId, "questions", questionId, "answers"),
-        orderBy("likes", "desc")
-      );
+      const q = query(collection(db, "sessions", sessionId, "questions", questionId, "answers"), orderBy("likes","desc"));
       onSnapshot(q, snap => {
-        const all = [];
-        snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-        // 내 조만 표시
+        const all = []; snap.forEach(d => all.push({ id: d.id, ...d.data() }));
         const items = all.filter(a => a.wayNum === wayNum);
         const countEl = document.querySelector(`.answer-count-${questionId}`);
         if (countEl) countEl.textContent = items.length;
         const list = document.getElementById(`answers-${questionId}`);
         if (!list) return;
         if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 작성된 의견이 없습니다. 첫 번째로 남겨보세요!</p></div>`; return; }
-        const maxLikes = Math.max(...items.map(i => i.likes || 0));
-        list.innerHTML = items.map((item, idx) => {
+        const maxLikes = Math.max(...items.map(i => Number(i.likes)||0));
+        list.innerHTML = items.map(item => {
           const likedKey = `like_${sessionId}_${questionId}_${item.id}`;
           const liked = localStorage.getItem(likedKey) === "1";
-          const isTop = item.likes > 0 && item.likes === maxLikes;
+          const isTop = Number(item.likes) > 0 && Number(item.likes) === maxLikes;
           return `
-            <div class="answer-item ${isTop ? "top-answer" : ""}">
+            <div class="answer-item ${isTop?"top-answer":""}">
               <div class="answer-header">
-                <div>
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
                   <span class="answer-author">${esc(item.author)}</span>
                   <span class="answer-team">${esc(item.team)}</span>
-                  ${isTop ? `<span class="top-badge" style="margin-left:6px">👑 대표 의견</span>` : ""}
+                  ${isTop?`<span class="top-badge">👑 대표 의견</span>`:""}
                 </div>
-                <span class="answer-timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
+                <span class="answer-timestamp">${relTime(item.createdAt?.toDate?item.createdAt.toDate():new Date())}</span>
               </div>
               <p class="answer-body">${esc(item.text)}</p>
               <div class="answer-footer">
                 <button class="like-btn ${liked?"liked":""}" data-qid="${questionId}" data-id="${item.id}" data-liked="${liked}">
-                  ${liked?"❤️":"🤍"} ${item.likes || 0}
+                  ${liked?"❤️":"🤍"} ${Number(item.likes)||0}
                 </button>
               </div>
             </div>`;
         }).join("");
-
         list.querySelectorAll(".like-btn").forEach(btn => {
           btn.addEventListener("click", async () => {
-            if (btn.dataset.liked === "true") return;
-            const likedKey = `like_${sessionId}_${btn.dataset.qid}_${btn.dataset.id}`;
-            localStorage.setItem(likedKey, "1");
+            if (btn.dataset.liked==="true") return;
+            localStorage.setItem(`like_${sessionId}_${btn.dataset.qid}_${btn.dataset.id}`, "1");
             btn.dataset.liked = "true";
-            await updateDoc(
-              doc(db, "sessions", sessionId, "questions", btn.dataset.qid, "answers", btn.dataset.id),
-              { likes: increment(1) }
-            );
+            await updateDoc(doc(db,"sessions",sessionId,"questions",btn.dataset.qid,"answers",btn.dataset.id), { likes: increment(1) });
           });
         });
       });
@@ -293,11 +310,11 @@
 
     function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
     function relTime(date) {
-      const diff = Math.floor((Date.now() - date) / 1000);
-      if (diff < 60) return "방금 전";
-      if (diff < 3600) return `${Math.floor(diff/60)}분 전`;
-      if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
-      return date.toLocaleDateString("ko-KR", { month:"short", day:"numeric" });
+      const diff = Math.floor((Date.now()-date)/1000);
+      if (diff<60) return "방금 전";
+      if (diff<3600) return `${Math.floor(diff/60)}분 전`;
+      if (diff<86400) return `${Math.floor(diff/3600)}시간 전`;
+      return date.toLocaleDateString("ko-KR",{month:"short",day:"numeric"});
     }
   </script>
 </body>
