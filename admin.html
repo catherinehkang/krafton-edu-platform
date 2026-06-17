@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 | 전사 교육 플랫폼</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="index.html" class="back-link">← 메인으로</a>
+        <div class="logo"><span>관리자 페이지</span></div>
+        <button id="logout-btn" class="admin-link" style="display:none">로그아웃</button>
+      </div>
+    </div>
+  </header>
+
+  <div id="admin-gate" class="gate-overlay">
+    <div class="gate-card">
+      <h2>관리자 인증</h2>
+      <p class="muted" style="margin-bottom:14px">관리자 비밀번호를 입력하세요</p>
+      <input type="password" id="admin-pw-input" class="form-input" placeholder="관리자 비밀번호" />
+      <p id="admin-pw-error" class="error-text hidden">비밀번호가 올바르지 않습니다.</p>
+      <button id="admin-pw-submit" class="btn btn-primary full-width" style="margin-top:12px">확인</button>
+    </div>
+  </div>
+
+  <main class="container main-content" id="admin-main" style="display:none">
+    <div class="admin-stats">
+      <div class="stat-card"><span class="stat-num" id="stat-sessions">-</span><span class="stat-label">전체 차수</span></div>
+      <div class="stat-card"><span class="stat-num" id="stat-opinions">-</span><span class="stat-label">전체 의견</span></div>
+      <div class="stat-card"><span class="stat-num" id="stat-discusses">-</span><span class="stat-label">토의 게시물</span></div>
+    </div>
+
+    <div class="card admin-section">
+      <h2 class="card-title">새 교육 차수 추가</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">차수 번호</label>
+          <input type="number" id="new-order" class="form-input" placeholder="예: 1" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">교육명</label>
+          <input type="text" id="new-title" class="form-input" placeholder="예: AI 활용 교육 1차" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">날짜 및 시간</label>
+          <input type="datetime-local" id="new-date" class="form-input" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">참여 비밀번호</label>
+          <input type="text" id="new-password" class="form-input" placeholder="참여자에게 공유할 비밀번호" />
+        </div>
+        <div class="form-group full-col">
+          <label class="form-label">설명 (선택)</label>
+          <input type="text" id="new-desc" class="form-input" placeholder="간단한 설명" />
+        </div>
+      </div>
+      <button id="add-session-btn" class="btn btn-primary">차수 추가</button>
+    </div>
+
+    <div class="section-header"><h3>차수 목록</h3></div>
+    <div id="admin-session-list">
+      <div class="loading-state"><div class="spinner"></div></div>
+    </div>
+  </main>
+
+  <!-- Poll Modal -->
+  <div id="poll-modal" class="modal-backdrop hidden">
+    <div class="modal modal-wide">
+      <button class="modal-close" id="poll-modal-close">✕</button>
+      <div class="modal-header">
+        <h2>투표 / 설문 관리</h2>
+        <p id="poll-modal-session" class="muted"></p>
+      </div>
+      <div class="modal-body">
+        <div class="poll-add-form">
+          <label class="form-label">설문 질문</label>
+          <input type="text" id="poll-question" class="form-input" placeholder="예: 오늘 교육 만족도는?" />
+          <label class="form-label" style="margin-top:10px">선택지</label>
+          <div id="poll-options-container" style="display:flex;flex-direction:column;gap:6px">
+            <input type="text" class="form-input poll-opt" placeholder="선택지 1" />
+            <input type="text" class="form-input poll-opt" placeholder="선택지 2" />
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;margin-top:8px">
+            <button id="add-option-btn" class="btn btn-sm">+ 선택지 추가</button>
+            <label style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:4px">
+              <input type="checkbox" id="poll-multi" /> 복수선택 허용
+            </label>
+          </div>
+          <button id="add-poll-btn" class="btn btn-primary" style="margin-top:12px">투표 추가</button>
+        </div>
+        <div class="section-header" style="margin-top:24px">
+          <h3>등록된 투표 <span id="poll-count" class="count-badge">0</span></h3>
+        </div>
+        <div id="poll-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Modal -->
+  <div id="results-modal" class="modal-backdrop hidden">
+    <div class="modal modal-wide">
+      <button class="modal-close" id="results-modal-close">✕</button>
+      <div class="modal-header">
+        <h2 id="results-modal-title">결과 보기</h2>
+      </div>
+      <div class="modal-body" id="results-modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore, collection, addDoc, getDocs, doc, deleteDoc,
+      query, orderBy, updateDoc, increment, serverTimestamp, getDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { FIREBASE_CONFIG } from "./firebase-config.js";
+
+    const ADMIN_PASSWORD = "admin1234"; // ← 변경하세요
+
+    const app = initializeApp(FIREBASE_CONFIG);
+    const db = getFirestore(app);
+
+    let activePollSessionId = null;
+
+    const gate = document.getElementById("admin-gate");
+    const main = document.getElementById("admin-main");
+
+    if (sessionStorage.getItem("edu_admin") === "true") {
+      gate.style.display = "none"; main.style.display = "block";
+      document.getElementById("logout-btn").style.display = "block";
+      loadAdminData();
+    }
+
+    document.getElementById("admin-pw-submit").addEventListener("click", () => {
+      if (document.getElementById("admin-pw-input").value === ADMIN_PASSWORD) {
+        sessionStorage.setItem("edu_admin", "true");
+        gate.style.display = "none"; main.style.display = "block";
+        document.getElementById("logout-btn").style.display = "block";
+        loadAdminData();
+      } else {
+        document.getElementById("admin-pw-error").classList.remove("hidden");
+      }
+    });
+    document.getElementById("admin-pw-input").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("admin-pw-submit").click();
+    });
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      sessionStorage.removeItem("edu_admin"); location.reload();
+    });
+
+    async function loadAdminData() {
+      const q = query(collection(db, "sessions"), orderBy("order", "asc"));
+      const snap = await getDocs(q);
+      const sessions = [];
+      snap.forEach(d => sessions.push({ id: d.id, ...d.data() }));
+      document.getElementById("stat-sessions").textContent = sessions.length;
+
+      const list = document.getElementById("admin-session-list");
+      if (!sessions.length) {
+        list.innerHTML = `<div class="empty-state"><p>등록된 차수가 없습니다.</p></div>`;
+        document.getElementById("stat-opinions").textContent = 0;
+        document.getElementById("stat-discusses").textContent = 0;
+        return;
+      }
+
+      let totalOp = 0, totalDis = 0;
+      for (const s of sessions) {
+        const [opSnap, disSnap] = await Promise.all([
+          getDocs(collection(db, "sessions", s.id, "opinions")),
+          getDocs(collection(db, "sessions", s.id, "discuss"))
+        ]);
+        s._op = opSnap.size; s._dis = disSnap.size;
+        totalOp += opSnap.size; totalDis += disSnap.size;
+      }
+      document.getElementById("stat-opinions").textContent = totalOp;
+      document.getElementById("stat-discusses").textContent = totalDis;
+
+      list.innerHTML = sessions.map(s => {
+        const d = s.date?.toDate ? s.date.toDate() : new Date(s.date);
+        return `
+          <div class="admin-session-row">
+            <div class="admin-session-info">
+              <span class="session-badge">${s.order}차</span>
+              <div>
+                <strong>${esc(s.title)}</strong>
+                <p class="muted sm">${d.toLocaleDateString("ko-KR")} · PW: <code>${esc(s.password)}</code> · 의견 ${s._op}개 · 토의 ${s._dis}개</p>
+              </div>
+            </div>
+            <div class="admin-session-actions">
+              <button class="btn btn-sm" onclick="openPollModal('${s.id}','${esc(s.title)}')">투표 관리</button>
+              <button class="btn btn-sm" onclick="openResultsModal('${s.id}','${esc(s.title)}')">결과 보기</button>
+              <button class="btn btn-sm btn-danger" onclick="delSession('${s.id}')">삭제</button>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    document.getElementById("add-session-btn").addEventListener("click", async () => {
+      const order = parseInt(document.getElementById("new-order").value);
+      const title = document.getElementById("new-title").value.trim();
+      const dateVal = document.getElementById("new-date").value;
+      const password = document.getElementById("new-password").value.trim();
+      const desc = document.getElementById("new-desc").value.trim();
+      if (!order || !title || !dateVal || !password) { alert("차수번호, 교육명, 날짜, 비밀번호는 필수입니다."); return; }
+      const btn = document.getElementById("add-session-btn");
+      btn.disabled = true; btn.textContent = "추가 중...";
+      await addDoc(collection(db, "sessions"), {
+        order, title, date: new Date(dateVal), password, description: desc, createdAt: serverTimestamp()
+      });
+      ["new-order","new-title","new-date","new-password","new-desc"].forEach(id => document.getElementById(id).value = "");
+      btn.disabled = false; btn.textContent = "차수 추가";
+      loadAdminData();
+    });
+
+    window.delSession = async (id) => {
+      if (!confirm("이 차수와 모든 데이터를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(db, "sessions", id));
+      loadAdminData();
+    };
+
+    window.openPollModal = async (sessionId, title) => {
+      activePollSessionId = sessionId;
+      document.getElementById("poll-modal-session").textContent = title;
+      document.getElementById("poll-modal").classList.remove("hidden");
+      loadPolls();
+    };
+    document.getElementById("poll-modal-close").addEventListener("click", () =>
+      document.getElementById("poll-modal").classList.add("hidden"));
+
+    document.getElementById("add-option-btn").addEventListener("click", () => {
+      const c = document.getElementById("poll-options-container");
+      const n = c.querySelectorAll(".poll-opt").length + 1;
+      const inp = document.createElement("input");
+      inp.type = "text"; inp.className = "form-input poll-opt"; inp.placeholder = `선택지 ${n}`;
+      c.appendChild(inp);
+    });
+
+    document.getElementById("add-poll-btn").addEventListener("click", async () => {
+      const question = document.getElementById("poll-question").value.trim();
+      const options = [...document.querySelectorAll(".poll-opt")].map(i => i.value.trim()).filter(Boolean);
+      const type = document.getElementById("poll-multi").checked ? "multi" : "single";
+      if (!question || options.length < 2) { alert("질문과 선택지를 2개 이상 입력하세요."); return; }
+      const snap = await getDocs(collection(db, "sessions", activePollSessionId, "polls"));
+      const votes = {};
+      options.forEach((_, i) => votes[i] = 0);
+      await addDoc(collection(db, "sessions", activePollSessionId, "polls"), {
+        question, options, votes, type, order: snap.size + 1, createdAt: serverTimestamp()
+      });
+      document.getElementById("poll-question").value = "";
+      document.querySelectorAll(".poll-opt").forEach(i => i.value = "");
+      loadPolls();
+    });
+
+    async function loadPolls() {
+      const q = query(collection(db, "sessions", activePollSessionId, "polls"), orderBy("order", "asc"));
+      const snap = await getDocs(q);
+      const polls = [];
+      snap.forEach(d => polls.push({ id: d.id, ...d.data() }));
+      document.getElementById("poll-count").textContent = polls.length;
+      const list = document.getElementById("poll-list");
+      if (!polls.length) { list.innerHTML = `<div class="empty-state"><p>등록된 투표가 없습니다.</p></div>`; return; }
+      list.innerHTML = polls.map(p => {
+        const total = Object.values(p.votes || {}).reduce((a, b) => a + b, 0);
+        return `
+          <div class="poll-admin-item">
+            <div class="poll-admin-header">
+              <strong>${esc(p.question)}</strong>
+              <button class="btn btn-sm btn-danger" onclick="delPoll('${p.id}')">삭제</button>
+            </div>
+            <div class="poll-admin-options">
+              ${(p.options||[]).map((opt, i) => {
+                const cnt = (p.votes||{})[i]||0;
+                const pct = total ? Math.round(cnt/total*100) : 0;
+                return `
+                  <div class="result-bar-row">
+                    <span style="min-width:80px">${esc(opt)}</span>
+                    <div class="result-bar-bg"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+                    <span class="muted sm">${cnt}표 (${pct}%)</span>
+                  </div>`;
+              }).join("")}
+            </div>
+            <p class="muted sm">총 ${total}명 참여 · ${p.type === "multi" ? "복수선택" : "단일선택"}</p>
+          </div>`;
+      }).join("");
+    }
+
+    window.delPoll = async (id) => {
+      if (!confirm("이 투표를 삭제하시겠습니까?")) return;
+      await deleteDoc(doc(db, "sessions", activePollSessionId, "polls", id));
+      loadPolls();
+    };
+
+    window.openResultsModal = async (sessionId, title) => {
+      document.getElementById("results-modal-title").textContent = `${title} — 결과`;
+      document.getElementById("results-modal").classList.remove("hidden");
+      const body = document.getElementById("results-modal-body");
+      body.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+      const [opSnap, disSnap, pollSnap] = await Promise.all([
+        getDocs(query(collection(db, "sessions", sessionId, "opinions"), orderBy("createdAt", "asc"))),
+        getDocs(query(collection(db, "sessions", sessionId, "discuss"), orderBy("likes", "desc"))),
+        getDocs(query(collection(db, "sessions", sessionId, "polls"), orderBy("order", "asc")))
+      ]);
+      const opinions = []; opSnap.forEach(d => opinions.push(d.data()));
+      const discusses = []; disSnap.forEach(d => discusses.push(d.data()));
+      const polls = []; pollSnap.forEach(d => polls.push({ id: d.id, ...d.data() }));
+
+      body.innerHTML = `
+        <div class="results-section">
+          <h3>💬 의견 (${opinions.length}개)</h3>
+          ${!opinions.length ? '<p class="muted">없음</p>' : opinions.map(o => `
+            <div class="result-item"><strong>${esc(o.author)}</strong><p>${esc(o.text)}</p></div>`).join("")}
+        </div>
+        <div class="results-section">
+          <h3>🗳️ 투표 결과</h3>
+          ${!polls.length ? '<p class="muted">없음</p>' : polls.map(p => {
+            const total = Object.values(p.votes||{}).reduce((a,b)=>a+b,0);
+            return `
+              <div class="poll-admin-item">
+                <strong>${esc(p.question)}</strong> <span class="muted sm">총 ${total}명</span>
+                ${(p.options||[]).map((opt,i) => {
+                  const cnt=(p.votes||{})[i]||0;
+                  const pct=total?Math.round(cnt/total*100):0;
+                  return `
+                    <div class="result-bar-row">
+                      <span style="min-width:80px">${esc(opt)}</span>
+                      <div class="result-bar-bg"><div class="result-bar-fill" style="width:${pct}%"></div></div>
+                      <span class="muted sm">${cnt}표 (${pct}%)</span>
+                    </div>`;
+                }).join("")}
+              </div>`;
+          }).join("")}
+        </div>
+        <div class="results-section">
+          <h3>🤝 토의 (${discusses.length}개, 좋아요순)</h3>
+          ${!discusses.length ? '<p class="muted">없음</p>' : discusses.map(d => `
+            <div class="result-item">
+              <strong>${esc(d.author)}</strong> <span class="muted sm">❤️ ${d.likes||0}</span>
+              <p>${esc(d.text)}</p>
+            </div>`).join("")}
+        </div>`;
+    };
+    document.getElementById("results-modal-close").addEventListener("click", () =>
+      document.getElementById("results-modal").classList.add("hidden"));
+
+    function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  </script>
+</body>
+</html>
