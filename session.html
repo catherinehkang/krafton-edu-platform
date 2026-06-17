@@ -3,28 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>교육 세션</title>
+  <title>KRAFTON Ways of Working</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <header class="site-header">
     <div class="container">
       <div class="header-inner">
         <a href="index.html" class="back-link">← 목록으로</a>
-        <div class="logo"><span id="session-label">교육 세션</span></div>
+        <div class="logo">
+          <svg width="22" height="22" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+          <span id="session-label">교육 세션</span>
+        </div>
         <span class="header-right" id="participant-info"></span>
       </div>
     </div>
   </header>
 
-  <!-- Name Gate -->
+  <!-- Step 1: 이름 + 팀명 입력 -->
   <div id="name-gate" class="gate-overlay">
     <div class="gate-card">
-      <h2>참여자 이름 입력</h2>
-      <p class="muted" style="margin-bottom:14px">이름 또는 닉네임 (익명 입력 가능)</p>
-      <input type="text" id="name-input" class="form-input" placeholder="예: 홍길동 / 익명" maxlength="20" />
-      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:12px">참여하기</button>
+      <div class="gate-logo">
+        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>KRAFTON Ways of Working</span>
+      </div>
+      <h2>참여자 정보 입력</h2>
+      <p class="muted" style="margin-bottom:20px">이름과 팀명을 입력하고 참여하세요.</p>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <label class="form-label">이름</label>
+          <input type="text" id="name-input" class="form-input" placeholder="예: 홍길동" maxlength="20" />
+        </div>
+        <div>
+          <label class="form-label">팀명</label>
+          <input type="text" id="team-input" class="form-input" placeholder="예: 퍼블리싱팀" maxlength="30" />
+        </div>
+      </div>
+      <button id="name-submit" class="btn btn-primary full-width" style="margin-top:16px">다음 →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Way 조 선택 -->
+  <div id="way-gate" class="gate-overlay hidden">
+    <div class="gate-card" style="max-width:560px">
+      <div class="gate-logo">
+        <svg width="20" height="20" viewBox="0 0 26 26" fill="none"><rect width="26" height="26" rx="7" fill="#C8102E"/><path d="M7 13h12M13 7v12" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>KRAFTON Ways of Working</span>
+      </div>
+      <h2>내 조 선택</h2>
+      <p class="muted" style="margin-bottom:16px">배정받은 Way 조를 선택하세요.</p>
+      <div class="way-grid" id="way-grid"></div>
+      <p id="way-error" class="error-text hidden" style="margin-top:8px">조를 선택해주세요.</p>
+      <button id="way-submit" class="btn btn-primary full-width" style="margin-top:16px">입장하기</button>
     </div>
   </div>
 
@@ -34,66 +65,11 @@
         <h1 id="session-title-main">-</h1>
         <p class="muted" id="session-date-main">-</p>
       </div>
+      <div id="my-way-badge" class="way-badge-large"></div>
     </div>
 
-    <div class="tab-bar">
-      <button class="tab-btn active" data-tab="opinion">💬 의견 작성</button>
-      <button class="tab-btn" data-tab="vote">🗳️ 투표 / 설문</button>
-      <button class="tab-btn" data-tab="discuss">🤝 자유 토의</button>
-    </div>
-
-    <!-- Opinion Tab -->
-    <div id="tab-opinion" class="tab-content active">
-      <div class="card">
-        <h2 class="card-title">소감 / 의견 남기기</h2>
-        <textarea id="opinion-text" class="form-textarea" placeholder="오늘 교육에서 느낀 점, 배운 점, 개선 의견 등을 자유롭게 적어주세요." rows="4" maxlength="500"></textarea>
-        <div class="form-footer">
-          <span id="opinion-char" class="char-count">0 / 500</span>
-          <button id="opinion-submit" class="btn btn-primary">등록하기</button>
-        </div>
-      </div>
-      <div class="section-header">
-        <h3>전체 의견 <span id="opinion-count" class="count-badge">0</span></h3>
-      </div>
-      <div id="opinion-list" class="opinion-list">
-        <div class="loading-state"><div class="spinner"></div></div>
-      </div>
-    </div>
-
-    <!-- Vote Tab -->
-    <div id="tab-vote" class="tab-content">
-      <div class="section-header">
-        <h3>투표 / 설문</h3>
-        <button id="vote-refresh" class="btn btn-sm">↻ 새로고침</button>
-      </div>
-      <div id="vote-list">
-        <div class="loading-state"><div class="spinner"></div></div>
-      </div>
-    </div>
-
-    <!-- Discuss Tab -->
-    <div id="tab-discuss" class="tab-content">
-      <div class="card">
-        <h2 class="card-title">자유 토의</h2>
-        <textarea id="discuss-text" class="form-textarea" placeholder="질문, 의견, 아이디어를 자유롭게 올려주세요." rows="3" maxlength="300"></textarea>
-        <div class="form-footer">
-          <span id="discuss-char" class="char-count">0 / 300</span>
-          <button id="discuss-submit" class="btn btn-primary">올리기</button>
-        </div>
-      </div>
-      <div class="section-header">
-        <h3>토의 내용 <span id="discuss-count" class="count-badge">0</span></h3>
-        <div style="display:flex;gap:6px;align-items:center">
-          <select id="discuss-sort" class="form-select-sm">
-            <option value="new">최신순</option>
-            <option value="likes">좋아요순</option>
-          </select>
-          <button id="discuss-refresh" class="btn btn-sm">↻ 새로고침</button>
-        </div>
-      </div>
-      <div id="discuss-list" class="discuss-list">
-        <div class="loading-state"><div class="spinner"></div></div>
-      </div>
+    <div id="questions-container">
+      <div class="loading-state"><div class="spinner"></div><p>질문을 불러오는 중...</p></div>
     </div>
   </main>
 
@@ -105,6 +81,18 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { FIREBASE_CONFIG } from "./firebase-config.js";
 
+    const WAYS = [
+      { num: 1, label: "도전은 담대하게, 시작은 작고 빠르게" },
+      { num: 2, label: "일의 방향이 다르면 달려도 제자리" },
+      { num: 3, label: "모든 일에는 한 명의 책임자" },
+      { num: 4, label: "충돌은 더 나은 결과를 만드는 기회" },
+      { num: 5, label: "문화는 수평적으로, 업무는 수직적으로" },
+      { num: 6, label: "로컬의 감각으로 글로벌 최적화" },
+      { num: 7, label: "AI는 모든 업무의 최우선 파트너" },
+      { num: 8, label: "자율은 스스로 원칙을 지키는 자세" },
+      { num: 9, label: "주도하거나, 따르거나, 떠나거나" },
+    ];
+
     const app = initializeApp(FIREBASE_CONFIG);
     const db = getFirestore(app);
 
@@ -112,29 +100,64 @@
     const sessionId = params.get("id");
     if (!sessionId) { location.href = "index.html"; }
 
-    let userName = localStorage.getItem(`edu_name_${sessionId}`) || "";
+    const storedName = localStorage.getItem(`edu_name_${sessionId}`);
+    const storedTeam = localStorage.getItem(`edu_team_${sessionId}`);
+    const storedWay = localStorage.getItem(`edu_way_${sessionId}`);
 
-    if (userName) {
-      document.getElementById("name-gate").style.display = "none";
-      document.getElementById("session-main").style.display = "block";
-      document.getElementById("participant-info").textContent = `👤 ${userName}`;
-      init();
+    let userName = storedName || "";
+    let userTeam = storedTeam || "";
+    let userWay = storedWay ? parseInt(storedWay) : null;
+
+    // Build way grid
+    const wayGrid = document.getElementById("way-grid");
+    wayGrid.innerHTML = WAYS.map(w => `
+      <div class="way-card" data-num="${w.num}">
+        <div class="way-num">WAY ${w.num}</div>
+        <div class="way-label">${w.label}</div>
+      </div>`).join("");
+
+    wayGrid.querySelectorAll(".way-card").forEach(card => {
+      card.addEventListener("click", () => {
+        wayGrid.querySelectorAll(".way-card").forEach(c => c.classList.remove("selected"));
+        card.classList.add("selected");
+        userWay = parseInt(card.dataset.num);
+      });
+    });
+
+    // Gate logic
+    if (userName && userTeam && userWay) {
+      showMain();
+    } else if (userName && userTeam) {
+      document.getElementById("name-gate").classList.add("hidden");
+      document.getElementById("way-gate").classList.remove("hidden");
     }
 
     document.getElementById("name-submit").addEventListener("click", () => {
-      const v = document.getElementById("name-input").value.trim() || "익명";
-      userName = v;
-      localStorage.setItem(`edu_name_${sessionId}`, v);
-      document.getElementById("name-gate").style.display = "none";
-      document.getElementById("session-main").style.display = "block";
-      document.getElementById("participant-info").textContent = `👤 ${userName}`;
-      init();
+      const name = document.getElementById("name-input").value.trim();
+      const team = document.getElementById("team-input").value.trim();
+      if (!name || !team) { alert("이름과 팀명을 모두 입력해주세요."); return; }
+      userName = name; userTeam = team;
+      localStorage.setItem(`edu_name_${sessionId}`, name);
+      localStorage.setItem(`edu_team_${sessionId}`, team);
+      document.getElementById("name-gate").classList.add("hidden");
+      document.getElementById("way-gate").classList.remove("hidden");
     });
-    document.getElementById("name-input").addEventListener("keydown", e => {
-      if (e.key === "Enter") document.getElementById("name-submit").click();
+    document.getElementById("name-input").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("team-input").focus(); });
+
+    document.getElementById("way-submit").addEventListener("click", () => {
+      if (!userWay) { document.getElementById("way-error").classList.remove("hidden"); return; }
+      localStorage.setItem(`edu_way_${sessionId}`, userWay);
+      document.getElementById("way-gate").classList.add("hidden");
+      showMain();
     });
 
-    async function init() {
+    async function showMain() {
+      document.getElementById("session-main").style.display = "block";
+      document.getElementById("participant-info").textContent = `👤 ${userName} · ${userTeam}`;
+
+      const way = WAYS.find(w => w.num === userWay);
+      document.getElementById("my-way-badge").textContent = `WAY ${userWay} · ${way?.label || ""}`;
+
       try {
         const snap = await getDoc(doc(db, "sessions", sessionId));
         if (!snap.exists()) { location.href = "index.html"; return; }
@@ -145,185 +168,128 @@
         document.getElementById("session-date-main").textContent =
           d.toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"long" }) +
           " " + d.toLocaleTimeString("ko-KR", { hour:"2-digit", minute:"2-digit" });
-        document.title = `${s.title} | 전사 교육`;
+        document.title = `${s.title} | KRAFTON WoW`;
       } catch(e) { console.error(e); }
 
-      loadOpinions();
-      loadVotes();
-      loadDiscuss();
+      loadQuestions();
     }
 
-    // Tabs
-    document.querySelectorAll(".tab-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
-      });
-    });
+    async function loadQuestions() {
+      const container = document.getElementById("questions-container");
+      const q = query(collection(db, "sessions", sessionId, "questions"), orderBy("order", "asc"));
 
-    // ── OPINIONS ──
-    function loadOpinions() {
-      const q = query(collection(db, "sessions", sessionId, "opinions"), orderBy("createdAt", "desc"));
-      onSnapshot(q, snap => {
-        const items = [];
-        snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-        document.getElementById("opinion-count").textContent = items.length;
-        const list = document.getElementById("opinion-list");
-        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 등록된 의견이 없습니다.</p></div>`; return; }
-        list.innerHTML = items.map(item => `
-          <div class="opinion-item">
-            <div class="opinion-header">
-              <span class="author">${esc(item.author)}</span>
-              <span class="timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
-            </div>
-            <p class="opinion-body">${esc(item.text)}</p>
-          </div>`).join("");
-      });
-    }
+      onSnapshot(q, async (snap) => {
+        const questions = [];
+        snap.forEach(d => questions.push({ id: d.id, ...d.data() }));
 
-    const opTA = document.getElementById("opinion-text");
-    opTA.addEventListener("input", () => document.getElementById("opinion-char").textContent = `${opTA.value.length} / 500`);
-    document.getElementById("opinion-submit").addEventListener("click", async () => {
-      const text = opTA.value.trim();
-      if (!text) return;
-      const btn = document.getElementById("opinion-submit");
-      btn.disabled = true; btn.textContent = "등록 중...";
-      try {
-        await addDoc(collection(db, "sessions", sessionId, "opinions"), { author: userName, text, createdAt: serverTimestamp() });
-        opTA.value = "";
-        document.getElementById("opinion-char").textContent = "0 / 500";
-      } catch(e) { alert(e.message); }
-      btn.disabled = false; btn.textContent = "등록하기";
-    });
-
-    // ── VOTES ──
-    async function loadVotes() {
-      const container = document.getElementById("vote-list");
-      container.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
-      try {
-        const q = query(collection(db, "sessions", sessionId, "polls"), orderBy("order", "asc"));
-        const snap = await getDocs(q);
-        const polls = [];
-        snap.forEach(d => polls.push({ id: d.id, ...d.data() }));
-
-        if (!polls.length) {
-          container.innerHTML = `<div class="empty-state"><p>등록된 투표/설문이 없습니다.<br>관리자가 추가하면 여기서 참여할 수 있습니다.</p></div>`;
+        if (!questions.length) {
+          container.innerHTML = `<div class="empty-state"><p>아직 등록된 질문이 없습니다.<br>관리자가 질문을 추가하면 여기에 표시됩니다.</p></div>`;
           return;
         }
 
-        container.innerHTML = polls.map(poll => {
-          const myVoteKey = `vote_${sessionId}_${poll.id}`;
-          const myVote = localStorage.getItem(myVoteKey);
-          const total = Object.values(poll.votes || {}).reduce((a, b) => a + b, 0);
-          return `
-            <div class="card poll-card" id="poll-${poll.id}">
-              <div class="poll-type-badge">${poll.type === "multi" ? "복수선택" : "단일선택"}</div>
-              <h2 class="card-title">${esc(poll.question)}</h2>
-              <div class="poll-options" data-poll="${poll.id}" data-type="${poll.type}">
-                ${(poll.options || []).map((opt, i) => {
-                  const cnt = (poll.votes || {})[i] || 0;
-                  const pct = total ? Math.round(cnt / total * 100) : 0;
-                  const sel = myVote && myVote.split(",").includes(String(i));
-                  return `
-                    <div class="poll-option ${sel?"selected":""} ${myVote?"voted":""}" data-idx="${i}">
-                      <div class="poll-option-top">
-                        <span class="poll-option-label">${esc(opt)}</span>
-                        ${myVote ? `<span class="poll-pct">${pct}%</span>` : ""}
-                      </div>
-                      ${myVote ? `<div class="poll-bar"><div class="poll-bar-fill" style="width:${pct}%"></div></div>
-                      <span class="poll-votes-count">${cnt}명</span>` : ""}
-                    </div>`;
-                }).join("")}
+        container.innerHTML = "";
+        for (const q of questions) {
+          const block = document.createElement("div");
+          block.className = "question-block";
+          block.id = `q-${q.id}`;
+          block.innerHTML = `
+            <div class="question-label">Q${q.order}</div>
+            <div class="question-text">${esc(q.text)}</div>
+            <div class="answer-write">
+              <textarea class="form-textarea answer-ta" data-qid="${q.id}" placeholder="WAY ${userWay} 조의 의견을 작성해주세요..." rows="3" maxlength="500"></textarea>
+              <div class="form-footer" style="margin-top:8px">
+                <span class="char-count answer-char" data-qid="${q.id}">0 / 500</span>
+                <button class="btn btn-primary answer-submit" data-qid="${q.id}">의견 등록</button>
               </div>
-              ${!myVote
-                ? `<button class="btn btn-primary poll-vote-btn" data-poll="${poll.id}">투표하기</button>`
-                : `<p class="voted-notice">✓ 투표 완료 (총 ${total}명 참여)</p>`}
+            </div>
+            <div class="section-header" style="margin-top:16px">
+              <h3>WAY ${userWay} 조 의견 <span class="count-badge answer-count-${q.id}">0</span></h3>
+            </div>
+            <div class="answer-list" id="answers-${q.id}">
+              <div class="loading-state"><div class="spinner"></div></div>
             </div>`;
-        }).join("");
+          container.appendChild(block);
 
-        document.querySelectorAll(".poll-option:not(.voted)").forEach(opt => {
-          opt.addEventListener("click", () => {
-            const wrap = opt.closest(".poll-options");
-            if (wrap.dataset.type === "single") wrap.querySelectorAll(".poll-option").forEach(o => o.classList.remove("selected"));
-            opt.classList.toggle("selected");
+          // char count
+          block.querySelector(".answer-ta").addEventListener("input", function() {
+            block.querySelector(`.answer-char`).textContent = `${this.value.length} / 500`;
           });
-        });
 
-        document.querySelectorAll(".poll-vote-btn").forEach(btn => {
-          btn.addEventListener("click", async () => {
-            const pollId = btn.dataset.poll;
-            const wrap = document.querySelector(`.poll-options[data-poll="${pollId}"]`);
-            const selected = [...wrap.querySelectorAll(".poll-option.selected")].map(o => Number(o.dataset.idx));
-            if (!selected.length) { alert("선택지를 선택해주세요."); return; }
-            btn.disabled = true; btn.textContent = "제출 중...";
-            const updates = {};
-            selected.forEach(i => { updates[`votes.${i}`] = increment(1); });
-            await updateDoc(doc(db, "sessions", sessionId, "polls", pollId), updates);
-            localStorage.setItem(`vote_${sessionId}_${pollId}`, selected.join(","));
-            loadVotes();
+          // submit
+          block.querySelector(".answer-submit").addEventListener("click", async () => {
+            const ta = block.querySelector(".answer-ta");
+            const text = ta.value.trim();
+            if (!text) return;
+            const btn = block.querySelector(".answer-submit");
+            btn.disabled = true; btn.textContent = "등록 중...";
+            await addDoc(collection(db, "sessions", sessionId, "questions", q.id, "answers"), {
+              author: userName, team: userTeam, wayNum: userWay,
+              text, likes: 0, createdAt: serverTimestamp()
+            });
+            ta.value = "";
+            block.querySelector(".answer-char").textContent = "0 / 500";
+            btn.disabled = false; btn.textContent = "의견 등록";
           });
-        });
-      } catch(e) { container.innerHTML = `<div class="empty-state error"><p>${e.message}</p></div>`; }
+
+          // load answers for this way
+          loadAnswers(q.id, userWay);
+        }
+      });
     }
-    document.getElementById("vote-refresh").addEventListener("click", loadVotes);
 
-    // ── DISCUSS ──
-    let discussSort = "new";
-    function loadDiscuss() {
-      const sortField = discussSort === "likes" ? "likes" : "createdAt";
-      const q = query(collection(db, "sessions", sessionId, "discuss"), orderBy(sortField, "desc"));
+    function loadAnswers(questionId, wayNum) {
+      const q = query(
+        collection(db, "sessions", sessionId, "questions", questionId, "answers"),
+        orderBy("likes", "desc")
+      );
       onSnapshot(q, snap => {
-        const items = [];
-        snap.forEach(d => items.push({ id: d.id, ...d.data() }));
-        document.getElementById("discuss-count").textContent = items.length;
-        const list = document.getElementById("discuss-list");
-        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 토의 내용이 없습니다.</p></div>`; return; }
-        list.innerHTML = items.map(item => {
-          const liked = localStorage.getItem(`like_${sessionId}_${item.id}`) === "1";
+        const all = [];
+        snap.forEach(d => all.push({ id: d.id, ...d.data() }));
+        // 내 조만 표시
+        const items = all.filter(a => a.wayNum === wayNum);
+        const countEl = document.querySelector(`.answer-count-${questionId}`);
+        if (countEl) countEl.textContent = items.length;
+        const list = document.getElementById(`answers-${questionId}`);
+        if (!list) return;
+        if (!items.length) { list.innerHTML = `<div class="empty-state"><p>아직 작성된 의견이 없습니다. 첫 번째로 남겨보세요!</p></div>`; return; }
+        const maxLikes = Math.max(...items.map(i => i.likes || 0));
+        list.innerHTML = items.map((item, idx) => {
+          const likedKey = `like_${sessionId}_${questionId}_${item.id}`;
+          const liked = localStorage.getItem(likedKey) === "1";
+          const isTop = item.likes > 0 && item.likes === maxLikes;
           return `
-            <div class="discuss-item">
-              <div class="opinion-header">
-                <span class="author">${esc(item.author)}</span>
-                <span class="timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
+            <div class="answer-item ${isTop ? "top-answer" : ""}">
+              <div class="answer-header">
+                <div>
+                  <span class="answer-author">${esc(item.author)}</span>
+                  <span class="answer-team">${esc(item.team)}</span>
+                  ${isTop ? `<span class="top-badge" style="margin-left:6px">👑 대표 의견</span>` : ""}
+                </div>
+                <span class="answer-timestamp">${relTime(item.createdAt?.toDate ? item.createdAt.toDate() : new Date())}</span>
               </div>
-              <p class="opinion-body">${esc(item.text)}</p>
-              <div class="discuss-footer">
-                <button class="like-btn ${liked?"liked":""}" data-id="${item.id}" data-liked="${liked}">
+              <p class="answer-body">${esc(item.text)}</p>
+              <div class="answer-footer">
+                <button class="like-btn ${liked?"liked":""}" data-qid="${questionId}" data-id="${item.id}" data-liked="${liked}">
                   ${liked?"❤️":"🤍"} ${item.likes || 0}
                 </button>
               </div>
             </div>`;
         }).join("");
 
-        document.querySelectorAll(".like-btn").forEach(btn => {
+        list.querySelectorAll(".like-btn").forEach(btn => {
           btn.addEventListener("click", async () => {
             if (btn.dataset.liked === "true") return;
-            localStorage.setItem(`like_${sessionId}_${btn.dataset.id}`, "1");
-            await updateDoc(doc(db, "sessions", sessionId, "discuss", btn.dataset.id), { likes: increment(1) });
+            const likedKey = `like_${sessionId}_${btn.dataset.qid}_${btn.dataset.id}`;
+            localStorage.setItem(likedKey, "1");
+            btn.dataset.liked = "true";
+            await updateDoc(
+              doc(db, "sessions", sessionId, "questions", btn.dataset.qid, "answers", btn.dataset.id),
+              { likes: increment(1) }
+            );
           });
         });
       });
     }
-
-    document.getElementById("discuss-sort").addEventListener("change", e => { discussSort = e.target.value; loadDiscuss(); });
-    document.getElementById("discuss-refresh").addEventListener("click", loadDiscuss);
-
-    const disTA = document.getElementById("discuss-text");
-    disTA.addEventListener("input", () => document.getElementById("discuss-char").textContent = `${disTA.value.length} / 300`);
-    document.getElementById("discuss-submit").addEventListener("click", async () => {
-      const text = disTA.value.trim();
-      if (!text) return;
-      const btn = document.getElementById("discuss-submit");
-      btn.disabled = true; btn.textContent = "올리는 중...";
-      try {
-        await addDoc(collection(db, "sessions", sessionId, "discuss"), { author: userName, text, likes: 0, createdAt: serverTimestamp() });
-        disTA.value = "";
-        document.getElementById("discuss-char").textContent = "0 / 300";
-      } catch(e) { alert(e.message); }
-      btn.disabled = false; btn.textContent = "올리기";
-    });
 
     function esc(s) { return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
     function relTime(date) {
